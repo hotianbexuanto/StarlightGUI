@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="StarlightGUI.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    Background="{StaticResource WindowBackgroundBrush}">
+
+    <Grid Padding="20">
+        <StackPanel>
+            <Grid Padding="10" HorizontalAlignment="Left">
+                <TextBlock Text="功能" FontWeight="Bold" FontSize="14"/>
+            </Grid>
+            <Button HorizontalAlignment="Center" Margin="0,0,0,5">
+                <Grid Padding="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="850"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xe7ef;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                        <StackPanel Margin="15,0,0,0">
+                            <TextBlock Text="启用完整特权" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock Text="在Elevator功能中启动的程序将获得所有SE特权" FontSize="12" Foreground="LightGray"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ToggleSwitch x:Name="FullPrivilegesButton" Toggled="FullPrivilegesButton_Toggled" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,-80,0"/>
+                </Grid>
+            </Button>
+            <Button HorizontalAlignment="Center" Margin="0,0,0,5">
+                <Grid Padding="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="850"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xeb19;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                        <StackPanel Margin="15,0,0,0">
+                            <TextBlock Text="绕过签名验证" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock Text="在Driver Loader功能中将使用漏洞绕过系统对驱动文件的签名验证" FontSize="12" Foreground="LightGray"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ToggleSwitch x:Name="BypassSignatureButton" Toggled="BypassSignatureButton_Toggled" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,-80,0"/>
+                </Grid>
+            </Button>
+
+            <Grid Padding="10" HorizontalAlignment="Left">
+                <TextBlock Text="外观" FontWeight="Bold" FontSize="14"/>
+            </Grid>
+            <Button HorizontalAlignment="Center" Margin="0,0,0,5">
+                <Grid Padding="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="850"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xef1f;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                        <StackPanel Margin="15,0,0,0">
+                            <TextBlock Text="背景" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock Text="应用的背景颜色类型" FontSize="12" Foreground="LightGray"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ComboBox x:Name="BackgroundComboBox" Grid.Column="1" HorizontalAlignment="Right" SelectionChanged="BackgroundComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Static" />
+                        <ComboBoxItem Content="Mica" />
+                        <ComboBoxItem Content="Acrylic" />
+                    </ComboBox>
+                </Grid>
+            </Button>
+
+            <Grid Padding="10">
+                <TextBlock Text="消息" FontWeight="Bold" FontSize="14"/>
+            </Grid>
+            <Button HorizontalAlignment="Center" Margin="0,0,0,5">
+                <Grid Padding="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="850"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xe7ba;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                        <StackPanel Margin="15,0,0,0">
+                            <TextBlock Text="危险提示" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock Text="在运行危险操作前先进行确认" FontSize="12" Foreground="LightGray"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ToggleSwitch x:Name="DangerousConfirmButton" Toggled="DangerousConfirmButton_Toggled" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,-80,0"/>
+                </Grid>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Page>

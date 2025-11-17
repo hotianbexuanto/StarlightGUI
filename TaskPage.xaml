@@ -1,0 +1,168 @@
+<Page
+    x:Class="StarlightGUI.TaskPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:StarlightGUI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{StaticResource WindowBackgroundBrush}">
+
+    <Grid>
+        <ScrollViewer>
+            <Grid x:Name="RootGrid" Padding="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 进程列表区域 -->
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 进程列表标题和刷新按钮 -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,0,0,10">
+                        <TextBlock Text="任务管理器" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Button x:Name="RefreshProcessListButton" 
+                            Content="刷新" 
+                            Margin="20,0,0,0" 
+                            Click="RefreshProcessListButton_Click"
+                            Padding="12,6"
+                            VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ProcessCountText" 
+                               Text="正在加载..." 
+                               Margin="20,0,0,0" 
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
+                        <RichEditBox x:Name="ProcessSearchBox" HorizontalAlignment="Right" Width="200" PlaceholderText="搜索进程..."/>
+                    </StackPanel>
+
+                    <!-- ListView，包含列标题和数据 -->
+                    <ListView x:Name="ProcessListView"
+                              Grid.Row="1"
+                              Background="Transparent"
+                              CornerRadius="3"
+                              BorderThickness="1"
+                              BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                              RightTapped="ProcessListView_RightTapped">
+
+                        <!-- 列标题 -->
+                        <ListView.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="NameHeaderButton" Grid.Column="0" Height="30" Content="进程" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Name"/>
+                                <Button x:Name="CpuHeaderButton" Grid.Column="1" Height="30" Content="CPU" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="CpuUsage"/>
+                                <Button x:Name="MemoryHeaderButton" Grid.Column="2" Height="30" Content="内存" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="MemoryUsage"/>
+                                <Button x:Name="IdHeaderButton" Grid.Column="3" Height="30" Content="PID" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Id"/>
+                                <Border Grid.Column="1"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+                                <Border Grid.Column="2"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+                                <Border Grid.Column="3"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+                            </Grid>
+                        </ListView.Header>
+
+                        <!-- 进程数据 -->
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Height="50">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="60"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 进程图标 -->
+                                    <Image Grid.Column="0" 
+                                       Source="{Binding Icon}" 
+                                       Width="16" 
+                                       Height="16" 
+                                       Margin="0,0,16,0"
+                                       VerticalAlignment="Center"/>
+
+                                    <!-- 进程名 -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" 
+                                               FontSize="14" 
+                                               Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"/>
+                                        <TextBlock Text="{Binding Description}" 
+                                               FontSize="12" 
+                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
+                                    </StackPanel>
+
+                                    <!-- CPU -->
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding CpuUsage}" 
+                                               FontSize="12" 
+                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="-71,0,0,0"/>
+
+                                    <!-- 内存使用 -->
+                                    <TextBlock Grid.Column="3" 
+                                               Text="{Binding MemoryUsage}" 
+                                               FontSize="12" 
+                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="-35,0,0,0"/>
+                                    
+                                    <!-- 进程ID -->
+                                    <TextBlock Grid.Column="4"
+                                               Text="{Binding Id}" 
+                                               FontSize="12" 
+                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="3,0,0,0"/>
+
+                                    <Border Grid.Column="2"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" 
+                                            Margin="-48,0,0,0"/>
+                                    <Border Grid.Column="3"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" 
+                                            Margin="-28,0,0,0"/>
+                                    <Border Grid.Column="4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" 
+                                            Margin="-8,0,0,0"/>
+
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+        <StackPanel Width="1100" x:Name="InfoBarPanel" Margin="0,10,0,0"/>
+    </Grid>
+</Page>
