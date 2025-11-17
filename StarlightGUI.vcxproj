@@ -227,11 +227,6 @@
     <Midl Include="Utils\ProcessInfo.idl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="readme.txt">
-      <DeploymentContent>false</DeploymentContent>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="Assets\BadgeLogo.scale-100.png" />
     <Image Include="Assets\BadgeLogo.scale-125.png" />
     <Image Include="Assets\BadgeLogo.scale-150.png" />

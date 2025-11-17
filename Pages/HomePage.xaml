@@ -135,6 +135,12 @@
                             <TextBlock Text="  开发者：" FontSize="14" Foreground="LightGray"/>
                             <TextBlock Text="{StaticResource Author}" FontSize="14" Foreground="LightGray"/>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xe71b;" FontSize="14" Foreground="Gray"/>
+                            <TextBlock Text="  开源仓库：https://github.com/RinoRika/StarlightGUI" FontSize="14" Foreground="LightGray"/>
+                        </StackPanel>
+                        <TextBlock Text="Apache 2.0 License | OSI Certified | Copyright © 2025 Starlight. All rights reserved."
+                               FontSize="14" Foreground="LightGray" VerticalAlignment="Bottom" HorizontalAlignment="Center" Padding="0,10,0,0"/>
                     </StackPanel>
                 </Grid>
             </Button>
