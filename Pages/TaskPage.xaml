@@ -49,7 +49,7 @@
                         <RichEditBox Grid.Column="4"
                                      x:Name="ProcessSearchBox" 
                                      HorizontalAlignment="Center" Width="300" 
-                                     PlaceholderText="搜索进程或描述..."
+                                     PlaceholderText="搜索进程..."
                                      TextChanged="ProcessSearchBox_TextChanged"/>
                     </Grid>
 

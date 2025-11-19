@@ -2,6 +2,7 @@
 
 #include "TaskPage.g.h"
 #include <map>
+#include <TlHelp32.h>
 
 namespace winrt::StarlightGUI::implementation
 {
@@ -19,10 +20,13 @@ namespace winrt::StarlightGUI::implementation
         void ApplySort(bool& isAscending, const std::string& column);
 
         winrt::fire_and_forget ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-		void ApplyFilter(std::vector<winrt::StarlightGUI::ProcessInfo>& processes, hstring& query);
+        winrt::Windows::Foundation::IAsyncOperation<bool> ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query);
 
         // 进程列表相关方法
         winrt::Windows::Foundation::IAsyncAction LoadProcessList();
+        winrt::Windows::Foundation::IAsyncAction GetProcessInfoAsync(const PROCESSENTRY32W& pe32, std::vector<winrt::StarlightGUI::ProcessInfo>& processes);
+        winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process);
+
         winrt::hstring FormatMemorySize(uint64_t bytes);
 
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::ProcessInfo> m_processList{

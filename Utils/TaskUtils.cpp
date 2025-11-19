@@ -4,48 +4,10 @@
 #include "TlHelp32.h"
 #include "KernelBase.h"
 #include "shellapi.h"
-#include "winternl.h"
 #include "Psapi.h"
 
-typedef struct MY_SYSTEM_PROCESS_INFORMATION {
-	ULONG NextEntryOffset;
-	ULONG NumberOfThreads;
-	LARGE_INTEGER WorkingSetPrivateSize;
-	ULONG HardFaultCount;
-	ULONG NumberOfThreadsHighWatermark;
-	ULONGLONG CycleTime;
-	LARGE_INTEGER CreateTime;
-	LARGE_INTEGER UserTime;
-	LARGE_INTEGER KernelTime;
-	UNICODE_STRING ImageName;
-	KPRIORITY BasePriority;
-	HANDLE UniqueProcessId;
-	HANDLE InheritedFromUniqueProcessId;
-	ULONG HandleCount;
-	ULONG SessionId;
-	ULONG_PTR UniqueProcessKey;
-	SIZE_T PeakVirtualSize;
-	SIZE_T VirtualSize;
-	ULONG PageFaultCount;
-	SIZE_T PeakWorkingSetSize;
-	SIZE_T WorkingSetSize;
-	SIZE_T QuotaPeakPagedPoolUsage;
-	SIZE_T QuotaPagedPoolUsage;
-	SIZE_T QuotaPeakNonPagedPoolUsage;
-	SIZE_T QuotaNonPagedPoolUsage;
-	SIZE_T PagefileUsage;
-	SIZE_T PeakPagefileUsage;
-	SIZE_T PrivatePageCount;
-	LARGE_INTEGER ReadOperationCount;
-	LARGE_INTEGER WriteOperationCount;
-	LARGE_INTEGER OtherOperationCount;
-	LARGE_INTEGER ReadTransferCount;
-	LARGE_INTEGER WriteTransferCount;
-	LARGE_INTEGER OtherTransferCount;
-} MY_SYSTEM_PROCESS_INFORMATION, * MY_PSYSTEM_PROCESS_INFORMATION;
 typedef BOOL(WINAPI* P_EndTask)(HWND hwnd, BOOL fShutdown, BOOL fForce);
 typedef NTSTATUS(NTAPI* P_NtQuerySystemInformation)(_SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
-
 
 P_EndTask _EndTask{ nullptr };
 P_NtQuerySystemInformation _NtQuerySystemInformation{ nullptr };
@@ -199,10 +161,15 @@ namespace winrt::StarlightGUI::implementation {
 	/*
 	* 获取进程CPU占用
 	*/
-	void TaskUtils::FetchProcessCpuUsage(std::map<DWORD, hstring>& processCpuTable) {
-		HMODULE hNtdll = LoadLibrary(L"ntdll.dll");
+	winrt::Windows::Foundation::IAsyncAction TaskUtils::FetchProcessCpuUsage(std::map<DWORD, hstring>& processCpuTable) {
+		co_await winrt::resume_background();
 
-		if (!_NtQuerySystemInformation) _NtQuerySystemInformation = (P_NtQuerySystemInformation)GetProcAddress(hNtdll, "NtQuerySystemInformation");
+		if (!_NtQuerySystemInformation) {
+			HMODULE hNtdll = LoadLibraryW(L"ntdll.dll");
+			_NtQuerySystemInformation = (P_NtQuerySystemInformation)GetProcAddress(hNtdll, "NtQuerySystemInformation");
+		}
+
+		if (!_NtQuerySystemInformation) co_return; // Check again to ensure safety
 
 		ULONG len = 0;
 		std::vector<BYTE> buffer(0x10000);
@@ -213,22 +180,30 @@ namespace winrt::StarlightGUI::implementation {
 			status = _NtQuerySystemInformation(SystemProcessInformation, buffer.data(), len, &len);
 		}
 
-		if (!NT_SUCCESS(status)) return;
+		if (!NT_SUCCESS(status)) co_return;
 
-		// Loop through the processes and find the one with the specified PID
-		MY_PSYSTEM_PROCESS_INFORMATION spi = (MY_PSYSTEM_PROCESS_INFORMATION)buffer.data();
+		// Loop through the processes and fill the map with PID and CPU usage
+		PMY_SYSTEM_PROCESS_INFORMATION spi = (PMY_SYSTEM_PROCESS_INFORMATION)buffer.data();
 		while (spi) {
-			LONGLONG cpuUsage = spi->KernelTime.QuadPart;
-			if (cpuUsage > 0) {
-				processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = to_hstring(std::round(cpuUsage / 1000000000.0) / 10.0) + L"%";
-			}
-			else processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = L"0%";
+			co_await TaskUtils::ReadSPIAsync(spi, processCpuTable);
+
 			if (spi->NextEntryOffset == 0)
 				break;
-			spi = (MY_PSYSTEM_PROCESS_INFORMATION)((BYTE*)spi + spi->NextEntryOffset);
+			spi = (PMY_SYSTEM_PROCESS_INFORMATION)((BYTE*)spi + spi->NextEntryOffset);
 		}
 
-		return;
+		co_return;
+	}
+
+	winrt::Windows::Foundation::IAsyncAction TaskUtils::ReadSPIAsync(PMY_SYSTEM_PROCESS_INFORMATION& spi, std::map<DWORD, hstring>& processCpuTable) {
+		// Loop through the processes and fill the map with PID and CPU usage
+		LONGLONG cpuUsage = spi->KernelTime.QuadPart;
+		if (cpuUsage > 0) {
+			processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = to_hstring(std::round(cpuUsage / 1000000000.0) / 10.0) + L"%";
+		}
+		else processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = L"0%";
+
+		co_return;
 	}
 
 	/*
