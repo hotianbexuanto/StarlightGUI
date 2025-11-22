@@ -23,7 +23,9 @@ using namespace Microsoft::UI::Composition::SystemBackdrops;
 
 namespace winrt::StarlightGUI::implementation
 {
-    static MainWindow* g_mainWindowInstance = nullptr;
+    MainWindow* g_mainWindowInstance = nullptr;
+    winrt::Microsoft::UI::Xaml::Media::MicaBackdrop micaBackdrop = nullptr;
+    winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop acrylicBackdrop = nullptr;
     static std::string background_type;
 
     MainWindow::MainWindow()
@@ -65,13 +67,13 @@ namespace winrt::StarlightGUI::implementation
     {
         background_type = ReadConfig("background_type", "Static");
 
-        if (background_type == "Mica" && MicaController::IsSupported()) {
+        if (background_type == "Mica") {
             micaBackdrop = winrt::Microsoft::UI::Xaml::Media::MicaBackdrop();
             micaBackdrop.Kind(MicaKind::BaseAlt);
 
             this->SystemBackdrop(micaBackdrop);
         }
-        else if (background_type == "Acrylic" && DesktopAcrylicController::IsSupported()) {
+        else if (background_type == "Acrylic") {
             acrylicBackdrop = winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop();
             
             this->SystemBackdrop(acrylicBackdrop);
@@ -146,13 +148,17 @@ namespace winrt::StarlightGUI::implementation
             MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         }
-        else if (invokedItem == L"进程管理") {
+        else if (invokedItem == L"任务管理") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::TaskPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
         }
         else if (invokedItem == L"系统管理") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::ProcessPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
+        }
+        else if (invokedItem == L"帮助") {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::HelpPage>());
+            RootNavigation().SelectedItem(RootNavigation().FooterMenuItems().GetAt(0));
         }
     }
 

@@ -1,7 +1,7 @@
 #include "pch.h"
-#include <Utils/Utils.h>
-#include <winternl.h>
-#include <Psapi.h>
+#include "Utils/Utils.h"
+#include "winternl.h"
+#include "Psapi.h"
 #include "KernelBase.h"
 
 namespace winrt::StarlightGUI::implementation {
@@ -27,6 +27,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		return 0;
 	}
+
 	ULONG64 KernelBase::HackCI() {
 		HMODULE hModule = LoadLibraryExW(L"C:\\Windows\\System32\\ci.dll", NULL, DONT_RESOLVE_DLL_REFERENCES);
 		if (!hModule) return 0;

@@ -5,35 +5,38 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainWindow.xaml" />
-    <Page Include="Pages\HomePage.xaml">
+    <Page Include="HomePage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="Pages\ProcessPage.xaml">
+    <Page Include="ProcessPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="Pages\SettingsPage.xaml">
+    <Page Include="SettingsPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="Pages\TaskPage.xaml">
+    <Page Include="TaskPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="HelpPage.xaml">
       <Filter>Pages</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
-    <Midl Include="Pages\HomePage.idl">
-      <Filter>Pages</Filter>
-    </Midl>
-    <Midl Include="Pages\ProcessPage.idl">
-      <Filter>Pages</Filter>
-    </Midl>
-    <Midl Include="Pages\SettingsPage.idl">
-      <Filter>Pages</Filter>
-    </Midl>
-    <Midl Include="Pages\TaskPage.idl">
-      <Filter>Pages</Filter>
-    </Midl>
     <Midl Include="Utils\ProcessInfo.idl">
       <Filter>Utils</Filter>
+    </Midl>
+    <Midl Include="HomePage.idl">
+      <Filter>Pages</Filter>
+    </Midl>
+    <Midl Include="ProcessPage.idl">
+      <Filter>Pages</Filter>
+    </Midl>
+    <Midl Include="SettingsPage.idl">
+      <Filter>Pages</Filter>
+    </Midl>
+    <Midl Include="TaskPage.idl">
+      <Filter>Pages</Filter>
     </Midl>
   </ItemGroup>
   <ItemGroup>
@@ -255,6 +258,9 @@
       <Filter>Assets</Filter>
     </Image>
     <Image Include="Assets\BadgeLogo.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Starlight.png">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>

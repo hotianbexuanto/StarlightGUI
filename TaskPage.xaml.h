@@ -12,6 +12,8 @@ namespace winrt::StarlightGUI::implementation
 
         ~TaskPage();
 
+        void StartLoop();
+
         void RefreshProcessListButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void ProcessListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
         void OnNavigatedFrom(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e);
@@ -38,9 +40,8 @@ namespace winrt::StarlightGUI::implementation
         };
 
         bool m_isLoadingProcesses{ false };
-        winrt::Microsoft::UI::Xaml::DispatcherTimer m_refreshTimer;
-
-        const int refreshInterval = 5;
+        winrt::Microsoft::UI::Xaml::DispatcherTimer defaultRefreshTimer;
+        winrt::Microsoft::UI::Xaml::DispatcherTimer cacheClearTimer;
 
         inline static bool TaskPage::m_isNameAscending = true;
         inline static bool TaskPage::m_isCpuAscending = true;

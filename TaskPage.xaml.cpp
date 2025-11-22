@@ -55,14 +55,29 @@ namespace winrt::StarlightGUI::implementation
         hdc = GetDC(NULL);
 
         this->Loaded([this](auto&&, auto&&) {
-            LoadProcessList();
+            StartLoop();
+			});
+    }
 
-            m_refreshTimer.Interval(std::chrono::seconds(refreshInterval));
-            m_refreshTimer.Tick([this](auto&&, auto&&) {
-                LoadProcessList();
-                });
-            m_refreshTimer.Start();
+    void TaskPage::StartLoop() {
+        // 加载一次列表
+        LoadProcessList();
+
+        // 每5秒刷新一次列表
+        defaultRefreshTimer.Interval(std::chrono::seconds(5));
+        defaultRefreshTimer.Tick([this](auto&&, auto&&) {
+            LoadProcessList();
             });
+        defaultRefreshTimer.Start();
+
+        // 每100秒清除一次缓存
+        // 新进程产生相同PID的情况概率很小，所以这个间隔可以大一点
+        cacheClearTimer.Interval(std::chrono::seconds(100));
+        cacheClearTimer.Tick([this](auto&&, auto&&) {
+            iconCache.clear();
+            descriptionCache.clear();
+            });
+        cacheClearTimer.Start();
     }
 
     void TaskPage::ProcessListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -298,7 +313,7 @@ namespace winrt::StarlightGUI::implementation
 			// 从缓存加载图标，没有则获取
             co_await GetProcessIconAsync(process);
 
-            if (processCpuTable.find((DWORD)process.Id()) == processCpuTable.end()) process.CpuUsage(L"未知");
+            if (processCpuTable.find((DWORD)process.Id()) == processCpuTable.end()) process.CpuUsage(L"0%");
             else process.CpuUsage(processCpuTable[(DWORD)process.Id()]);
 
             if (selectedItem == process.Id()) selectedProcess = process;
@@ -475,7 +490,6 @@ namespace winrt::StarlightGUI::implementation
         Button clickedButton = sender.as<Button>();
         winrt::hstring columnName = clickedButton.Tag().as<winrt::hstring>();
 
-        // Reset all first
         if (columnName == L"Name")
         {
             ApplySort(m_isNameAscending, "Name");
@@ -643,12 +657,14 @@ namespace winrt::StarlightGUI::implementation
 
     void TaskPage::OnNavigatedFrom(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e)
     {
-        m_refreshTimer.Stop();
+        defaultRefreshTimer.Stop();
+        cacheClearTimer.Stop();
         ReleaseDC(NULL, hdc);
     }
 
     TaskPage::~TaskPage() {
-        m_refreshTimer.Stop();
+        defaultRefreshTimer.Stop();
+        cacheClearTimer.Stop();
         ReleaseDC(NULL, hdc);
     }
 

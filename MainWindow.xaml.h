@@ -7,6 +7,9 @@
 
 namespace winrt::StarlightGUI::implementation
 {
+    extern winrt::Microsoft::UI::Xaml::Media::MicaBackdrop micaBackdrop;
+    extern winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop acrylicBackdrop;
+
     struct MainWindow : MainWindowT<MainWindow>
     {
         MainWindow();
@@ -29,8 +32,6 @@ namespace winrt::StarlightGUI::implementation
 
         // 背景
         void LoadBackdrop();
-        winrt::Microsoft::UI::Xaml::Media::MicaBackdrop micaBackdrop{ nullptr };
-        winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop acrylicBackdrop{ nullptr };
 
         // 窗口消息处理
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
@@ -40,6 +41,8 @@ namespace winrt::StarlightGUI::implementation
             return MaximizeButton().Content().as<winrt::Microsoft::UI::Xaml::Controls::TextBlock>();
         }
     };
+
+    extern MainWindow* g_mainWindowInstance;
 }
 
 namespace winrt::StarlightGUI::factory_implementation

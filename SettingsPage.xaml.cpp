@@ -4,6 +4,7 @@
 #if __has_include("SettingsPage.g.cpp")
 #include "SettingsPage.g.cpp"
 #endif
+#include "MainWindow.xaml.h"
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -11,6 +12,7 @@ using namespace Microsoft::UI::Xaml::Controls;
 
 namespace winrt::StarlightGUI::implementation
 {
+    static bool loaded;
     static std::string background_type;
     static bool dangerous_confirm;
     static bool elevator_full_privileges;
@@ -19,6 +21,8 @@ namespace winrt::StarlightGUI::implementation
     SettingsPage::SettingsPage()
     {
         InitializeComponent();
+
+        loaded = false;
 
         // idk why it cant understand the fucking boolean
         background_type = ReadConfig("background_type", "Static");
@@ -39,21 +43,36 @@ namespace winrt::StarlightGUI::implementation
         DangerousConfirmButton().IsOn(dangerous_confirm);
         FullPrivilegesButton().IsOn(elevator_full_privileges);
         BypassSignatureButton().IsOn(bypass_signature);
+
+        loaded = true;
     }
 
     void SettingsPage::BackgroundComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
     {
+        if (!loaded) return;
+
         if (BackgroundComboBox().SelectedIndex() == 0)
         {
             background_type = "Static";
+
+            g_mainWindowInstance->SystemBackdrop(nullptr);
         }
         else if (BackgroundComboBox().SelectedIndex() == 1)
         {
             background_type = "Mica";
+
+            micaBackdrop = winrt::Microsoft::UI::Xaml::Media::MicaBackdrop();
+            micaBackdrop.Kind(winrt::Microsoft::UI::Composition::SystemBackdrops::MicaKind::BaseAlt);
+
+            g_mainWindowInstance->SystemBackdrop(micaBackdrop);
         }
         else if (BackgroundComboBox().SelectedIndex() == 2)
         {
             background_type = "Acrylic";
+
+            acrylicBackdrop = winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop();
+
+            g_mainWindowInstance->SystemBackdrop(acrylicBackdrop);
         }
         SaveConfig("background_type", background_type);
     }
