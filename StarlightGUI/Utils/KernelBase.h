@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "IOBase.h"
+#include "AstralIO.h"
 #include "unordered_set"
 
 namespace winrt::StarlightGUI::implementation {
@@ -36,6 +37,7 @@ namespace winrt::StarlightGUI::implementation {
 
 	private:
 		static BOOL GetDriverDevice();
+		static BOOL GetDriverDevice2();
 	};
 
 	class KernelBase {

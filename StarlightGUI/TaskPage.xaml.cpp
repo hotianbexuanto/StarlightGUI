@@ -69,12 +69,12 @@ namespace winrt::StarlightGUI::implementation
 
     void TaskPage::StartLoop() {
         // 加载一次列表
-        LoadProcessList();
+        LoadProcessList(true);
 
         // 每15秒刷新一次列表
         defaultRefreshTimer.Interval(std::chrono::seconds(15));
         defaultRefreshTimer.Tick([this](auto&&, auto&&) {
-            if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList();
+            if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
             });
         defaultRefreshTimer.Start();
 
@@ -114,7 +114,7 @@ namespace winrt::StarlightGUI::implementation
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::_TerminateProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                LoadProcessList(true);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -131,7 +131,7 @@ namespace winrt::StarlightGUI::implementation
             }
             if (KernelInstance::_ZwTerminateProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                LoadProcessList(true);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -149,7 +149,7 @@ namespace winrt::StarlightGUI::implementation
             if (safeAcceptedPID == item.Id()) {
                 if (KernelInstance::MurderProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                    LoadProcessList();
+                    LoadProcessList(true);
                 }
                 else CreateInfoBarAndDisplay(L"失败", L"无法强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
@@ -211,7 +211,7 @@ namespace winrt::StarlightGUI::implementation
             }
             if (KernelInstance::HideProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                LoadProcessList(true);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -475,7 +475,7 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
 
-    winrt::Windows::Foundation::IAsyncAction TaskPage::LoadProcessList()
+    winrt::Windows::Foundation::IAsyncAction TaskPage::LoadProcessList(bool force)
     {
         if (m_isLoadingProcesses) {
             co_return;
@@ -497,8 +497,8 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::ProcessInfo> processes;
         std::map<DWORD, hstring> processCpuTable;
 
-        if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 3) {
-            processes.reserve(100);
+        if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 1 || force) {
+            processes.reserve(300);
 
             HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
             if (hSnapshot == INVALID_HANDLE_VALUE) {
@@ -531,7 +531,7 @@ namespace winrt::StarlightGUI::implementation
 
             }
 
-            if (query.empty()) fullRecordedProcesses = processes;
+            fullRecordedProcesses = processes;
 
             lastRefresh = std::chrono::steady_clock::now();
         }
@@ -550,16 +550,19 @@ namespace winrt::StarlightGUI::implementation
             bool shouldRemove = query.empty() ? false : co_await ApplyFilter(process, query);
             if (shouldRemove) continue;
 
-            if (process.CpuUsage().empty()) process.CpuUsage(L"-1 (未知)");
-            if (process.MemoryUsage().empty()) process.MemoryUsage(L"-1 (未知)");
-            if (process.Status().empty()) process.Status(L"运行中");
-            if (process.EProcess().empty()) process.EProcess(L"未知");
-
 			// 从缓存加载图标，没有则获取
             co_await GetProcessIconAsync(process);
 
             // 加载CPU占用
             if (processCpuTable.find((DWORD)process.Id()) != processCpuTable.end()) process.CpuUsage(processCpuTable[(DWORD)process.Id()]);
+
+            // 格式化内存占用
+            if (process.MemoryUsageByte() != 0) process.MemoryUsage(FormatMemorySize(process.MemoryUsageByte()));
+
+            if (process.CpuUsage().empty()) process.CpuUsage(L"-1 (未知)");
+            if (process.MemoryUsage().empty()) process.MemoryUsage(L"-1 (未知)");
+            if (process.Status().empty()) process.Status(L"运行中");
+            if (process.EProcess().empty()) process.EProcess(L"未知");
 
             // 寻找选中目标
             if (selectedItemId == process.Id()) selectedTarget = process;
@@ -645,7 +648,6 @@ namespace winrt::StarlightGUI::implementation
                 processInfo.Id((int32_t)pe32.th32ProcessID);
                 processInfo.Name(pe32.szExeFile);
                 processInfo.Description(descriptionCache[processName]);
-                processInfo.MemoryUsage(FormatMemorySize(memoryUsage));
                 processInfo.MemoryUsageByte(memoryUsage);
                 processInfo.ExecutablePath(processName);
                 processInfo.Icon(nullptr); // 先设置成null，后面再加载
@@ -870,7 +872,7 @@ namespace winrt::StarlightGUI::implementation
             }
         }
 
-        co_await LoadProcessList();
+        co_await LoadProcessList(false);
     }
 
     winrt::Windows::Foundation::IAsyncOperation<bool> TaskPage::ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query) {
@@ -906,7 +908,7 @@ namespace winrt::StarlightGUI::implementation
 
         filteredPids.clear();
 
-        co_await LoadProcessList();
+        co_await LoadProcessList(true);
 
         // 重启计时器
         defaultRefreshTimer.Stop();

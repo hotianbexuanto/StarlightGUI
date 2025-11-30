@@ -39,4 +39,5 @@
 #include <Utils/ThreadInfo.h>
 
 static inline winrt::hstring kernelPath = L"";
+static inline winrt::hstring astralPath = L"";
 static inline std::wstring unused = L"";

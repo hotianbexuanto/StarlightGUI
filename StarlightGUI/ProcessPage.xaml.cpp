@@ -233,7 +233,7 @@ namespace winrt::StarlightGUI::implementation
 
         if (file != nullptr && file.IsAvailable()) {
             if (file.FileType() == L".sys") {
-                ElevatorEditBox().TextDocument().SetText(TextSetOptions::None, file.Path());
+                DriverLoaderEditBox().TextDocument().SetText(TextSetOptions::None, file.Path());
                 CreateInfoBarAndDisplay(L"成功", L"已导入文件路径！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             else {

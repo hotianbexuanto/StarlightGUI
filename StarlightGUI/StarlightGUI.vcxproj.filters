@@ -103,6 +103,9 @@
     <ClInclude Include="Utils\ThreadInfo.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\AstralIO.h">
+      <Filter>Utils\Advanced</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -293,9 +296,6 @@
     <Filter Include="Utils\Advanced">
       <UniqueIdentifier>{dd8c98ed-409d-4099-ba90-32726a3ce04b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Files">
-      <UniqueIdentifier>{fb93a58b-69c8-46aa-a67f-73ac9aa049bf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Pages\Process">
       <UniqueIdentifier>{0db6dfed-af4c-4fcb-aa19-fef12bce967c}</UniqueIdentifier>
     </Filter>
@@ -313,7 +313,10 @@
     <None Include="packages.config" />
     <None Include="StarlightGUI_TemporaryKey.pfx" />
     <None Include="Assets\kernel.sys">
-      <Filter>Files</Filter>
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\AstralX.sys">
+      <Filter>Assets</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

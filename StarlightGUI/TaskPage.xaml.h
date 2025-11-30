@@ -26,7 +26,7 @@ namespace winrt::StarlightGUI::implementation
         winrt::Windows::Foundation::IAsyncOperation<bool> ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query);
 
         // 进程列表相关方法
-        winrt::Windows::Foundation::IAsyncAction LoadProcessList();
+        winrt::Windows::Foundation::IAsyncAction LoadProcessList(bool force = false);
         winrt::Windows::Foundation::IAsyncAction GetProcessInfoAsync(const PROCESSENTRY32W& pe32, std::vector<winrt::StarlightGUI::ProcessInfo>& processes);
         winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process);
 

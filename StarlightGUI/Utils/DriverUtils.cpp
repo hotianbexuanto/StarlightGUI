@@ -18,6 +18,7 @@ namespace winrt::StarlightGUI::implementation {
 			if (!QueryServiceStatus(hService, &serviceStatus)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
+				DeleteService(hService);
 				dbgMsg = L"无法查询服务信息";
 				return false;
 			}
@@ -26,6 +27,7 @@ namespace winrt::StarlightGUI::implementation {
 				if (!StartService(hService, 0, nullptr)) {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
+					DeleteService(hService);
 					dbgMsg = L"无法启动服务";
 					return false;
 				}
@@ -52,6 +54,7 @@ namespace winrt::StarlightGUI::implementation {
 			if (!StartService(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
+				DeleteService(hService);
 				dbgMsg = L"无法启动服务";
 				return false;
 			}
@@ -79,6 +82,7 @@ namespace winrt::StarlightGUI::implementation {
 			if (!QueryServiceStatus(hService, &serviceStatus)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
+				DeleteService(hService);
 				dbgMsg = L"无法查询服务信息";
 				return false;
 			}
@@ -87,6 +91,7 @@ namespace winrt::StarlightGUI::implementation {
 				if (!StartService(hService, 0, nullptr)) {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
+					DeleteService(hService);
 					dbgMsg = L"无法启动服务";
 					return false;
 				}
@@ -113,6 +118,7 @@ namespace winrt::StarlightGUI::implementation {
 			if (!StartService(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
+				DeleteService(hService);
 				dbgMsg = L"无法启动服务";
 				return false;
 			}

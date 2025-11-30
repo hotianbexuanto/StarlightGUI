@@ -47,12 +47,12 @@ namespace winrt::StarlightGUI::implementation
         SetupClock();
 
         if (!loaded) {
-            LoadDriverPath();
             if (!KernelInstance::IsRunningAsAdmin()) {
                 CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
             else {
                 CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+                LoadDriverPath();
             }
             loaded = true;
         }
@@ -219,16 +219,30 @@ namespace winrt::StarlightGUI::implementation
     }
 
     winrt::fire_and_forget HomePage::LoadDriverPath() {
-        if (kernelPath.empty()) {
+        if (kernelPath.empty() || astralPath.empty()) {
             try {
-                auto appFolder = Package::Current().InstalledLocation();
-                auto assetsFolder = co_await appFolder.GetFolderAsync(L"Assets");
+                co_await winrt::resume_background();
+
+                auto& appFolder = Package::Current().InstalledLocation();
+                auto& assetsFolder = co_await appFolder.GetFolderAsync(L"Assets");
                 auto kernelFile = co_await assetsFolder.GetFileAsync(L"kernel.sys");
+                auto astralFile = co_await assetsFolder.GetFileAsync(L"AstralX.sys");
 
                 if (kernelFile) {
                     kernelPath = kernelFile.Path();
+
                     DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
+
+                    if (astralFile) {
+                        astralPath = astralFile.Path();
+                        KernelInstance::DisableDSE();
+                        DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
+                        KernelInstance::EnableDSE();
+                    }
                 }
+
+                co_await wil::resume_foreground(DispatcherQueue());
+                CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             catch (winrt::hresult_error) {
                 CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
