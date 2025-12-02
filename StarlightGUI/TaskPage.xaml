@@ -57,7 +57,7 @@
                     <ListView x:Name="ProcessListView"
                               Grid.Row="1"
                               Background="Transparent"
-                              CornerRadius="3"
+                              CornerRadius="5"
                               BorderThickness="1"
                               BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                               RightTapped="ProcessListView_RightTapped">

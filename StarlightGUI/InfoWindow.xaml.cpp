@@ -42,13 +42,11 @@ namespace winrt::StarlightGUI::implementation
         this->ExtendsContentIntoTitleBar(true);
         this->SetTitleBar(AppTitleBar());
 
-        // Background
+        // 外观
         LoadBackdrop();
+        LoadNavigation();
 
         g_infoWindowInstance = this;
-        SetWindowSubclass(hWnd, &InfoWindow::WindowProc, 0, 0);
-
-        UpdateMaximizeButton();
 
         for (auto& window : g_mainWindowInstance->m_openWindows) {
             if (window) {
@@ -60,6 +58,7 @@ namespace winrt::StarlightGUI::implementation
         MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ThreadPage>());
         RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         ProcessName().Text(processForInfoWindow.Name());
+        this->Title(processForInfoWindow.Name());
     }
 
     void InfoWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
@@ -104,92 +103,25 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    void InfoWindow::MinimizeButton_Click(IInspectable const&, RoutedEventArgs const&)
+    void InfoWindow::LoadNavigation()
     {
-        auto hWnd = GetWindowHandle();
-        ShowWindow(hWnd, SW_MINIMIZE);
-    }
+        auto navigation_style = ReadConfig("navigation_style", "LeftCompact");
 
-    void InfoWindow::MaximizeButton_Click(IInspectable const&, RoutedEventArgs const&)
-    {
-        auto hWnd = GetWindowHandle();
-
-        WINDOWPLACEMENT wp;
-        wp.length = sizeof(WINDOWPLACEMENT);
-        GetWindowPlacement(hWnd, &wp);
-
-        if (wp.showCmd == SW_SHOWMAXIMIZED)
-        {
-            ShowWindow(hWnd, SW_RESTORE);
+        if (navigation_style == "Left") {
+            RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);
+        }
+        else if (navigation_style == "Top") {
+            RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Top);
         }
         else
         {
-            ShowWindow(hWnd, SW_MAXIMIZE);
+            RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
         }
     }
 
-    void InfoWindow::CloseButton_Click(IInspectable const&, RoutedEventArgs const&)
-    {
-        auto it = std::find(g_mainWindowInstance->m_openWindows.begin(), g_mainWindowInstance->m_openWindows.end(), *this);
-        if (it != g_mainWindowInstance->m_openWindows.end()) {
-            g_mainWindowInstance->m_openWindows.erase(it);
-        }
-        this->Close();
-    }
-
-    void InfoWindow::UpdateMaximizeButton()
-    {
-        auto hWnd = GetWindowHandle();
-
-        WINDOWPLACEMENT wp;
-        wp.length = sizeof(WINDOWPLACEMENT);
-
-        if (GetWindowPlacement(hWnd, &wp))
-        {
-            if (wp.showCmd == SW_SHOWMAXIMIZED)
-            {
-                MaximizeButtonContent().Text(L"\uE923"); // 恢复
-            }
-            else
-            {
-                MaximizeButtonContent().Text(L"\uE922"); // 最大化
-            }
-        }
-    }
 
     HWND InfoWindow::GetWindowHandle()
     {
         return globalHWND;
-    }
-
-    LRESULT CALLBACK InfoWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
-    {
-        switch (message)
-        {
-        case WM_WINDOWPOSCHANGED:
-            if (g_infoWindowInstance)
-            {
-                g_infoWindowInstance->HandleWindowPosChanged();
-            }
-            break;
-        case WM_NCDESTROY:
-            RemoveWindowSubclass(hWnd, &InfoWindow::WindowProc, uIdSubclass);
-            break;
-        }
-
-
-        return DefSubclassProc(hWnd, message, wParam, lParam);
-    }
-
-    void InfoWindow::HandleWindowPosChanged()
-    {
-
-        auto dispatcherQueue = this->DispatcherQueue();
-        if (dispatcherQueue)
-        {
-            dispatcherQueue.TryEnqueue(DispatcherQueuePriority::Normal, [this]() {
-                UpdateMaximizeButton();
-                });
-        }
     }
 }

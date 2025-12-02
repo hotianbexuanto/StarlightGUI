@@ -7,8 +7,9 @@
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:essential="using:WinUI3Package" 
     mc:Ignorable="d"
-    Title="InfoWindow">
+    Title="Starlight GUI Info">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -19,7 +20,7 @@
         <!-- 自定义标题栏 -->
         <Grid x:Name="AppTitleBar"
               Background="{StaticResource WindowBackgroundBrush}"
-              Height="36">
+              Height="48">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -32,15 +33,12 @@
                        HorizontalAlignment="Left"
                        Margin="16,0,0,0"
                        VerticalAlignment="Center">
-                <FontIcon Glyph="&#xE713;" 
-                          FontFamily="Segoe Fluent Icons"
-                          FontSize="16"
-                          Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                          VerticalAlignment="Center"/>
+                <Image Source="/Assets/Starlight.png" Width="24" Height="24" Margin="0,4,0,0"/>
                 <TextBlock x:Name="ProcessName"
+                           Text="Info Window"
                            FontSize="14"
                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                           Margin="20,0,0,0"
+                           Margin="16,0,0,0"
                            VerticalAlignment="Center"/>
             </StackPanel>
 
@@ -50,39 +48,9 @@
                   Background="Transparent"/>
 
             <!-- 窗口控制按钮 -->
-            <StackPanel Grid.Column="2" 
-                       Orientation="Horizontal"
-                       HorizontalAlignment="Right">
-                <Button x:Name="MinimizeButton"
-                        Click="MinimizeButton_Click"
-                        Style="{StaticResource CaptionButtonStyle}">
-                    <TextBlock x:Name="MinimizeButtonContent"
-                              Text="&#xE921;"
-                              FontFamily="Segoe Fluent Icons"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
-                </Button>
-                <Button x:Name="MaximizeButton"
-                        Click="MaximizeButton_Click"
-                        Style="{StaticResource CaptionButtonStyle}">
-                    <TextBlock x:Name="MaximizeButtonContent"
-                              Text="&#xE922;"
-                              FontFamily="Segoe Fluent Icons"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
-                </Button>
-                <Button x:Name="CloseButton"
-                        Click="CloseButton_Click"
-                        Style="{StaticResource CloseCaptionButtonStyle}">
-                    <TextBlock x:Name="CloseButtonContent"
-                              Text="&#xE8BB;"
-                              FontFamily="Segoe Fluent Icons"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
-                </Button>
-            </StackPanel>
+            <essential:WindowCaptionButtonThemeWorkaround Window="{x:Bind}" Height="48"/>
         </Grid>
-        
+
         <controls:NavigationView Grid.Row="1"
                          x:Name="RootNavigation"
                          PaneDisplayMode="LeftCompact"

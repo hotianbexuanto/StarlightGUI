@@ -12,20 +12,17 @@
     <Grid Padding="20">
         <StackPanel>
             <Button x:Name="MainButton"
-            Padding="16" 
-            VerticalAlignment="Top"
-            HorizontalAlignment="Center"
-            BorderThickness="1"
-            Margin="0,0,0,30">
-                
-                <Button.Shadow>
-                    <ThemeShadow/>
-                </Button.Shadow>
+                    Padding="16" 
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    Margin="0,0,0,30">
 
                 <Grid Padding="10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="700"/>
-                        <ColumnDefinition Width="350"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                         <Grid Width="80" Height="80" Margin="0,0,16,0" HorizontalAlignment="Left">
@@ -48,7 +45,7 @@
                     </StackPanel>
 
                     <!-- 钟 -->
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20,0,0,0">
                         <TextBlock Text="当前时间" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -97,25 +94,20 @@
             </Button>
             <Button Padding="16" 
                     VerticalAlignment="Top"
-                    HorizontalAlignment="Center"
-                    BorderThickness="1"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
                     Margin="0,0,0,30">
-                <Button.Shadow>
-                    <ThemeShadow/>
-                </Button.Shadow>
                 <Grid Padding="10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="230"/>
-                        <ColumnDefinition Width="820"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Image Grid.Column="0" 
                            Source="/Assets/StarlightGUI.png" 
                            Width="225" Height="150"
                            HorizontalAlignment="Left"
-                           Margin="-10,0,0,0">
-                        <Image.Shadow>
-                            <ThemeShadow/>
-                        </Image.Shadow>
+                           Margin="-10,0,20,0">
                     </Image>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Left" Margin="0,-10,0,0">
                         <TextBlock Text="Starlight GUI" FontSize="32" FontWeight="Bold"/>

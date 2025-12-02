@@ -17,6 +17,7 @@ namespace winrt::StarlightGUI::implementation
     static bool dangerous_confirm;
     static bool elevator_full_privileges;
     static bool bypass_signature;
+    static std::string navigation_style;
 
     SettingsPage::SettingsPage()
     {
@@ -29,6 +30,7 @@ namespace winrt::StarlightGUI::implementation
         dangerous_confirm = ReadConfig("dangerous_confirm", true);
         elevator_full_privileges = ReadConfig("elevator_full_privileges", true);
         bypass_signature = ReadConfig("bypass_signature", false);
+        navigation_style = ReadConfig("navigation_style", "LeftCompact");
 
         if (background_type == "Mica") {
             BackgroundComboBox().SelectedIndex(1);
@@ -38,6 +40,16 @@ namespace winrt::StarlightGUI::implementation
         }
         else {
             BackgroundComboBox().SelectedIndex(0);
+        }
+
+        if (navigation_style == "Left") {
+            NavigationComboBox().SelectedIndex(1);
+        }
+        else if (navigation_style == "Top") {
+            NavigationComboBox().SelectedIndex(2);
+        }
+        else {
+            NavigationComboBox().SelectedIndex(0);
         }
 
         DangerousConfirmButton().IsOn(dangerous_confirm);
@@ -75,6 +87,31 @@ namespace winrt::StarlightGUI::implementation
             g_mainWindowInstance->SystemBackdrop(acrylicBackdrop);
         }
         SaveConfig("background_type", background_type);
+    }
+    
+    void SettingsPage::NavigationComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
+    {
+        if (!loaded) return;
+
+        if (NavigationComboBox().SelectedIndex() == 0)
+        {
+            navigation_style = "LeftCompact";
+
+            g_mainWindowInstance->RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
+        }
+        else if (NavigationComboBox().SelectedIndex() == 1)
+        {
+            navigation_style = "Left";
+
+            g_mainWindowInstance->RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);
+        }
+        else if (NavigationComboBox().SelectedIndex() == 2)
+        {
+            navigation_style = "Top";
+
+            g_mainWindowInstance->RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Top);
+        }
+        SaveConfig("navigation_style", navigation_style);
     }
 
     void SettingsPage::DangerousConfirmButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)

@@ -40,7 +40,7 @@
                     <ListView x:Name="HandleListView"
                               Grid.Row="1"
                               Background="Transparent"
-                              CornerRadius="3"
+                              CornerRadius="5"
                               BorderThickness="1"
                               BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                               RightTapped="HandleListView_RightTapped">
