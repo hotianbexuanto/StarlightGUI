@@ -30,6 +30,9 @@
     <Page Include="Process_ModulePage.xaml">
       <Filter>Pages\Process</Filter>
     </Page>
+    <Page Include="RunProcessDialog.xaml">
+      <Filter>Utils\Elements</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -325,6 +328,9 @@
     </Filter>
     <Filter Include="Utils\Types">
       <UniqueIdentifier>{8aee5cf3-fa01-400f-b899-e47608ef6f6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Elements">
+      <UniqueIdentifier>{c581fe4b-97e8-4bc6-ba36-991d8c2d2052}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

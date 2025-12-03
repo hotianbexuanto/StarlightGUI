@@ -1,5 +1,4 @@
-#include "pch.h"
-#include "Utils/Config.h"
+Ôªø#include "pch.h"
 #include "MainWindow.xaml.h"
 #if __has_include("MainWindow.g.cpp")
 #include "MainWindow.g.cpp"
@@ -15,6 +14,7 @@
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 
 using namespace winrt;
+using namespace WinUI3Package;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Media::Imaging;
@@ -24,8 +24,8 @@ using namespace Microsoft::UI::Composition::SystemBackdrops;
 namespace winrt::StarlightGUI::implementation
 {
     MainWindow* g_mainWindowInstance = nullptr;
-    winrt::Microsoft::UI::Xaml::Media::MicaBackdrop micaBackdrop = nullptr;
-    winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop acrylicBackdrop = nullptr;
+    CustomMicaBackdrop micaBackdrop = nullptr;
+    CustomAcrylicBackdrop acrylicBackdrop = nullptr;
     static HWND globalHWND;
 
     MainWindow::MainWindow()
@@ -43,7 +43,7 @@ namespace winrt::StarlightGUI::implementation
         this->SetTitleBar(AppTitleBar());
         this->AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
 
-        // Õ‚π€
+        // Â§ñËßÇ
         LoadBackdrop();
         LoadNavigation();
 
@@ -73,20 +73,20 @@ namespace winrt::StarlightGUI::implementation
 
         auto invokedItem = args.InvokedItem().try_as<winrt::hstring>();
 
-        if (invokedItem == L"÷˜“≥")
+        if (invokedItem == L"‰∏ªÈ°µ")
         {
             MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         }
-        else if (invokedItem == L"»ŒŒÒπ‹¿Ì") {
+        else if (invokedItem == L"‰ªªÂä°ÁÆ°ÁêÜ") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::TaskPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
         }
-        else if (invokedItem == L"œµÕ≥π‹¿Ì") {
+        else if (invokedItem == L"Á≥ªÁªüÁÆ°ÁêÜ") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::ProcessPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
         }
-        else if (invokedItem == L"∞Ô÷˙") {
+        else if (invokedItem == L"Â∏ÆÂä©") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::HelpPage>());
             RootNavigation().SelectedItem(RootNavigation().FooterMenuItems().GetAt(0));
         }
@@ -97,15 +97,31 @@ namespace winrt::StarlightGUI::implementation
         auto background_type = ReadConfig("background_type", "Static");
 
         if (background_type == "Mica") {
-            micaBackdrop = winrt::Microsoft::UI::Xaml::Media::MicaBackdrop();
-            micaBackdrop.Kind(MicaKind::BaseAlt);
-
+            micaBackdrop = CustomMicaBackdrop();
             this->SystemBackdrop(micaBackdrop);
+
+            auto mica_type = ReadConfig("mica_type", "BaseAlt");
+            if (mica_type == "Base") {
+                micaBackdrop.Kind(MicaKind::Base);
+            }
+            else {
+                micaBackdrop.Kind(MicaKind::BaseAlt);
+            }
         }
         else if (background_type == "Acrylic") {
-            acrylicBackdrop = winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop();
-            
+            acrylicBackdrop = CustomAcrylicBackdrop();
             this->SystemBackdrop(acrylicBackdrop);
+
+            auto acrylic_type = ReadConfig("acrylic_type", "Default");
+            if (acrylic_type == "Base") {
+                acrylicBackdrop.Kind(DesktopAcrylicKind::Base);
+            }
+            else if (acrylic_type == "Thin") {
+                acrylicBackdrop.Kind(DesktopAcrylicKind::Thin);
+            }
+            else {
+                acrylicBackdrop.Kind(DesktopAcrylicKind::Default);
+            }
         }
         else
         {

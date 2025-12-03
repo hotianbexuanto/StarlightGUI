@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <windows.h>
 #include <string>
 #include <tlhelp32.h>
@@ -11,19 +11,24 @@ using namespace winrt::StarlightGUI::implementation;
 static XamlRoot e_root{ nullptr };
 static Panel e_parent{ nullptr };
 
-static bool IsRunningAsAdmin() {
-    HANDLE hToken = nullptr;
-    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+static bool EnablePrivilege0(LPCTSTR privilege) {
+    HANDLE hToken;
+    TOKEN_PRIVILEGES tkp{};
+
+    if (!OpenProcessToken(GetCurrentProcess(),
+        TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
         return false;
     }
 
-    // Easy way to check admin permission.
-    TOKEN_ELEVATION elevation{};
-    DWORD dwSize;
-    bool result = GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize);
+    LookupPrivilegeValueW(NULL, privilege, &tkp.Privileges[0].Luid);
+
+    tkp.PrivilegeCount = 1;
+    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+    BOOL result = AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, NULL, 0);
     CloseHandle(hToken);
 
-    return result && elevation.TokenIsElevated;
+    return result != FALSE;
 }
 
 static DWORD FindProcessId(const wchar_t* processName) {
@@ -71,16 +76,15 @@ static bool EnableAllPrivileges(HANDLE hToken) {
     return GetLastError() == ERROR_SUCCESS;
 }
 
-int createProcess(std::wstring processName, bool fullPrivileges) {
-    CreateInfoBarAndDisplay(L"Elevator", L"ÕıÔÚµ÷ÕûÈ¨ÏŞ...", InfoBarSeverity::Informational, e_root, e_parent);
+static int createProcess(std::wstring processName, bool fullPrivileges) {
 
-    if (!EnablePrivilege(SE_DEBUG_NAME)) {
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨»ñÈ¡SE_DEBUG_PRIVILEGEÈ¨ÏŞ", InfoBarSeverity::Error, e_root, e_parent);
+    if (!EnablePrivilege0(SE_DEBUG_NAME)) {
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•è·å–SE_DEBUG_PRIVILEGEæƒé™", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
-    if (!EnablePrivilege(SE_TCB_NAME)) {
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨»ñÈ¡SE_TCB_PRIVILEGEÈ¨ÏŞ", InfoBarSeverity::Error, e_root, e_parent);
+    if (!EnablePrivilege0(SE_TCB_NAME)) {
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•è·å–SE_TCB_PRIVILEGEæƒé™", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
@@ -89,25 +93,22 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
     HANDLE hTrustedInstallerProcessToken = nullptr;
     HANDLE hTrustedInstallerToken = nullptr;
 
-    CreateInfoBarAndDisplay(L"Elevator", L"ÕıÔÚËÑË÷Winlogon½ø³Ì...", InfoBarSeverity::Informational, e_root, e_parent);
-
     DWORD winlogonPid = FindProcessId(L"winlogon.exe");
     if (winlogonPid == 0) {
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨ÕÒµ½Winlogon½ø³Ì", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•æ‰¾åˆ°Winlogonè¿›ç¨‹", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
     HANDLE hWinlogon = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, winlogonPid);
     if (!hWinlogon) {
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨´ò¿ªWinlogon½ø³Ì", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•æ‰“å¼€Winlogonè¿›ç¨‹", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
-    CreateInfoBarAndDisplay(L"Elevator", L"ÕıÔÚ»ñÈ¡WinlogonÁîÅÆ...", InfoBarSeverity::Informational, e_root, e_parent);
     HANDLE hWinlogonToken = nullptr;
     if (!OpenProcessToken(hWinlogon, TOKEN_DUPLICATE | TOKEN_QUERY, &hWinlogonToken)) {
         CloseHandle(hWinlogon);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨»ñÈ¡Winlogon½ø³ÌÁîÅÆ", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•è·å–Winlogonè¿›ç¨‹ä»¤ç‰Œ", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
     CloseHandle(hWinlogon);
@@ -115,7 +116,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
     if (!DuplicateTokenEx(hWinlogonToken, MAXIMUM_ALLOWED, nullptr,
         SecurityImpersonation, TokenPrimary, &hSystemToken)) {
         CloseHandle(hWinlogonToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨¸´ÖÆWinlogon½ø³ÌÁîÅÆ [1]", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•å¤åˆ¶Winlogonè¿›ç¨‹ä»¤ç‰Œ [1]", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
@@ -123,34 +124,31 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
         SecurityImpersonation, TokenImpersonation, &hImpersonationToken)) {
         CloseHandle(hWinlogonToken);
         CloseHandle(hSystemToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨¸´ÖÆWinlogon½ø³ÌÁîÅÆ [2]", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•å¤åˆ¶Winlogonè¿›ç¨‹ä»¤ç‰Œ [2]", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
     CloseHandle(hWinlogonToken);
 
-    CreateInfoBarAndDisplay(L"Elevator", L"ÕıÔÚÄ£ÄâSYSTEMÈ¨ÏŞ...", InfoBarSeverity::Informational, e_root, e_parent);
     if (!ImpersonateLoggedOnUser(hImpersonationToken)) {
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨Ä£ÄâÒÔSYSTEMÉí·İµÇÂ¼", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•æ¨¡æ‹Ÿä»¥SYSTEMèº«ä»½ç™»å½•", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
     if (!SetThreadToken(NULL, hImpersonationToken)) {
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨ÉèÖÃÏß³ÌÁîÅÆ", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•è®¾ç½®çº¿ç¨‹ä»¤ç‰Œ", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
-
-    CreateInfoBarAndDisplay(L"Elevator", L"È¨ÏŞÉèÖÃÍê³É£¬ÕıÔÚÆô¶¯TrustedInstaller·şÎñ...", InfoBarSeverity::Informational, e_root, e_parent);
 
     SC_HANDLE scManager = OpenSCManagerW(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
     if (!scManager) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨´ò¿ªSCManager", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•æ‰“å¼€SCManager", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
@@ -160,7 +158,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
     if (service) {
         if (!StartServiceW(service, 0, nullptr)) {
             if (GetLastError() != ERROR_SERVICE_ALREADY_RUNNING) {
-                CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨Æô¶¯·şÎñ£¬³¢ÊÔÖ±½Ó´´½¨½ø³Ì...", InfoBarSeverity::Warning, e_root, e_parent);
+                CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•å¯åŠ¨æœåŠ¡ï¼Œå°è¯•ç›´æ¥åˆ›å»ºè¿›ç¨‹...", InfoBarSeverity::Warning, e_root, e_parent);
                 std::wstring trustedInstallerPath = L"C:\\Windows\\servicing\\TrustedInstaller.exe";
 
                 STARTUPINFOW si = { sizeof(si) };
@@ -194,7 +192,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ËùÓĞÆô¶¯³¢ÊÔ¶¼Ê§°ÜÁË£¡", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ‰€æœ‰å¯åŠ¨å°è¯•éƒ½å¤±è´¥äº†ï¼", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
@@ -210,7 +208,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨ÕÒµ½TrustedInstaller½ø³Ì", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•æ‰¾åˆ°TrustedInstallerè¿›ç¨‹", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
@@ -219,17 +217,16 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨´ò¿ªTrustedInstaller½ø³Ì", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•æ‰“å¼€TrustedInstallerè¿›ç¨‹", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
-    CreateInfoBarAndDisplay(L"Elevator", L"ÕıÔÚ»ñÈ¡TrustedInstallerÁîÅÆ...", InfoBarSeverity::Informational, e_root, e_parent);
     if (!OpenProcessToken(hTiProcess, TOKEN_DUPLICATE, &hTrustedInstallerProcessToken)) {
         CloseHandle(hTiProcess);
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨»ñÈ¡TrustedInstaller½ø³ÌÁîÅÆ", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•è·å–TrustedInstallerè¿›ç¨‹ä»¤ç‰Œ", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
@@ -239,24 +236,21 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨¸´ÖÆTrustInstaller½ø³ÌÁîÅÆ", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•å¤åˆ¶TrustInstallerè¿›ç¨‹ä»¤ç‰Œ", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
     CloseHandle(hTiProcess);
 
     if (fullPrivileges) {
-        CreateInfoBarAndDisplay(L"Elevator", L"ÕıÔÚÆôÓÃÍêÕûÈ¨ÏŞ...", InfoBarSeverity::Informational, e_root, e_parent);
         if (!EnableAllPrivileges(hTrustedInstallerToken)) {
             CloseHandle(hTrustedInstallerToken);
             RevertToSelf();
             CloseHandle(hSystemToken);
             CloseHandle(hImpersonationToken);
-            CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨ÉèÖÃÍêÕûÈ¨ÏŞ", InfoBarSeverity::Error, e_root, e_parent);
+            CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•è®¾ç½®å®Œæ•´æƒé™", InfoBarSeverity::Error, e_root, e_parent);
             return 1;
         }
     }
-
-    CreateInfoBarAndDisplay(L"Elevator", L"ÌáÈ¨Íê±Ï¡£ÕıÔÚÉèÖÃÁîÅÆĞÅÏ¢...", InfoBarSeverity::Informational, e_root, e_parent);
 
     DWORD currentSessionId = WTSGetActiveConsoleSessionId();
     ProcessIdToSessionId(GetCurrentProcessId(), &currentSessionId);
@@ -266,7 +260,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"ÎŞ·¨ÉèÖÃÁîÅÆĞÅÏ¢", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"æ— æ³•è®¾ç½®ä»¤ç‰Œä¿¡æ¯", InfoBarSeverity::Error, e_root, e_parent);
         return 1;
     }
 
@@ -278,7 +272,6 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
     si.dwFlags = STARTF_USESHOWWINDOW;
     si.wShowWindow = SW_SHOW;
 
-    CreateInfoBarAndDisplay(L"Elevator", L"ÕıÔÚ´´½¨½ø³Ì...", InfoBarSeverity::Informational, e_root, e_parent);
     if (!CreateProcessWithTokenW(hTrustedInstallerToken,
         LOGON_WITH_PROFILE,
         processName.c_str(),
@@ -288,7 +281,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
         nullptr,
         &si,
         &pi)) {
-        CreateInfoBarAndDisplay(L"Elevator", L"Ê¹ÓÃÁîÅÆ´´½¨½ø³ÌÊ§°Ü£¬³¢ÊÔÆäËû·½·¨...", InfoBarSeverity::Warning, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"ä½¿ç”¨ä»¤ç‰Œåˆ›å»ºè¿›ç¨‹å¤±è´¥ï¼Œå°è¯•å…¶ä»–æ–¹æ³•...", InfoBarSeverity::Warning, e_root, e_parent);
 
         if (!CreateProcessAsUserW(hTrustedInstallerToken,
             processName.c_str(),
@@ -306,7 +299,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
             CloseHandle(hTrustedInstallerToken);
             CloseHandle(hSystemToken);
             CloseHandle(hImpersonationToken);
-            CreateInfoBarAndDisplay(L"Elevator", L"ËùÓĞÆô¶¯³¢ÊÔ¶¼Ê§°ÜÁË£¡", InfoBarSeverity::Error, e_root, e_parent);
+            CreateInfoBarAndDisplay(L"Elevator", L"æ‰€æœ‰å¯åŠ¨å°è¯•éƒ½å¤±è´¥äº†ï¼", InfoBarSeverity::Error, e_root, e_parent);
             return 1;
         }
     }
@@ -320,7 +313,7 @@ int createProcess(std::wstring processName, bool fullPrivileges) {
     return pi.dwProcessId;
 }
 
-int CreateProcessElevated(std::wstring name, bool full, XamlRoot xamlRoot, Panel panel) {
+static int CreateProcessElevated(std::wstring name, bool full, XamlRoot xamlRoot, Panel panel) {
     e_root = xamlRoot;
     e_parent = panel;
     

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "MainWindow.g.h"
 #include <winrt/Microsoft.UI.Composition.SystemBackdrops.h>
@@ -7,8 +7,8 @@
 
 namespace winrt::StarlightGUI::implementation
 {
-    extern winrt::Microsoft::UI::Xaml::Media::MicaBackdrop micaBackdrop;
-    extern winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop acrylicBackdrop;
+    extern winrt::WinUI3Package::CustomMicaBackdrop micaBackdrop;
+    extern winrt::WinUI3Package::CustomAcrylicBackdrop acrylicBackdrop;
 
     struct MainWindow : MainWindowT<MainWindow>
     {
@@ -19,7 +19,7 @@ namespace winrt::StarlightGUI::implementation
 
         HWND GetWindowHandle();
 
-        // Íâ¹Û
+        // å¤–è§‚
         void LoadBackdrop();
         void LoadNavigation();
 

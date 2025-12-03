@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "KernelBase.h"
 #include "CppUtils.h"
 
@@ -153,7 +153,7 @@ namespace winrt::StarlightGUI::implementation {
 						pi.Name(winrt::to_hstring(data.ImageName));
 						pi.EProcess(ULongToHexString((ULONG64)data.Eprocess));
 						pi.EProcessULong((ULONG64)data.Eprocess);
-						pi.Description(L"Ó¦ÓÃ³ÌĞò");
+						pi.Description(L"åº”ç”¨ç¨‹åº");
 						pi.ExecutablePath(winrt::to_hstring(data.ImagePath));
 						pi.MemoryUsageByte(data.WorkingSetPrivateSize);
 						targetList.push_back(pi);
@@ -163,11 +163,11 @@ namespace winrt::StarlightGUI::implementation {
 					auto pi = winrt::make<winrt::StarlightGUI::implementation::ProcessInfo>();
 					pi.Id(data.Pid);
 					pi.Name(winrt::to_hstring(data.ImageName));
-					pi.Description(L"ÏµÍ³");
+					pi.Description(L"ç³»ç»Ÿ");
 					pi.ExecutablePath(winrt::to_hstring(data.ImagePath));
 					pi.EProcess(ULongToHexString(data.Eprocess));
 					pi.EProcessULong((ULONG64)data.Eprocess);
-					pi.Status(L"ÏµÍ³");
+					pi.Status(L"ç³»ç»Ÿ");
 					pi.MemoryUsageByte(data.WorkingSetPrivateSize);
 					targetList.push_back(pi);
 				}
@@ -216,27 +216,27 @@ namespace winrt::StarlightGUI::implementation {
 				switch (data.ulongdata1)
 				{
 				case ThreadState_Initialized:
-					threadInfo.Status(L"³õÊ¼»¯");
+					threadInfo.Status(L"åˆå§‹åŒ–");
 					break;
 
 				case ThreadState_Ready:
-					threadInfo.Status(L"¾ÍĞ÷");
+					threadInfo.Status(L"å°±ç»ª");
 					break;
 
 				case ThreadState_Running:
-					threadInfo.Status(L"ÔËĞĞÖĞ");
+					threadInfo.Status(L"è¿è¡Œä¸­");
 					break;
 
 				case ThreadState_Standby:
-					threadInfo.Status(L"´ıÃü");
+					threadInfo.Status(L"å¾…å‘½");
 					break;
 
 				case ThreadState_Terminated:
-					threadInfo.Status(L"ÒÑÍË³ö");
+					threadInfo.Status(L"å·²é€€å‡º");
 					break;
 
 				case ThreadState_Waiting:
-					threadInfo.Status(L"µÈ´ıÖĞ");
+					threadInfo.Status(L"ç­‰å¾…ä¸­");
 					break;
 
 				case ThreadState_Transition:
@@ -252,7 +252,7 @@ namespace winrt::StarlightGUI::implementation {
 					break;
 
 				default:
-					threadInfo.Status(L"Î´Öª");
+					threadInfo.Status(L"æœªçŸ¥");
 					break;
 				}
 				threads.push_back(threadInfo);
@@ -374,7 +374,7 @@ namespace winrt::StarlightGUI::implementation {
 	// =================================
 
 	/*
-	* »ñÈ¡Çı¶¯Éè±¸Î»ÖÃ
+	* è·å–é©±åŠ¨è®¾å¤‡ä½ç½®
 	*/
 	BOOL KernelInstance::GetDriverDevice() {
 		if (driverDevice != NULL) return TRUE;

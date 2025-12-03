@@ -12,113 +12,108 @@
             <Grid Padding="10" HorizontalAlignment="Left">
                 <TextBlock Text="功能" FontWeight="Bold" FontSize="14"/>
             </Grid>
-            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
-                <Grid Padding="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <FontIcon Glyph="&#xe7ef;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
-                        <StackPanel Margin="15,0,0,0">
-                            <TextBlock Text="启用完整特权" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock Text="在Elevator功能中启动的程序将获得所有SE特权" FontSize="12" Foreground="LightGray"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <ToggleSwitch x:Name="FullPrivilegesButton" Toggled="FullPrivilegesButton_Toggled" Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,-80,0"/>
-                </Grid>
-            </Button>
-            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
-                <Grid Padding="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <FontIcon Glyph="&#xeb19;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
-                        <StackPanel Margin="15,0,0,0">
-                            <TextBlock Text="绕过签名验证" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock Text="在Driver Loader功能中将使用漏洞绕过系统对驱动文件的签名验证" FontSize="12" Foreground="LightGray"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <ToggleSwitch x:Name="BypassSignatureButton" Toggled="BypassSignatureButton_Toggled" Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,-80,0"/>
-                </Grid>
-            </Button>
+            <!-- 启用完整特权 -->
+            <essential:SettingsCard Header="启用完整特权"
+                                    Description="在Elevator功能中启动的程序将获得所有SE特权"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xe7ef;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ToggleSwitch x:Name="FullPrivilegesButton" Toggled="FullPrivilegesButton_Toggled" Margin="0,0,-80,0"/>
+            </essential:SettingsCard>
+
+            <!-- 绕过签名验证 -->
+            <essential:SettingsCard Header="绕过签名验证"
+                                    Description="在Driver Loader功能中将使用漏洞绕过系统对驱动文件的签名验证"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xeb19;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ToggleSwitch x:Name="BypassSignatureButton" Toggled="BypassSignatureButton_Toggled" Margin="0,0,-80,0"/>
+            </essential:SettingsCard>
 
             <Grid Padding="10" HorizontalAlignment="Left">
                 <TextBlock Text="外观" FontWeight="Bold" FontSize="14"/>
             </Grid>
-            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
-                <Grid Padding="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <FontIcon Glyph="&#xef1f;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
-                        <StackPanel Margin="15,0,0,0">
-                            <TextBlock Text="背景" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock Text="应用的背景颜色类型" FontSize="12" Foreground="LightGray"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <ComboBox x:Name="BackgroundComboBox" 
+            <!-- 背景 -->
+            <essential:SettingsExpander Header="背景"
+                                        Description="应用的背景颜色类型"
+                                        Margin="0,0,0,10">
+                <essential:SettingsExpander.HeaderIcon>
+                    <FontIcon Glyph="&#xef1f;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsExpander.HeaderIcon>
+                <ComboBox x:Name="BackgroundComboBox" 
                               SelectionChanged="BackgroundComboBox_SelectionChanged" 
-                              Grid.Column="2" HorizontalAlignment="Right"
                               essential:ComboBoxHelper.AcrylicWorkaround="True">
-                        <ComboBoxItem Content="Static" />
-                        <ComboBoxItem Content="Mica" />
-                        <ComboBoxItem Content="Acrylic" />
-                    </ComboBox>
-                </Grid>
-            </Button>
-            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
-                <Grid Padding="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <FontIcon Glyph="&#xe728;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
-                        <StackPanel Margin="15,0,0,0">
-                            <TextBlock Text="导航栏" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock Text="导航栏的位置和显示样式" FontSize="12" Foreground="LightGray"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <ComboBox x:Name="NavigationComboBox" 
+                    <ComboBoxItem Content="Static" />
+                    <ComboBoxItem Content="Mica" />
+                    <ComboBoxItem Content="Acrylic" />
+                </ComboBox>
+                <essential:SettingsExpander.Items>
+                    <essential:SettingsCard Header="亚克力类型"
+                        Description="背景的亚克力效果模式"
+                        IsClickEnabled="True"
+                        IsActionIconVisible="False">
+                        <!-- 亚克力类型 -->
+                        <ComboBox x:Name="AcrylicTypeComboBox" 
+                                  SelectionChanged="AcrylicTypeComboBox_SelectionChanged" 
+                  essential:ComboBoxHelper.AcrylicWorkaround="True">
+                            <ComboBoxItem Content="Default" />
+                            <ComboBoxItem Content="Base" />
+                            <ComboBoxItem Content="Thin" />
+                        </ComboBox>
+                    </essential:SettingsCard>
+                    <!-- Mica类型 -->
+                    <essential:SettingsCard Header="Mica类型"
+                                    Description="背景的Mica效果模式"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False">
+                        <ComboBox x:Name="MicaTypeComboBox" 
+                              SelectionChanged="MicaTypeComboBox_SelectionChanged" 
+                              essential:ComboBoxHelper.AcrylicWorkaround="True">
+                            <ComboBoxItem Content="Base" />
+                            <ComboBoxItem Content="BaseAlt" />
+                        </ComboBox>
+                    </essential:SettingsCard>
+                </essential:SettingsExpander.Items>
+            </essential:SettingsExpander>
+
+            <!-- 导航栏 -->
+            <essential:SettingsCard Header="导航栏"
+                                    Description="导航栏的位置和显示样式"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xe728;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ComboBox x:Name="NavigationComboBox" 
                               SelectionChanged="NavigationComboBox_SelectionChanged" 
-                              Grid.Column="2" HorizontalAlignment="Right"
                               essential:ComboBoxHelper.AcrylicWorkaround="True">
-                        <ComboBoxItem Content="LeftCompact" />
-                        <ComboBoxItem Content="Left" />
-                        <ComboBoxItem Content="Top" />
-                    </ComboBox>
-                </Grid>
-            </Button>
+                    <ComboBoxItem Content="LeftCompact" />
+                    <ComboBoxItem Content="Left" />
+                    <ComboBoxItem Content="Top" />
+                </ComboBox>
+            </essential:SettingsCard>
 
             <Grid Padding="10">
                 <TextBlock Text="信息" FontWeight="Bold" FontSize="14"/>
             </Grid>
-            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
-                <Grid Padding="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <FontIcon Glyph="&#xe7ba;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
-                        <StackPanel Margin="15,0,0,0">
-                            <TextBlock Text="危险提示" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock Text="在运行危险操作前先进行确认" FontSize="12" Foreground="LightGray"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <ToggleSwitch x:Name="DangerousConfirmButton" Toggled="DangerousConfirmButton_Toggled" Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,-80,0"/>
-                </Grid>
-            </Button>
+
+            <essential:SettingsCard Header="危险提示"
+                                    Description="在运行危险操作前先进行确认"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xe7ba;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ToggleSwitch x:Name="DangerousConfirmButton" Toggled="DangerousConfirmButton_Toggled" Margin="0,0,-80,0"/>
+            </essential:SettingsCard>
         </StackPanel>
     </Grid>
 </Page>

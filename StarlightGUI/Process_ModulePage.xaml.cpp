@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Process_ModulePage.xaml.h"
 #if __has_include("Process_ModulePage.g.cpp")
 #include "Process_ModulePage.g.cpp"
@@ -70,7 +70,7 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutItem itemRefresh;
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
-        itemRefresh.Text(L"Ë¢ĞÂ");
+        itemRefresh.Text(L"åˆ·æ–°");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             LoadModuleList();
             co_return;
@@ -78,40 +78,40 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutSeparator separatorR;
 
-        // Ñ¡Ïî1.1
+        // é€‰é¡¹1.1
         MenuFlyoutSubItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue8c8"));
-        item1_1.Text(L"¸´ÖÆĞÅÏ¢");
+        item1_1.Text(L"å¤åˆ¶ä¿¡æ¯");
         MenuFlyoutItem item1_1_sub1;
         item1_1_sub1.Icon(CreateFontIcon(L"\ue943"));
-        item1_1_sub1.Text(L"Ãû³Æ");
+        item1_1_sub1.Text(L"åç§°");
         item1_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item1_1.Items().Append(item1_1_sub1);
         MenuFlyoutItem item1_1_sub2;
         item1_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
-        item1_1_sub2.Text(L"Â·¾¶");
+        item1_1_sub2.Text(L"è·¯å¾„");
         item1_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item1_1.Items().Append(item1_1_sub2);
         MenuFlyoutItem item1_1_sub3;
         item1_1_sub3.Icon(CreateFontIcon(L"\ueb1d"));
-        item1_1_sub3.Text(L"µØÖ·");
+        item1_1_sub3.Text(L"åœ°å€");
         item1_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item1_1.Items().Append(item1_1_sub3);
@@ -136,7 +136,7 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::MokuaiInfo> modules;
         modules.reserve(500);
 
-        // »ñÈ¡¾ä±úÁĞ±í
+        // è·å–å¥æŸ„åˆ—è¡¨
         try {
             KernelInstance::EnumProcessModule(processForInfoWindow.EProcessULong(), modules);
         }
@@ -147,13 +147,13 @@ namespace winrt::StarlightGUI::implementation
         co_await wil::resume_foreground(DispatcherQueue());
 
         if (modules.size() >= 1000) {
-            CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã½ø³Ì³ÖÓĞ¹ı¶àÄ£¿é£¬³ÌĞòÎŞ·¨ÍêÕûÏÔÊ¾£¬½«ÏÔÊ¾Ç°1000Ìõ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥è¿›ç¨‹æŒæœ‰è¿‡å¤šæ¨¡å—ï¼Œç¨‹åºæ— æ³•å®Œæ•´æ˜¾ç¤ºï¼Œå°†æ˜¾ç¤ºå‰1000æ¡ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
         }
 
         m_moduleList.Clear();
         for (const auto& module : modules) {
-            if (module.Name().empty()) module.Name(L"(Î´Öª)");
-            if (module.Path().empty()) module.Path(L"(Î´Öª)");
+            if (module.Name().empty()) module.Name(L"(æœªçŸ¥)");
+            if (module.Path().empty()) module.Path(L"(æœªçŸ¥)");
 
             m_moduleList.Append(module);
         }
@@ -161,9 +161,9 @@ namespace winrt::StarlightGUI::implementation
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-        // ¸üĞÂÄ£¿éÊıÁ¿ÎÄ±¾
+        // æ›´æ–°æ¨¡å—æ•°é‡æ–‡æœ¬
         std::wstringstream countText;
-        countText << L"¹² " << m_moduleList.Size() << L" ¸öÄ£¿é (" << duration.count() << " ms)";
+        countText << L"å…± " << m_moduleList.Size() << L" ä¸ªæ¨¡å— (" << duration.count() << " ms)";
         ModuleCountText().Text(countText.str());
         modules.clear();
     }

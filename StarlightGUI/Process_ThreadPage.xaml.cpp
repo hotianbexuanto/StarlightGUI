@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Process_ThreadPage.xaml.h"
 #if __has_include("Process_ThreadPage.g.cpp")
 #include "Process_ThreadPage.g.cpp"
@@ -70,7 +70,7 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutItem itemRefresh;
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
-        itemRefresh.Text(L"Ë¢ĞÂ");
+        itemRefresh.Text(L"åˆ·æ–°");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             LoadThreadList();
             co_return;
@@ -78,98 +78,98 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutSeparator separatorR;
 
-        // Ñ¡Ïî1.1
+        // é€‰é¡¹1.1
         MenuFlyoutItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue711"));
-        item1_1.Text(L"½áÊøÏß³Ì");
+        item1_1.Text(L"ç»“æŸçº¿ç¨‹");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::_TerminateThread(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦½áÊøÏß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸç»“æŸçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadThreadList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨½áÊøÏß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•ç»“æŸçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
-        // Ñ¡Ïî1.2
+        // é€‰é¡¹1.2
         MenuFlyoutItem item1_2;
         item1_2.Icon(CreateFontIcon(L"\ue8f0"));
-        item1_2.Text(L"½áÊøÏß³Ì (ÄÚºË)");
+        item1_2.Text(L"ç»“æŸçº¿ç¨‹ (å†…æ ¸)");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ZwTerminateThread(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦½áÊøÏß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸç»“æŸçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadThreadList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨½áÊøÏß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•ç»“æŸçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
-        // Ñ¡Ïî1.3
+        // é€‰é¡¹1.3
         MenuFlyoutItem item1_3;
         item1_3.Icon(CreateFontIcon(L"\ue945"));
-        item1_3.Text(L"Ç¿ÖÆ½áÊøÏß³Ì");
+        item1_3.Text(L"å¼ºåˆ¶ç»“æŸçº¿ç¨‹");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (safeAcceptedPID == item.Id()) {
                 if (KernelInstance::MurderThread(item.Id())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Ç¿ÖÆ½áÊøÏß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå¼ºåˆ¶ç»“æŸçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                     LoadThreadList();
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Ç¿ÖÆ½áÊøÏß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¼ºåˆ¶ç»“æŸçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
             else {
                 safeAcceptedPID = item.Id();
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã²Ù×÷¿ÉÄÜµ¼ÖÂÏµÍ³±ÀÀ£»ò½ø³ÌÊı¾İ¶ªÊ§£¬Èç¹ûÈ·ÈÏ¼ÌĞøÇëÔÙ´Îµã»÷£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥æ“ä½œå¯èƒ½å¯¼è‡´ç³»ç»Ÿå´©æºƒæˆ–è¿›ç¨‹æ•°æ®ä¸¢å¤±ï¼Œå¦‚æœç¡®è®¤ç»§ç»­è¯·å†æ¬¡ç‚¹å‡»ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
             co_return;
             });
 
-        // ·Ö¸îÏß1
+        // åˆ†å‰²çº¿1
         MenuFlyoutSeparator separator1;
 
-        // Ñ¡Ïî2.1
+        // é€‰é¡¹2.1
         MenuFlyoutSubItem item2_1;
         item2_1.Icon(CreateFontIcon(L"\ue912"));
-        item2_1.Text(L"ÉèÖÃÏß³Ì×´Ì¬");
+        item2_1.Text(L"è®¾ç½®çº¿ç¨‹çŠ¶æ€");
         MenuFlyoutItem item2_1_sub1;
         item2_1_sub1.Icon(CreateFontIcon(L"\ue769"));
-        item2_1_sub1.Text(L"ÔİÍ£Ïß³Ì");
+        item2_1_sub1.Text(L"æš‚åœçº¿ç¨‹");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_SuspendThread(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÔİÍ£Ïß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸæš‚åœçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadThreadList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÔİÍ£Ïß³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æš‚åœçº¿ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
         item2_1_sub2.Icon(CreateFontIcon(L"\ue768"));
-        item2_1_sub2.Text(L"»Ö¸´Ïß³Ì");
+        item2_1_sub2.Text(L"æ¢å¤çº¿ç¨‹");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ResumeThread(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦»Ö¸´½ø³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸæ¢å¤è¿›ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadThreadList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨»Ö¸´½ø³Ì: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ¢å¤è¿›ç¨‹: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
 
-        // ·Ö¸îÏß2
+        // åˆ†å‰²çº¿2
         MenuFlyoutSeparator separator2;
 
-        // Ñ¡Ïî3.1
+        // é€‰é¡¹3.1
         MenuFlyoutSubItem item3_1;
         item3_1.Icon(CreateFontIcon(L"\ue8c8"));
-        item3_1.Text(L"¸´ÖÆĞÅÏ¢");
+        item3_1.Text(L"å¤åˆ¶ä¿¡æ¯");
         MenuFlyoutItem item3_1_sub1;
         item3_1_sub1.Icon(CreateFontIcon(L"\ue943"));
         item3_1_sub1.Text(L"TID");
         item3_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(std::to_wstring(item.Id()))) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item3_1.Items().Append(item3_1_sub1);
@@ -178,20 +178,20 @@ namespace winrt::StarlightGUI::implementation
         item3_1_sub2.Text(L"ETHREAD");
         item3_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.EThread().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item3_1.Items().Append(item3_1_sub2);
         MenuFlyoutItem item3_1_sub3;
         item3_1_sub3.Icon(CreateFontIcon(L"\ueb1d"));
-        item3_1_sub3.Text(L"µØÖ·");
+        item3_1_sub3.Text(L"åœ°å€");
         item3_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item3_1.Items().Append(item3_1_sub3);
@@ -222,7 +222,7 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::ThreadInfo> threads;
         threads.reserve(50);
 
-        // »ñÈ¡Ïß³ÌÁĞ±í
+        // è·å–çº¿ç¨‹åˆ—è¡¨
         try {
             KernelInstance::EnumProcessThread(processForInfoWindow.EProcessULong(), threads);
         }
@@ -234,7 +234,7 @@ namespace winrt::StarlightGUI::implementation
 
         m_threadList.Clear();
         for (const auto& thread : threads) {
-            if (thread.ModuleInfo().empty()) thread.ModuleInfo(L"(Î´Öª)");
+            if (thread.ModuleInfo().empty()) thread.ModuleInfo(L"(æœªçŸ¥)");
 
             m_threadList.Append(thread);
         }
@@ -244,9 +244,9 @@ namespace winrt::StarlightGUI::implementation
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-        // ¸üĞÂÏß³ÌÊıÁ¿ÎÄ±¾
+        // æ›´æ–°çº¿ç¨‹æ•°é‡æ–‡æœ¬
         std::wstringstream countText;
-        countText << L"¹² " << m_threadList.Size() << L" ¸öÏß³Ì (" << duration.count() << " ms)";
+        countText << L"å…± " << m_threadList.Size() << L" ä¸ªçº¿ç¨‹ (" << duration.count() << " ms)";
         ThreadCountText().Text(countText.str());
         threads.clear();
     }
@@ -258,7 +258,7 @@ namespace winrt::StarlightGUI::implementation
         winrt::hstring columnName = clickedButton.Tag().as<winrt::hstring>();
 
         IdHeaderButton().Content(box_value(L"TID"));
-        PriorityHeaderButton().Content(box_value(L"ÓÅÏÈ¼¶"));
+        PriorityHeaderButton().Content(box_value(L"ä¼˜å…ˆçº§"));
 
         if (columnName == L"Id")
         {
@@ -270,7 +270,7 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    // ÅÅĞòÇĞ»»
+    // æ’åºåˆ‡æ¢
     void Process_ThreadPage::ApplySort(bool& isAscending, const std::string& column)
     {
         std::vector<winrt::StarlightGUI::ThreadInfo> sortedThreads;
@@ -281,28 +281,28 @@ namespace winrt::StarlightGUI::implementation
 
         if (column == "Id") {
             if (isAscending) {
-                IdHeaderButton().Content(box_value(L"TID ¡ı"));
+                IdHeaderButton().Content(box_value(L"TID â†“"));
                 std::sort(sortedThreads.begin(), sortedThreads.end(), [](auto a, auto b) {
                     return a.Id() < b.Id();
                     });
 
             }
             else {
-                IdHeaderButton().Content(box_value(L"TID ¡ü"));
+                IdHeaderButton().Content(box_value(L"TID â†‘"));
                 std::sort(sortedThreads.begin(), sortedThreads.end(), [](auto a, auto b) {
                     return a.Id() > b.Id();
                     });
             }
         } else if (column == "Priority") {
             if (isAscending) {
-                PriorityHeaderButton().Content(box_value(L"ÓÅÏÈ¼¶ ¡ı"));
+                PriorityHeaderButton().Content(box_value(L"ä¼˜å…ˆçº§ â†“"));
                 std::sort(sortedThreads.begin(), sortedThreads.end(), [](auto a, auto b) {
                     return a.Priority() < b.Priority();
                     });
 
             }
             else {
-                PriorityHeaderButton().Content(box_value(L"ÓÅÏÈ¼¶ ¡ü"));
+                PriorityHeaderButton().Content(box_value(L"ä¼˜å…ˆçº§ â†‘"));
                 std::sort(sortedThreads.begin(), sortedThreads.end(), [](auto a, auto b) {
                     return a.Priority() > b.Priority();
                     });

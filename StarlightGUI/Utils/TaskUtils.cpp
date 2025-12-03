@@ -1,8 +1,6 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "TaskUtils.h"
-#include "Utils.h"
 #include "TlHelp32.h"
-#include "KernelBase.h"
 #include "shellapi.h"
 #include "Psapi.h"
 
@@ -38,7 +36,7 @@ namespace winrt::StarlightGUI::implementation {
 	}
 
 	/*
-	* ¿ªÆô½ø³ÌĞ§ÄÜÄ£Ê½
+	* å¼€å¯è¿›ç¨‹æ•ˆèƒ½æ¨¡å¼
 	*/
 	bool TaskUtils::EnableProcessPerformanceMode(StarlightGUI::ProcessInfo pi) {
 		int pid = pi.Id();
@@ -63,7 +61,7 @@ namespace winrt::StarlightGUI::implementation {
 	}
 
 	/*
-	* »ñÈ¡½ø³ÌË½ÓĞ¹¤×÷¼¯
+	* è·å–è¿›ç¨‹ç§æœ‰å·¥ä½œé›†
 	*/
 	SIZE_T TaskUtils::GetProcessWorkingSet(HANDLE hProc) {
 		PSAPI_WORKING_SET_INFORMATION workSetInfo{};
@@ -110,7 +108,7 @@ namespace winrt::StarlightGUI::implementation {
 	}
 
 	/*
-	* »ñÈ¡½ø³ÌCPUÕ¼ÓÃ
+	* è·å–è¿›ç¨‹CPUå ç”¨
 	*/
 	winrt::Windows::Foundation::IAsyncAction TaskUtils::FetchProcessCpuUsage(std::map<DWORD, hstring>& processCpuTable) {
 		co_await winrt::resume_background();
@@ -158,7 +156,7 @@ namespace winrt::StarlightGUI::implementation {
 	}
 
 	/*
-	* ¸´ÖÆÖÁ¼ôÌù°å
+	* å¤åˆ¶è‡³å‰ªè´´æ¿
 	*/
 	bool TaskUtils::CopyToClipboard(std::wstring str) {
 		if (str.empty()) {
@@ -200,28 +198,35 @@ namespace winrt::StarlightGUI::implementation {
 		return true;
 	}
 	/*
-	* ´ò¿ªÎÄ¼şËùÔÚÎ»ÖÃ
+	* æ‰“å¼€æ–‡ä»¶æ‰€åœ¨ä½ç½®
 	*/
 	bool TaskUtils::OpenFolderAndSelectFile(std::wstring filePath) {
-		PIDLIST_ABSOLUTE pidl = nullptr;
-
-		HRESULT hr = SHParseDisplayName(filePath.c_str(), nullptr, &pidl, 0, nullptr);
-		if (FAILED(hr) || !pidl) {
-			return false;
+		DWORD attrs = GetFileAttributesW(filePath.c_str());
+		if (attrs == INVALID_FILE_ATTRIBUTES || (attrs & FILE_ATTRIBUTE_DIRECTORY)) {
 			return false;
 		}
 
-		hr = SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
-		CoTaskMemFree(pidl);
+		std::wstring cmd = L"explorer.exe";
+		std::wstring args = L"/select,\"" + filePath + L"\"";
 
-		if (FAILED(hr)) {
-			return false;
+		SHELLEXECUTEINFOW sei = { sizeof(sei) };
+		sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+		sei.lpVerb = L"open";
+		sei.lpFile = cmd.c_str();
+		sei.lpParameters = args.c_str();
+		sei.nShow = SW_SHOWNORMAL;
+
+		BOOL result = ShellExecuteExW(&sei);
+
+		if (sei.hProcess) {
+			CloseHandle(sei.hProcess);
 		}
-		return true;
+
+		return result;
 	}
 
 	/*
-	* ´ò¿ªÎÄ¼şÊôĞÔ
+	* æ‰“å¼€æ–‡ä»¶å±æ€§
 	*/
 	bool TaskUtils::OpenFileProperties(std::wstring filePath) {
 		SHELLEXECUTEINFOW sei = { 0 };

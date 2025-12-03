@@ -30,7 +30,7 @@
                             FontSize="16"
                             Padding="0,5,0,0"
                             Foreground="LightGray"
-                            Text="Copyright © 2025 Starlight. All rights reserved." 
+                            Text="Copyright © 2025 Starlight. Some Rights Reserved." 
                         HorizontalAlignment="Center"/>
                 </StackPanel>
             </Button>

@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Process_HandlePage.xaml.h"
 #if __has_include("Process_HandlePage.g.cpp")
 #include "Process_HandlePage.g.cpp"
@@ -70,7 +70,7 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutItem itemRefresh;
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
-        itemRefresh.Text(L"Ë¢ĞÂ");
+        itemRefresh.Text(L"åˆ·æ–°");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             LoadHandleList();
             co_return;
@@ -78,18 +78,18 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutSeparator separatorR;
 
-        // Ñ¡Ïî1.1
+        // é€‰é¡¹1.1
         MenuFlyoutSubItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue8c8"));
-        item1_1.Text(L"¸´ÖÆĞÅÏ¢");
+        item1_1.Text(L"å¤åˆ¶ä¿¡æ¯");
         MenuFlyoutItem item1_1_sub1;
         item1_1_sub1.Icon(CreateFontIcon(L"\ue943"));
-        item1_1_sub1.Text(L"ÀàĞÍ");
+        item1_1_sub1.Text(L"ç±»å‹");
         item1_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Type().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item1_1.Items().Append(item1_1_sub1);
@@ -114,7 +114,7 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::HandleInfo> handles;
         handles.reserve(500);
 
-        // »ñÈ¡¾ä±úÁĞ±í
+        // è·å–å¥æŸ„åˆ—è¡¨
         try {
             KernelInstance::EnumProcessHandle(processForInfoWindow.Id(), handles);
         } catch (...) {
@@ -124,7 +124,7 @@ namespace winrt::StarlightGUI::implementation
         co_await wil::resume_foreground(DispatcherQueue());
 
         if (handles.size() >= 1000) {
-            CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã½ø³Ì³ÖÓĞ¹ı¶à¾ä±ú£¬³ÌĞòÎŞ·¨ÍêÕûÏÔÊ¾£¬½«ÏÔÊ¾Ç°1000Ìõ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥è¿›ç¨‹æŒæœ‰è¿‡å¤šå¥æŸ„ï¼Œç¨‹åºæ— æ³•å®Œæ•´æ˜¾ç¤ºï¼Œå°†æ˜¾ç¤ºå‰1000æ¡ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
         }
 
         m_handleList.Clear();
@@ -135,9 +135,9 @@ namespace winrt::StarlightGUI::implementation
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-        // ¸üĞÂ¾ä±úÊıÁ¿ÎÄ±¾
+        // æ›´æ–°å¥æŸ„æ•°é‡æ–‡æœ¬
         std::wstringstream countText;
-        countText << L"¹² " << m_handleList.Size() << L" ¸ö¾ä±ú (" << duration.count() << " ms)";
+        countText << L"å…± " << m_handleList.Size() << L" ä¸ªå¥æŸ„ (" << duration.count() << " ms)";
         HandleCountText().Text(countText.str());
         handles.clear();
     }

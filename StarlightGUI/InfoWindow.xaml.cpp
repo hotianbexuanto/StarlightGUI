@@ -1,4 +1,4 @@
-#include "pch.h"
+Ôªø#include "pch.h"
 #include "InfoWindow.xaml.h"
 #if __has_include("InfoWindow.g.cpp")
 #include "InfoWindow.g.cpp"
@@ -12,11 +12,11 @@
 #include <Windows.h>
 #include <winrt/Windows.UI.Xaml.Interop.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
-#include <Utils/Config.h>
 #include <MainWindow.xaml.h>
 #include <Utils/ProcessInfo.h>
 
 using namespace winrt;
+using namespace WinUI3Package;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Media::Imaging;
@@ -42,7 +42,7 @@ namespace winrt::StarlightGUI::implementation
         this->ExtendsContentIntoTitleBar(true);
         this->SetTitleBar(AppTitleBar());
 
-        // Õ‚π€
+        // Â§ñËßÇ
         LoadBackdrop();
         LoadNavigation();
 
@@ -65,17 +65,17 @@ namespace winrt::StarlightGUI::implementation
     {
         auto invokedItem = args.InvokedItem().try_as<winrt::hstring>();
 
-        if (invokedItem == L"œﬂ≥Ã")
+        if (invokedItem == L"Á∫øÁ®ã")
         {
             MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ThreadPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         }
-        else if (invokedItem == L"æ‰±˙")
+        else if (invokedItem == L"Âè•ÊüÑ")
         {
             MainFrame().Navigate(xaml_typename<StarlightGUI::Process_HandlePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
         }
-        else if (invokedItem == L"ƒ£øÈ")
+        else if (invokedItem == L"Ê®°Âùó")
         {
             MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ModulePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
@@ -87,15 +87,31 @@ namespace winrt::StarlightGUI::implementation
         auto background_type = ReadConfig("background_type", "Static");
 
         if (background_type == "Mica") {
-            micaBackdrop = winrt::Microsoft::UI::Xaml::Media::MicaBackdrop();
-            micaBackdrop.Kind(MicaKind::BaseAlt);
-
+            micaBackdrop = CustomMicaBackdrop();
             this->SystemBackdrop(micaBackdrop);
+
+            auto mica_type = ReadConfig("mica_type", "BaseAlt");
+            if (mica_type == "Base") {
+                micaBackdrop.Kind(MicaKind::Base);
+            }
+            else {
+                micaBackdrop.Kind(MicaKind::BaseAlt);
+            }
         }
         else if (background_type == "Acrylic") {
-            acrylicBackdrop = winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop();
-
+            acrylicBackdrop = CustomAcrylicBackdrop();
             this->SystemBackdrop(acrylicBackdrop);
+
+            auto acrylic_type = ReadConfig("acrylic_type", "Default");
+            if (acrylic_type == "Base") {
+                acrylicBackdrop.Kind(DesktopAcrylicKind::Base);
+            }
+            else if (acrylic_type == "Thin") {
+                acrylicBackdrop.Kind(DesktopAcrylicKind::Thin);
+            }
+            else {
+                acrylicBackdrop.Kind(DesktopAcrylicKind::Default);
+            }
         }
         else
         {

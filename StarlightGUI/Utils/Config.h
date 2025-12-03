@@ -16,7 +16,7 @@ namespace winrt::StarlightGUI::implementation {
     static auto ReadConfig(std::string key, T defaultValue) {
         try
         {
-            // »ñÈ¡ÓÃ»§ÎÄ¼ş¼ĞÂ·¾¶
+            // è·å–ç”¨æˆ·æ–‡ä»¶å¤¹è·¯å¾„
             char* value = NULL;
             size_t len = 0;
 
@@ -51,7 +51,7 @@ namespace winrt::StarlightGUI::implementation {
     static void SaveConfig(std::string key, T s_value) {
         try
         {
-            // »ñÈ¡ÓÃ»§ÎÄ¼ş¼ĞÂ·¾¶
+            // è·å–ç”¨æˆ·æ–‡ä»¶å¤¹è·¯å¾„
             char* value = NULL;
             size_t len = 0;
 

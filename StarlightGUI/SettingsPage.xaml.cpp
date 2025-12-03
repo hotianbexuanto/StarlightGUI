@@ -5,6 +5,7 @@
 #include "SettingsPage.g.cpp"
 #endif
 #include "MainWindow.xaml.h"
+#include "InfoWindow.xaml.h"
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -14,6 +15,8 @@ namespace winrt::StarlightGUI::implementation
 {
     static bool loaded;
     static std::string background_type;
+    static std::string mica_type;
+    static std::string acrylic_type;
     static bool dangerous_confirm;
     static bool elevator_full_privileges;
     static bool bypass_signature;
@@ -27,11 +30,19 @@ namespace winrt::StarlightGUI::implementation
 
         // idk why it cant understand the fucking boolean
         background_type = ReadConfig("background_type", "Static");
+        mica_type = ReadConfig("mica_type", "BaseAlt");
+        acrylic_type = ReadConfig("acrylic_type", "Default");
         dangerous_confirm = ReadConfig("dangerous_confirm", true);
         elevator_full_privileges = ReadConfig("elevator_full_privileges", true);
         bypass_signature = ReadConfig("bypass_signature", false);
         navigation_style = ReadConfig("navigation_style", "LeftCompact");
 
+        InitializeOptions();
+
+        loaded = true;
+    }
+
+    void SettingsPage::InitializeOptions() {
         if (background_type == "Mica") {
             BackgroundComboBox().SelectedIndex(1);
         }
@@ -52,11 +63,26 @@ namespace winrt::StarlightGUI::implementation
             NavigationComboBox().SelectedIndex(0);
         }
 
+        if (mica_type == "Base") {
+            MicaTypeComboBox().SelectedIndex(1);
+        }
+        else {
+            MicaTypeComboBox().SelectedIndex(0);
+        }
+
+        if (acrylic_type == "Base") {
+            AcrylicTypeComboBox().SelectedIndex(1);
+        }
+        else if (acrylic_type == "Thin") {
+            AcrylicTypeComboBox().SelectedIndex(2);
+        }
+        else {
+            AcrylicTypeComboBox().SelectedIndex(0);
+        }
+
         DangerousConfirmButton().IsOn(dangerous_confirm);
         FullPrivilegesButton().IsOn(elevator_full_privileges);
         BypassSignatureButton().IsOn(bypass_signature);
-
-        loaded = true;
     }
 
     void SettingsPage::BackgroundComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
@@ -66,27 +92,58 @@ namespace winrt::StarlightGUI::implementation
         if (BackgroundComboBox().SelectedIndex() == 0)
         {
             background_type = "Static";
-
-            g_mainWindowInstance->SystemBackdrop(nullptr);
         }
         else if (BackgroundComboBox().SelectedIndex() == 1)
         {
             background_type = "Mica";
-
-            micaBackdrop = winrt::Microsoft::UI::Xaml::Media::MicaBackdrop();
-            micaBackdrop.Kind(winrt::Microsoft::UI::Composition::SystemBackdrops::MicaKind::BaseAlt);
-
-            g_mainWindowInstance->SystemBackdrop(micaBackdrop);
         }
         else if (BackgroundComboBox().SelectedIndex() == 2)
         {
             background_type = "Acrylic";
-
-            acrylicBackdrop = winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop();
-
-            g_mainWindowInstance->SystemBackdrop(acrylicBackdrop);
         }
         SaveConfig("background_type", background_type);
+
+        g_mainWindowInstance->LoadBackdrop();
+    }
+
+    void SettingsPage::MicaTypeComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
+    {
+        if (!loaded) return;
+
+        if (MicaTypeComboBox().SelectedIndex() == 0)
+        {
+            mica_type = "Base";
+        }
+        else
+        {
+            mica_type = "BaseAlt";
+        }
+
+        SaveConfig("mica_type", mica_type);
+
+        g_mainWindowInstance->LoadBackdrop();
+    }
+
+    void SettingsPage::AcrylicTypeComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
+    {
+        if (!loaded) return;
+
+        if (AcrylicTypeComboBox().SelectedIndex() == 1)
+        {
+            acrylic_type = "Base";
+        }
+        else if (AcrylicTypeComboBox().SelectedIndex() == 2) 
+        {
+            acrylic_type = "Thin";
+        }
+        else
+        {
+            acrylic_type = "Default";
+        }
+
+        SaveConfig("acrylic_type", acrylic_type);
+
+        g_mainWindowInstance->LoadBackdrop();
     }
     
     void SettingsPage::NavigationComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)

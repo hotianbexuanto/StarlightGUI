@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "TaskPage.xaml.h"
 #if __has_include("TaskPage.g.cpp")
 #include "TaskPage.g.cpp"
@@ -19,12 +19,10 @@
 #include <iomanip>
 #include <mutex>
 #include <shellapi.h>
-#include <Utils/TaskUtils.h>
-#include <Utils/Utils.h>
-#include <Utils/KernelBase.h>
 #include <unordered_set>
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
+#include <RunProcessDialog.xaml.h>
 
 using namespace winrt;
 using namespace Microsoft::UI::Text;
@@ -68,18 +66,18 @@ namespace winrt::StarlightGUI::implementation
     }
 
     void TaskPage::StartLoop() {
-        // ¼ÓÔØÒ»´ÎÁĞ±í
+        // åŠ è½½ä¸€æ¬¡åˆ—è¡¨
         LoadProcessList(true);
 
-        // Ã¿15ÃëË¢ĞÂÒ»´ÎÁĞ±í
+        // æ¯15ç§’åˆ·æ–°ä¸€æ¬¡åˆ—è¡¨
         defaultRefreshTimer.Interval(std::chrono::seconds(15));
         defaultRefreshTimer.Tick([this](auto&&, auto&&) {
             if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
             });
         defaultRefreshTimer.Start();
 
-        // Ã¿100ÃëÇå³ıÒ»´Î»º´æ
-        // ĞÂ½ø³Ì²úÉúÏàÍ¬PIDµÄÇé¿ö¸ÅÂÊºÜĞ¡£¬ËùÒÔÕâ¸ö¼ä¸ô¿ÉÒÔ´óÒ»µã
+        // æ¯100ç§’æ¸…é™¤ä¸€æ¬¡ç¼“å­˜
+        // æ–°è¿›ç¨‹äº§ç”Ÿç›¸åŒPIDçš„æƒ…å†µæ¦‚ç‡å¾ˆå°ï¼Œæ‰€ä»¥è¿™ä¸ªé—´éš”å¯ä»¥å¤§ä¸€ç‚¹
         cacheClearTimer.Interval(std::chrono::seconds(100));
         cacheClearTimer.Tick([this](auto&&, auto&&) {
             iconCache.clear();
@@ -107,134 +105,119 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyout menuFlyout;
 
-        // Ñ¡Ïî1.1
+
+        // é€‰é¡¹1.1
         MenuFlyoutItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue711"));
-        item1_1.Text(L"½áÊø½ø³Ì");
+        item1_1.Text(L"ç»“æŸè¿›ç¨‹");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::_TerminateProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦½áÊø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸç»“æŸè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList(true);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨½áÊø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•ç»“æŸè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
-        // Ñ¡Ïî1.2
+        // é€‰é¡¹1.2
         MenuFlyoutItem item1_2;
         item1_2.Icon(CreateFontIcon(L"\ue8f0"));
-        item1_2.Text(L"½áÊø½ø³Ì (ÄÚºË)");
+        item1_2.Text(L"ç»“æŸè¿›ç¨‹ (å†…æ ¸)");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::_ZwTerminateProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦½áÊø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸç»“æŸè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList(true);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨½áÊø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•ç»“æŸè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
+        if (!KernelInstance::IsRunningAsAdmin()) item1_2.IsEnabled(false);
 
-        // Ñ¡Ïî1.3
+        // é€‰é¡¹1.3
         MenuFlyoutItem item1_3;
         item1_3.Icon(CreateFontIcon(L"\ue945"));
-        item1_3.Text(L"Ç¿ÖÆ½áÊø½ø³Ì");
+        item1_3.Text(L"å¼ºåˆ¶ç»“æŸè¿›ç¨‹");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (safeAcceptedPID == item.Id()) {
                 if (KernelInstance::MurderProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Ç¿ÖÆ½áÊø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå¼ºåˆ¶ç»“æŸè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                     LoadProcessList(true);
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Ç¿ÖÆ½áÊø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¼ºåˆ¶ç»“æŸè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
             else {
                 safeAcceptedPID = item.Id();
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã²Ù×÷¿ÉÄÜµ¼ÖÂÏµÍ³±ÀÀ£»ò½ø³ÌÊı¾İ¶ªÊ§£¬Èç¹ûÈ·ÈÏ¼ÌĞøÇëÔÙ´Îµã»÷£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥æ“ä½œå¯èƒ½å¯¼è‡´ç³»ç»Ÿå´©æºƒæˆ–è¿›ç¨‹æ•°æ®ä¸¢å¤±ï¼Œå¦‚æœç¡®è®¤ç»§ç»­è¯·å†æ¬¡ç‚¹å‡»ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
             co_return;
             });
+        if (!KernelInstance::IsRunningAsAdmin()) item1_3.IsEnabled(false);
 
-        // ·Ö¸îÏß1
+        // åˆ†å‰²çº¿1
         MenuFlyoutSeparator separator1;
 
-        // Ñ¡Ïî2.1
+        // é€‰é¡¹2.1
         MenuFlyoutSubItem item2_1;
         item2_1.Icon(CreateFontIcon(L"\ue912"));
-        item2_1.Text(L"ÉèÖÃ½ø³Ì×´Ì¬");
+        item2_1.Text(L"è®¾ç½®è¿›ç¨‹çŠ¶æ€");
         MenuFlyoutItem item2_1_sub1;
         item2_1_sub1.Icon(CreateFontIcon(L"\ue769"));
-        item2_1_sub1.Text(L"ÔİÍ£½ø³Ì");
+        item2_1_sub1.Text(L"æš‚åœè¿›ç¨‹");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::_SuspendProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÔİÍ£½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸæš‚åœè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÔİÍ£½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æš‚åœè¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
         item2_1_sub2.Icon(CreateFontIcon(L"\ue768"));
-        item2_1_sub2.Text(L"»Ö¸´½ø³Ì");
+        item2_1_sub2.Text(L"æ¢å¤è¿›ç¨‹");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::_ResumeProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦»Ö¸´½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸæ¢å¤è¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨»Ö¸´½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ¢å¤è¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
+        if (!KernelInstance::IsRunningAsAdmin()) item2_1.IsEnabled(false);
 
-        // Ñ¡Ïî2.2
+        // é€‰é¡¹2.2
         MenuFlyoutItem item2_2;
         item2_2.Icon(CreateFontIcon(L"\ued1a"));
-        item2_2.Text(L"Òş²Ø½ø³Ì");
+        item2_2.Text(L"éšè—è¿›ç¨‹");
         item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::HideProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Òş²Ø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸéšè—è¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList(true);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Òş²Ø½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•éšè—è¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
+        if (!KernelInstance::IsRunningAsAdmin()) item2_2.IsEnabled(false);
 
-        // Ñ¡Ïî2.3
+        // é€‰é¡¹2.3
         MenuFlyoutSubItem item2_3;
         item2_3.Icon(CreateFontIcon(L"\uea18"));
-        item2_3.Text(L"ÉèÖÃPPLµÈ¼¶");
+        item2_3.Text(L"è®¾ç½®PPLç­‰çº§");
         MenuFlyoutItem item2_3_sub1;
 
-        // PPLµÈ¼¶
+        // PPLç­‰çº§
         item2_3_sub1.Text(L"None");
         item2_3_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_None)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª None (0x00).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º None (0x00).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub1);
@@ -242,14 +225,14 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub2.Text(L"Authenticode");
         item2_3_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_Authenticode)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª Authenticode (0x11).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º Authenticode (0x11).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub2);
@@ -257,14 +240,14 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub3.Text(L"Codegen");
         item2_3_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_Codegen)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª Codegen (0x21).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º Codegen (0x21).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub3);
@@ -272,14 +255,14 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub4.Text(L"Antimalware");
         item2_3_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_Antimalware)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª Antimalware (0x31).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º Antimalware (0x31).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub4);
@@ -287,14 +270,14 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub5.Text(L"Lsa");
         item2_3_sub5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_Lsa)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª Lsa (0x41).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º Lsa (0x41).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub5);
@@ -302,14 +285,14 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub6.Text(L"Windows");
         item2_3_sub6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_Windows)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª Windows (0x51).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º Windows (0x51).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub6);
@@ -317,14 +300,14 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub7.Text(L"WinTcb");
         item2_3_sub7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_WinTcb)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª WinTcb (0x61).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º WinTcb (0x61).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub7);
@@ -332,82 +315,81 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub8.Text(L"WinSystem");
         item2_3_sub8.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (KernelInstance::SetPPL(item.Id(), PPL_WinSystem)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃ½ø³ÌPPLµÈ¼¶Îª WinSystem (0x71).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®è¿›ç¨‹PPLç­‰çº§ä¸º WinSystem (0x71).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃ½ø³ÌPPLµÈ¼¶, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®è¿›ç¨‹PPLç­‰çº§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item2_3.Items().Append(item2_3_sub8);
+        if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);
 
-        // Ñ¡Ïî2.4
+        // é€‰é¡¹2.4
         MenuFlyoutItem item2_4;
         item2_4.Icon(CreateFontIcon(L"\ue8c9"));
-        item2_4.Text(L"ÉèÖÃÎª¹Ø¼ü½ø³Ì");
+        item2_4.Text(L"è®¾ç½®ä¸ºå…³é”®è¿›ç¨‹");
         item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä½¿ç”¨è¯¥åŠŸèƒ½éœ€è¦ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œç¨‹åºï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 co_return;
             }
             if (safeAcceptedPID == item.Id()) {
                 if (KernelInstance::SetCriticalProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÉèÖÃÎª¹Ø¼ü½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸè®¾ç½®ä¸ºå…³é”®è¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                     LoadProcessList();
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÉèÖÃÎª¹Ø¼ü½ø³Ì: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•è®¾ç½®ä¸ºå…³é”®è¿›ç¨‹: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
             else {
                 safeAcceptedPID = item.Id();
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"ÉèÖÃÎª¹Ø¼ü½ø³Ìºó£¬¸Ã½ø³ÌÍË³ö»áµ¼ÖÂÀ¶ÆÁ£¬Èç¹ûÈ·ÈÏ¼ÌĞøÇëÔÙ´Îµã»÷£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è®¾ç½®ä¸ºå…³é”®è¿›ç¨‹åï¼Œè¯¥è¿›ç¨‹é€€å‡ºä¼šå¯¼è‡´è“å±ï¼Œå¦‚æœç¡®è®¤ç»§ç»­è¯·å†æ¬¡ç‚¹å‡»ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
             co_return;
             });
+        if (!KernelInstance::IsRunningAsAdmin()) item2_4.IsEnabled(false);
 
         MenuFlyoutItem item2_x;
         item2_x.Icon(CreateFontIcon(L"\uf1e8"));
-        item2_x.Text(L"Ğ§ÂÊÄ£Ê½");
+        item2_x.Text(L"æ•ˆç‡æ¨¡å¼");
         item2_x.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::EnableProcessPerformanceMode(item)) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Îª½ø³Ì¿ªÆôĞ§ÂÊÄ£Ê½: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸä¸ºè¿›ç¨‹å¼€å¯æ•ˆç‡æ¨¡å¼: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadProcessList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Îª½ø³Ì¿ªÆôĞ§ÂÊÄ£Ê½: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•ä¸ºè¿›ç¨‹å¼€å¯æ•ˆç‡æ¨¡å¼: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
-        // ·Ö¸îÏß2
+        // åˆ†å‰²çº¿2
         MenuFlyoutSeparator separator2;
 
         MenuFlyoutItem item3_1;
         item3_1.Icon(CreateFontIcon(L"\ue946"));
-        item3_1.Text(L"¸ü¶àĞÅÏ¢");
+        item3_1.Text(L"æ›´å¤šä¿¡æ¯");
         item3_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ê¹ÓÃ¸Ã¹¦ÄÜĞèÒªÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ¸Ã³ÌĞò£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             processForInfoWindow = item;
             auto infoWindow = winrt::make<InfoWindow>();
             infoWindow.Activate();
             co_return;
             });
+        if (!KernelInstance::IsRunningAsAdmin()) item3_1.IsEnabled(false);
 
-        // Ñ¡Ïî3.1
+        // é€‰é¡¹3.1
         MenuFlyoutSubItem item3_2;
         item3_2.Icon(CreateFontIcon(L"\ue8c8"));
-        item3_2.Text(L"¸´ÖÆĞÅÏ¢");
+        item3_2.Text(L"å¤åˆ¶ä¿¡æ¯");
         MenuFlyoutItem item3_2_sub1;
         item3_2_sub1.Icon(CreateFontIcon(L"\ue8ac"));
-        item3_2_sub1.Text(L"Ãû³Æ");
+        item3_2_sub1.Text(L"åç§°");
         item3_2_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item3_2.Items().Append(item3_2_sub1);
@@ -416,20 +398,20 @@ namespace winrt::StarlightGUI::implementation
         item3_2_sub2.Text(L"PID");
         item3_2_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(std::to_wstring(item.Id()))) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item3_2.Items().Append(item3_2_sub2);
         MenuFlyoutItem item3_2_sub3;
         item3_2_sub3.Icon(CreateFontIcon(L"\uec6c"));
-        item3_2_sub3.Text(L"ÎÄ¼şÂ·¾¶");
+        item3_2_sub3.Text(L"æ–‡ä»¶è·¯å¾„");
         item3_2_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.ExecutablePath().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item3_2.Items().Append(item3_2_sub3);
@@ -438,34 +420,35 @@ namespace winrt::StarlightGUI::implementation
         item3_2_sub4.Text(L"EPROCESS");
         item3_2_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.EProcess().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item3_2.Items().Append(item3_2_sub4);
+        if (!KernelInstance::IsRunningAsAdmin()) item3_2_sub4.IsEnabled(false);
 
-        // Ñ¡Ïî5
+        // é€‰é¡¹5
         MenuFlyoutItem item3_3;
         item3_3.Icon(CreateFontIcon(L"\uec50"));
-        item3_3.Text(L"´ò¿ªÎÄ¼şËùÔÚÎ»ÖÃ");
+        item3_3.Text(L"æ‰“å¼€æ–‡ä»¶æ‰€åœ¨ä½ç½®");
         item3_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFolderAndSelectFile(item.ExecutablePath().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ´ò¿ªÎÄ¼ş¼Ğ", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²æ‰“å¼€æ–‡ä»¶å¤¹", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨´ò¿ªÎÄ¼ş¼Ğ, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ‰“å¼€æ–‡ä»¶å¤¹, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
-        // Ñ¡Ïî6
+        // é€‰é¡¹6
         MenuFlyoutItem item3_4;
         item3_4.Icon(CreateFontIcon(L"\ue8ec"));
-        item3_4.Text(L"ÊôĞÔ");
+        item3_4.Text(L"å±æ€§");
         item3_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFileProperties(item.ExecutablePath().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ´ò¿ªÎÄ¼şÊôĞÔ", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²æ‰“å¼€æ–‡ä»¶å±æ€§", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨´ò¿ªÎÄ¼şÊôĞÔ, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ‰“å¼€æ–‡ä»¶å±æ€§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
@@ -515,7 +498,7 @@ namespace winrt::StarlightGUI::implementation
             HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
             if (hSnapshot == INVALID_HANDLE_VALUE) {
                 co_await wil::resume_foreground(DispatcherQueue());
-                CreateInfoBarAndDisplay(L"´íÎó", L"ÎŞ·¨»ñÈ¡½ø³Ì¿ìÕÕ", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"é”™è¯¯", L"æ— æ³•è·å–è¿›ç¨‹å¿«ç…§", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
                 co_return;
             }
 
@@ -551,7 +534,7 @@ namespace winrt::StarlightGUI::implementation
             processes = fullRecordedProcesses;
         }
 
-        // Òì²½¼ÓÔØCPUÊ¹ÓÃÂÊ
+        // å¼‚æ­¥åŠ è½½CPUä½¿ç”¨ç‡
         co_await TaskUtils::FetchProcessCpuUsage(processCpuTable);
 
         co_await wil::resume_foreground(DispatcherQueue());
@@ -562,39 +545,39 @@ namespace winrt::StarlightGUI::implementation
             bool shouldRemove = query.empty() ? false : co_await ApplyFilter(process, query);
             if (shouldRemove) continue;
 
-			// ´Ó»º´æ¼ÓÔØÍ¼±ê£¬Ã»ÓĞÔò»ñÈ¡
+			// ä»ç¼“å­˜åŠ è½½å›¾æ ‡ï¼Œæ²¡æœ‰åˆ™è·å–
             co_await GetProcessIconAsync(process);
 
-            // ¼ÓÔØCPUÕ¼ÓÃ
+            // åŠ è½½CPUå ç”¨
             if (processCpuTable.find((DWORD)process.Id()) != processCpuTable.end()) process.CpuUsage(processCpuTable[(DWORD)process.Id()]);
 
-            // ¸ñÊ½»¯ÄÚ´æÕ¼ÓÃ
+            // æ ¼å¼åŒ–å†…å­˜å ç”¨
             if (process.MemoryUsageByte() != 0) process.MemoryUsage(FormatMemorySize(process.MemoryUsageByte()));
 
-            if (process.CpuUsage().empty()) process.CpuUsage(L"-1 (Î´Öª)");
-            if (process.MemoryUsage().empty()) process.MemoryUsage(L"-1 (Î´Öª)");
-            if (process.Status().empty()) process.Status(L"ÔËĞĞÖĞ");
-            if (process.EProcess().empty()) process.EProcess(L"(Î´Öª)");
+            if (process.CpuUsage().empty()) process.CpuUsage(L"-1 (æœªçŸ¥)");
+            if (process.MemoryUsage().empty()) process.MemoryUsage(L"-1 (æœªçŸ¥)");
+            if (process.Status().empty()) process.Status(L"è¿è¡Œä¸­");
+            if (process.EProcess().empty()) process.EProcess(L"(æœªçŸ¥)");
 
-            // Ñ°ÕÒÑ¡ÖĞÄ¿±ê
+            // å¯»æ‰¾é€‰ä¸­ç›®æ ‡
             if (selectedItemId == process.Id()) selectedTarget = process;
 
             m_processList.Append(process);
         }
 
-        // »Ö¸´ÅÅĞò
+        // æ¢å¤æ’åº
         ApplySort(currentSortingOption, currentSortingType);
 
         auto end = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-		// ¸üĞÂ½ø³ÌÊıÁ¿ÎÄ±¾
+		// æ›´æ–°è¿›ç¨‹æ•°é‡æ–‡æœ¬
         std::wstringstream countText;
-        countText << L"¹² " << m_processList.Size() << L" ¸ö½ø³Ì (" << duration << " ms)";
+        countText << L"å…± " << m_processList.Size() << L" ä¸ªè¿›ç¨‹ (" << duration << " ms)";
         ProcessCountText().Text(countText.str());
         processes.clear();
 
-		// »Ö¸´Ñ¡ÖĞÏî
+		// æ¢å¤é€‰ä¸­é¡¹
         uint32_t selectedIndex;
         if (m_processList.IndexOf(selectedTarget, selectedIndex)) {
             ProcessListView().SelectedIndex(selectedIndex);
@@ -605,7 +588,7 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::Windows::Foundation::IAsyncAction TaskPage::GetProcessInfoAsync(const PROCESSENTRY32W& pe32, std::vector<winrt::StarlightGUI::ProcessInfo>& processes)
     {
-		// Ìø¹ıÉ¸Ñ¡µÄPID£¬ÔÚËÑË÷Ê±ĞÔÄÜ¸üºÃ
+		// è·³è¿‡ç­›é€‰çš„PIDï¼Œåœ¨æœç´¢æ—¶æ€§èƒ½æ›´å¥½
         std::lock_guard<std::mutex> lock(safelock);
         if (filteredPids.find(pe32.th32ProcessID) != filteredPids.end()) {
             co_return;
@@ -624,7 +607,7 @@ namespace winrt::StarlightGUI::implementation
                     }
                 }
 
-				// »º´æÃèÊöĞÅÏ¢
+				// ç¼“å­˜æè¿°ä¿¡æ¯
                 if (descriptionCache.find(processName) == descriptionCache.end()) {
                     DWORD dummy;
                     DWORD versionInfoSize = GetFileVersionInfoSizeW(processName, &dummy);
@@ -650,7 +633,7 @@ namespace winrt::StarlightGUI::implementation
                     }
 
                     if (description.empty()) {
-                        description = L"Ó¦ÓÃ³ÌĞò";
+                        description = L"åº”ç”¨ç¨‹åº";
                     }
 
 					descriptionCache[processName] = description;
@@ -662,7 +645,7 @@ namespace winrt::StarlightGUI::implementation
                 processInfo.Description(descriptionCache[processName]);
                 processInfo.MemoryUsageByte(memoryUsage);
                 processInfo.ExecutablePath(processName);
-                processInfo.Icon(nullptr); // ÏÈÉèÖÃ³Énull£¬ºóÃæÔÙ¼ÓÔØ
+                processInfo.Icon(nullptr); // å…ˆè®¾ç½®æˆnullï¼Œåé¢å†åŠ è½½
 
                 processes.push_back(processInfo);
             }
@@ -699,7 +682,7 @@ namespace winrt::StarlightGUI::implementation
 
                 winrt::Microsoft::UI::Xaml::Media::Imaging::WriteableBitmap writeableBitmap(bmp.bmWidth, bmp.bmHeight);
 
-                // ½«Êı¾İĞ´Èë WriteableBitmap
+                // å°†æ•°æ®å†™å…¥ WriteableBitmap
                 uint8_t* data = writeableBitmap.PixelBuffer().data();
                 int rowSize = bmp.bmWidth * 4;
                 for (int i = 0; i < bmp.bmHeight; ++i) {
@@ -712,7 +695,7 @@ namespace winrt::StarlightGUI::implementation
                 DeleteObject(iconInfo.hbmMask);
                 DestroyIcon(shfi.hIcon);
 
-                // ½«Í¼±ê»º´æµ½ map ÖĞ
+                // å°†å›¾æ ‡ç¼“å­˜åˆ° map ä¸­
                 iconCache[process.ExecutablePath()] = writeableBitmap.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>();
             }
         }
@@ -765,12 +748,12 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    // ÅÅĞòÇĞ»»
+    // æ’åºåˆ‡æ¢
     winrt::fire_and_forget TaskPage::ApplySort(bool& isAscending, const std::string& column)
     {
-        NameHeaderButton().Content(box_value(L"½ø³Ì"));
+        NameHeaderButton().Content(box_value(L"è¿›ç¨‹"));
         CpuHeaderButton().Content(box_value(L"CPU"));
-        MemoryHeaderButton().Content(box_value(L"ÄÚ´æ"));
+        MemoryHeaderButton().Content(box_value(L"å†…å­˜"));
         IdHeaderButton().Content(box_value(L"PID"));
 
         std::vector<winrt::StarlightGUI::ProcessInfo> sortedProcesses;
@@ -781,7 +764,7 @@ namespace winrt::StarlightGUI::implementation
 
         if (column == "Name") {
             if (isAscending) {
-                NameHeaderButton().Content(box_value(L"½ø³Ì ¡ı"));
+                NameHeaderButton().Content(box_value(L"è¿›ç¨‹ â†“"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -793,7 +776,7 @@ namespace winrt::StarlightGUI::implementation
                 
             }
             else {
-                NameHeaderButton().Content(box_value(L"½ø³Ì ¡ü"));
+                NameHeaderButton().Content(box_value(L"è¿›ç¨‹ â†‘"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -806,13 +789,13 @@ namespace winrt::StarlightGUI::implementation
         }
         else if (column == "CpuUsage") {
             if (isAscending) {
-                CpuHeaderButton().Content(box_value(L"CPU ¡ı"));
+                CpuHeaderButton().Content(box_value(L"CPU â†“"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     return std::stod(a.CpuUsage().c_str()) < std::stod(b.CpuUsage().c_str());
                     });
             }
             else {
-                CpuHeaderButton().Content(box_value(L"CPU ¡ü"));
+                CpuHeaderButton().Content(box_value(L"CPU â†‘"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     return std::stod(a.CpuUsage().c_str()) > std::stod(b.CpuUsage().c_str());
                     });
@@ -820,13 +803,13 @@ namespace winrt::StarlightGUI::implementation
         }
         else if (column == "MemoryUsage") {
             if (isAscending) {
-                MemoryHeaderButton().Content(box_value(L"ÄÚ´æ ¡ı"));
+                MemoryHeaderButton().Content(box_value(L"å†…å­˜ â†“"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() < b.MemoryUsageByte();
                     });
             }
             else {
-                MemoryHeaderButton().Content(box_value(L"ÄÚ´æ ¡ü"));
+                MemoryHeaderButton().Content(box_value(L"å†…å­˜ â†‘"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() > b.MemoryUsageByte();
                     });
@@ -834,13 +817,13 @@ namespace winrt::StarlightGUI::implementation
         }
         else if (column == "Id") {
             if (isAscending) {
-                IdHeaderButton().Content(box_value(L"PID ¡ı"));
+                IdHeaderButton().Content(box_value(L"PID â†“"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     return a.Id() < b.Id();
                     });
             }
             else {
-                IdHeaderButton().Content(box_value(L"PID ¡ü"));
+                IdHeaderButton().Content(box_value(L"PID â†‘"));
                 std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
                     return a.Id() > b.Id();
                     });
@@ -861,21 +844,21 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget TaskPage::ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-		// Ã¿´ÎËÑË÷¶¼Çå¿ÕÖ®Ç°»º´æµÄ¹ıÂË½á¹û
+		// æ¯æ¬¡æœç´¢éƒ½æ¸…ç©ºä¹‹å‰ç¼“å­˜çš„è¿‡æ»¤ç»“æœ
         filteredPids.clear();
 
         winrt::hstring query;
         ProcessSearchBox().Document().GetText(TextGetOptions::NoHidden, query);
 
         /*
-        * ÎÒÃÇµÄË¼Â·ÊÇÕâÑùµÄ£º
-        *  - ÔÚLoadProcessList()ÖĞ£¬Èç¹ûËÑË÷¿òÎª¿Õ£¬Ôò»º´æÒ»´ÎÍêÕûµÄ½ø³ÌÁĞ±í
-        *  - ËÑË÷Ê±£¬ÏÈ±éÀúÕâ¸öÍêÕûµÄ½ø³ÌÁĞ±í£¬¼ÇÂ¼ĞèÒª¹ıÂËµôµÄ½ø³ÌPID
-        *  - ÓÉÓÚÔÚ±éÀú½ø³ÌÊ±£¬ÎÒÃÇ»áÏÈ¼ì²éÒ»±éfilteredPids£¬ËùÒÔÕâ»áÖ±½ÓÌø¹ı½ø³ÌµÄËùÓĞ´¦Àí
-        *  - Ô­ÏÈµÄÂß¼­ÊÇÃ¿´ÎËÑË÷¶¼ÖØĞÂ»ñÈ¡½ø³ÌÁĞ±í£¬È»ºóÔÙÉ¸Ñ¡Ò»±éµÃµ½ĞèÒªÌí¼Óµ½ListViewµÄ½ø³Ì£¬ÕâÒâÎ¶×ÅÎÒÃÇÈÔÈ»»áÈ¥´¦Àí½ø³Ì£¬¼´Ê¹Ëü×îÖÕ»á±»¹ıÂËµô
-        *  - ÕâÑù¿ÉÒÔ´ó·ùÌáÉıËÑË÷ĞÔÄÜ£¬²¢ÇÒÎÒÃÇ»áÔÚÌí¼Ó½ø³ÌÊ±ÔÙ½ø³ÌÒ»´Î¹ıÂË£¬È·±£ĞÂÔöµÄ½ø³ÌÒ²»á±»Õı³£¹ıÂË
-        *  - Î¨Ò»µÄÈ±µãÊÇ£¬Èç¹ûÕıºÃÔ­ÏÈÓĞ¸ö½ø³ÌÍË³ö£¬È»ºóĞÂÆô¶¯ÁËÒ»¸ö½ø³Ì£¬Õâ¸öĞÂ½ø³ÌµÄPIDÕıºÃÊÇÖ®Ç°±»¹ıÂËµôµÄ½ø³ÌµÄPID£¬ÄÇÃ´Õâ¸öĞÂ½ø³Ì¾Í»á±»´íÎóµØ¹ıÂËµô
-        *  - µ«ÕâÖÖÇé¿ö·¢ÉúµÄ¸ÅÂÊ¼«µÍ£¬¶øÇÒÓ°ÏìÒ²²»´ó£¬ËùÒÔ¿ÉÒÔ½ÓÊÜ£¬ÎÒÃÇ»¹ÓĞ¸öË¢ĞÂ°´Å¥¿ÉÒÔÊÖ¶¯Ë¢ĞÂ½ø³ÌÁĞ±í
+        * æˆ‘ä»¬çš„æ€è·¯æ˜¯è¿™æ ·çš„ï¼š
+        *  - åœ¨LoadProcessList()ä¸­ï¼Œå¦‚æœæœç´¢æ¡†ä¸ºç©ºï¼Œåˆ™ç¼“å­˜ä¸€æ¬¡å®Œæ•´çš„è¿›ç¨‹åˆ—è¡¨
+        *  - æœç´¢æ—¶ï¼Œå…ˆéå†è¿™ä¸ªå®Œæ•´çš„è¿›ç¨‹åˆ—è¡¨ï¼Œè®°å½•éœ€è¦è¿‡æ»¤æ‰çš„è¿›ç¨‹PID
+        *  - ç”±äºåœ¨éå†è¿›ç¨‹æ—¶ï¼Œæˆ‘ä»¬ä¼šå…ˆæ£€æŸ¥ä¸€éfilteredPidsï¼Œæ‰€ä»¥è¿™ä¼šç›´æ¥è·³è¿‡è¿›ç¨‹çš„æ‰€æœ‰å¤„ç†
+        *  - åŸå…ˆçš„é€»è¾‘æ˜¯æ¯æ¬¡æœç´¢éƒ½é‡æ–°è·å–è¿›ç¨‹åˆ—è¡¨ï¼Œç„¶åå†ç­›é€‰ä¸€éå¾—åˆ°éœ€è¦æ·»åŠ åˆ°ListViewçš„è¿›ç¨‹ï¼Œè¿™æ„å‘³ç€æˆ‘ä»¬ä»ç„¶ä¼šå»å¤„ç†è¿›ç¨‹ï¼Œå³ä½¿å®ƒæœ€ç»ˆä¼šè¢«è¿‡æ»¤æ‰
+        *  - è¿™æ ·å¯ä»¥å¤§å¹…æå‡æœç´¢æ€§èƒ½ï¼Œå¹¶ä¸”æˆ‘ä»¬ä¼šåœ¨æ·»åŠ è¿›ç¨‹æ—¶å†è¿›ç¨‹ä¸€æ¬¡è¿‡æ»¤ï¼Œç¡®ä¿æ–°å¢çš„è¿›ç¨‹ä¹Ÿä¼šè¢«æ­£å¸¸è¿‡æ»¤
+        *  - å”¯ä¸€çš„ç¼ºç‚¹æ˜¯ï¼Œå¦‚æœæ­£å¥½åŸå…ˆæœ‰ä¸ªè¿›ç¨‹é€€å‡ºï¼Œç„¶åæ–°å¯åŠ¨äº†ä¸€ä¸ªè¿›ç¨‹ï¼Œè¿™ä¸ªæ–°è¿›ç¨‹çš„PIDæ­£å¥½æ˜¯ä¹‹å‰è¢«è¿‡æ»¤æ‰çš„è¿›ç¨‹çš„PIDï¼Œé‚£ä¹ˆè¿™ä¸ªæ–°è¿›ç¨‹å°±ä¼šè¢«é”™è¯¯åœ°è¿‡æ»¤æ‰
+        *  - ä½†è¿™ç§æƒ…å†µå‘ç”Ÿçš„æ¦‚ç‡æä½ï¼Œè€Œä¸”å½±å“ä¹Ÿä¸å¤§ï¼Œæ‰€ä»¥å¯ä»¥æ¥å—ï¼Œæˆ‘ä»¬è¿˜æœ‰ä¸ªåˆ·æ–°æŒ‰é’®å¯ä»¥æ‰‹åŠ¨åˆ·æ–°è¿›ç¨‹åˆ—è¡¨
         */
         if (!query.empty()) {
             std::lock_guard<std::mutex> lock(safelock);
@@ -891,14 +874,14 @@ namespace winrt::StarlightGUI::implementation
         std::wstring name = process.Name().c_str();
         std::wstring queryWStr = query.c_str();
 
-        // ²»±È½Ï´óĞ¡Ğ´
+        // ä¸æ¯”è¾ƒå¤§å°å†™
         std::transform(name.begin(), name.end(), name.begin(), ::towlower);
         std::transform(queryWStr.begin(), queryWStr.end(), queryWStr.begin(), ::towlower);
 
         uint32_t index;
         bool result = name.find(queryWStr) == std::wstring::npos;
         if (result) {
-			// »º´æ¹ıÂËµÄPID£¬ÕâÑùÏÂ´Î¿ÉÒÔÖ±½ÓÌø¹ı
+			// ç¼“å­˜è¿‡æ»¤çš„PIDï¼Œè¿™æ ·ä¸‹æ¬¡å¯ä»¥ç›´æ¥è·³è¿‡
 			filteredPids.insert(process.Id());
         }
 
@@ -908,11 +891,11 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget TaskPage::RefreshProcessListButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
-        // ÊÖ¶¯Ë¢ĞÂÊ±Çå¿Õ¹ıÂËÁĞ±í£¬È·±£»ñÈ¡×îĞÂµÄ½ø³ÌÁĞ±í
+        // æ‰‹åŠ¨åˆ·æ–°æ—¶æ¸…ç©ºè¿‡æ»¤åˆ—è¡¨ï¼Œç¡®ä¿è·å–æœ€æ–°çš„è¿›ç¨‹åˆ—è¡¨
         auto current = std::chrono::steady_clock::now();
 
         if (std::chrono::duration_cast<std::chrono::seconds>(current - lastRefresh).count() < 1) {
-            CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ë¢ĞÂËÙ¶È¹ı¿ì£¬ÇëÉÔºóÔÙÊÔ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"åˆ·æ–°é€Ÿåº¦è¿‡å¿«ï¼Œè¯·ç¨åå†è¯•ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             co_return;
         }
 
@@ -922,12 +905,79 @@ namespace winrt::StarlightGUI::implementation
 
         co_await LoadProcessList(true);
 
-        // ÖØÆô¼ÆÊ±Æ÷
+        // é‡å¯è®¡æ—¶å™¨
         defaultRefreshTimer.Stop();
         defaultRefreshTimer.Start();
 
         RefreshProcessListButton().IsEnabled(true);
         co_return;
+    }
+
+    winrt::fire_and_forget TaskPage::CreateProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+        try {
+            auto dialog = winrt::make<winrt::StarlightGUI::implementation::RunProcessDialog>();
+            dialog.XamlRoot(this->XamlRoot());
+
+            auto result = co_await dialog.ShowAsync();
+
+            if (result == ContentDialogResult::Primary) {
+                hstring processPath = dialog.ProcessPath();
+                int permission = dialog.Permission();
+
+                if (permission == 2) {
+                    if (KernelInstance::IsRunningAsAdmin()) {
+                        bool fullPrivileges = ReadConfig("elevator_full_privileges", true);
+                        int status = CreateProcessElevated(processPath.c_str(), fullPrivileges, XamlRoot(), InfoBarPanel());
+                        if (status != 1) {
+                            std::wstring content = L"ç¨‹åºå¯åŠ¨æˆåŠŸï¼ŒPID: " + std::to_wstring(status);
+                            CreateInfoBarAndDisplay(L"æˆåŠŸ", content.c_str(),
+                                InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                        }
+                        else {
+                            std::wstring content = L"ç¨‹åºå¯åŠ¨å¤±è´¥ï¼Œé”™è¯¯ç : " + std::to_wstring(GetLastError());
+                            CreateInfoBarAndDisplay(L"å¤±è´¥", content.c_str(),
+                                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                        }
+                    }
+                    else {
+                        CreateInfoBarAndDisplay(L"å¤±è´¥", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼",
+                            InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    }
+                }
+                else {
+                    SHELLEXECUTEINFOW sei = { sizeof(sei) };
+                    sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+                    sei.lpFile = processPath.c_str();
+                    sei.nShow = SW_SHOWNORMAL;
+                    if (permission == 1) sei.lpVerb = L"runas";
+
+                    BOOL stauts = ShellExecuteExW(&sei);
+                    DWORD error = GetLastError();
+
+                    if (stauts && sei.hProcess != NULL) {
+                        DWORD processId = GetProcessId(sei.hProcess);
+                        CloseHandle(sei.hProcess);
+                        CloseHandle(sei.hIcon);
+                        std::wstring content = L"ç¨‹åºå¯åŠ¨æˆåŠŸï¼ŒPID: " + std::to_wstring(processId);
+                        CreateInfoBarAndDisplay(L"æˆåŠŸ", content.c_str(),
+                            InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    }
+                    else {
+                        std::wstring content = L"ç¨‹åºå¯åŠ¨å¤±è´¥ï¼Œé”™è¯¯ç : " + std::to_wstring(GetLastError());
+                        CreateInfoBarAndDisplay(L"å¤±è´¥", content.c_str(),
+                            InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    }
+                }
+
+                co_await LoadProcessList();
+            }
+
+            dialog = nullptr;
+        }
+        catch (winrt::hresult_error const& ex) {
+            CreateInfoBarAndDisplay(L"é”™è¯¯", L"æ˜¾ç¤ºå¯¹è¯æ¡†å¤±è´¥: " + ex.message(),
+                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+        }
     }
 
     void TaskPage::OnNavigatedFrom(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e)

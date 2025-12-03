@@ -9,10 +9,12 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///WinUI3Package/SettingsCard_Resource.xaml"/>
+                <ResourceDictionary Source="ms-appx:///WinUI3Package/SettingsExpander_Resource.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <x:String x:Key="Version">v1.4.0</x:String>
-            <x:String x:Key="ReleaseDate">2025/12/2</x:String>
+            <x:String x:Key="Version">v1.4.1</x:String>
+            <x:String x:Key="ReleaseDate">2025/12/3</x:String>
             <x:String x:Key="Author">Stars, KALI_MC</x:String>
 
             <!-- Transparent -->

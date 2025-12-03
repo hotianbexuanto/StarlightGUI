@@ -186,6 +186,10 @@
       <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="RunProcessDialog.xaml.h">
+      <DependentUpon>RunProcessDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="SettingsPage.xaml.h">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </ClInclude>
@@ -223,6 +227,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Process_ThreadPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RunProcessDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsPage.xaml" />
@@ -266,6 +273,10 @@
       <SubType>Code</SubType>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Async</ExceptionHandling>
     </ClCompile>
+    <ClCompile Include="RunProcessDialog.xaml.cpp">
+      <DependentUpon>RunProcessDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="SettingsPage.xaml.cpp">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </ClCompile>
@@ -307,6 +318,10 @@
     </Midl>
     <Midl Include="Process_ThreadPage.idl">
       <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="RunProcessDialog.idl">
+      <DependentUpon>RunProcessDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="SettingsPage.idl" />

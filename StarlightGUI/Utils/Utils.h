@@ -1,15 +1,6 @@
 #pragma once
 
 #include <pch.h>
-#include <Utils/CppUtils.h>
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Microsoft.UI.Xaml.h>
-#include <winrt/Microsoft.UI.Xaml.Media.h>
-#include <winrt/Microsoft.UI.Xaml.Markup.h>
-#include <winrt/Microsoft.UI.Xaml.Controls.h>
-#include <winrt/Microsoft.UI.Xaml.Media.Animation.h>
-#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
-#include <winrt/Windows.Storage.Streams.h>
 
 using namespace winrt;
 using namespace Windows::Foundation;

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="StarlightGUI.RunProcessDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:StarlightGUI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:essential="using:WinUI3Package" 
+    mc:Ignorable="d"
+    Title="运行新进程"
+    PrimaryButtonText="运行"
+    SecondaryButtonText="取消"
+    DefaultButton="Primary"
+    PrimaryButtonClick="OnPrimaryButtonClick"    
+    Style="{StaticResource DefaultContentDialogStyle}"
+    RequestedTheme="Dark">
+
+    <Grid MinWidth="400" MinHeight="140">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 输入框 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Starlight GUI将根据你所键入的名称，为你打开相应的程序。" 
+                       Margin="0,0,0,20"/>
+            <TextBox x:Name="ProcessPathTextBox" 
+                     PlaceholderText="进程名..."
+                     HorizontalAlignment="Stretch"/>
+        </StackPanel>
+
+        <!-- 勾选框 -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,20" Orientation="Horizontal">
+            <TextBlock Text="进程权限" 
+                       Margin="0,5,5,0"/>
+            <ComboBox x:Name="PermissionComboBox" 
+                              SelectedIndex="0"
+                              essential:ComboBoxHelper.AcrylicWorkaround="True">
+                <ComboBoxItem Content="User" />
+                <ComboBoxItem Content="Administator" />
+                <ComboBoxItem Content="TrustedInstaller" />
+            </ComboBox>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

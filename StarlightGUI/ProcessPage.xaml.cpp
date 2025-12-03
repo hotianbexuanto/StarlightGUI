@@ -1,13 +1,10 @@
-#pragma once
+ï»¿#pragma once
 #include "pch.h"
 #include "ProcessPage.xaml.h"
 #if __has_include("ProcessPage.g.cpp")
 #include "ProcessPage.g.cpp"
 #endif
 
-#include <Utils/Terminator.h>
-#include <Utils/Elevator.h>
-#include <Utils/Utils.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.Storage.h>
@@ -18,7 +15,6 @@
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Interop.h>
-#include <Utils/Config.h>
 #include <vector>
 #include <memory>
 #include <sstream>
@@ -55,12 +51,12 @@ namespace winrt::StarlightGUI::implementation
         if (!processName.empty() && methodIndex > 0) {
             bool confirmed = true;
             if (methodIndex == 10 && ReadConfig("dangerous_confirm", true)) {
-                ContentDialog dialog = CreateContentDialog(L"¾¯¸æ", L"¸Ã·½·¨¿ÉÄÜµ¼ÖÂÏµÍ³³öÏÖÎÊÌâ£¬È·¶¨¼ÌĞøÂğ£¿\n±ØĞëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", L"¹Ø±Õ", XamlRoot());
+                ContentDialog dialog = CreateContentDialog(L"è­¦å‘Š", L"è¯¥æ–¹æ³•å¯èƒ½å¯¼è‡´ç³»ç»Ÿå‡ºç°é—®é¢˜ï¼Œç¡®å®šç»§ç»­å—ï¼Ÿ\nå¿…é¡»ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", L"å…³é—­", XamlRoot());
                 dialog.TitleTemplate(GetContentDialogInfoTemplate());
                 dialog.IsPrimaryButtonEnabled(true);
                 dialog.IsSecondaryButtonEnabled(true);
-                dialog.PrimaryButtonText(L"È·¶¨");
-                dialog.SecondaryButtonText(L"È¡Ïû");
+                dialog.PrimaryButtonText(L"ç¡®å®š");
+                dialog.SecondaryButtonText(L"å–æ¶ˆ");
                 dialog.DefaultButton(ContentDialogButton::Primary);
                 auto result = co_await dialog.ShowAsync();
 
@@ -69,12 +65,12 @@ namespace winrt::StarlightGUI::implementation
                 }
             }
             else if (methodIndex > 10 && ReadConfig("dangerous_confirm", true)) {
-                ContentDialog dialog = CreateContentDialog(L"¾¯¸æ", L"¸Ã·½·¨Ê¹ÓÃÁË²»ÎÈ¶¨µÄ·½·¨»òÂ©¶´£¬¿ÉÄÜµ¼ÖÂÏµÍ³³öÏÖÎÊÌâ£¬È·¶¨¼ÌĞøÂğ£¿\nÒÔ·Ç¹ÜÀíÔ±Éí·İÔËĞĞ¿ÉÄÜ»áµ¼ÖÂStarlight GUI±ÀÀ££¡", L"¹Ø±Õ", XamlRoot());
+                ContentDialog dialog = CreateContentDialog(L"è­¦å‘Š", L"è¯¥æ–¹æ³•ä½¿ç”¨äº†ä¸ç¨³å®šçš„æ–¹æ³•æˆ–æ¼æ´ï¼Œå¯èƒ½å¯¼è‡´ç³»ç»Ÿå‡ºç°é—®é¢˜ï¼Œç¡®å®šç»§ç»­å—ï¼Ÿ\nä»¥éç®¡ç†å‘˜èº«ä»½è¿è¡Œå¯èƒ½ä¼šå¯¼è‡´Starlight GUIå´©æºƒï¼", L"å…³é—­", XamlRoot());
                 dialog.TitleTemplate(GetContentDialogInfoTemplate());
                 dialog.IsPrimaryButtonEnabled(true);
                 dialog.IsSecondaryButtonEnabled(true);
-                dialog.PrimaryButtonText(L"È·¶¨");
-                dialog.SecondaryButtonText(L"È¡Ïû");
+                dialog.PrimaryButtonText(L"ç¡®å®š");
+                dialog.SecondaryButtonText(L"å–æ¶ˆ");
                 dialog.DefaultButton(ContentDialogButton::Primary);
                 auto result = co_await dialog.ShowAsync();
 
@@ -98,44 +94,44 @@ namespace winrt::StarlightGUI::implementation
             int pid = GetPID(winrt::to_string(wideProcessName));
 
             if (methodIndex == 10) {
-                if (IsRunningAsAdmin()) {
+                if (KernelInstance::IsRunningAsAdmin()) {
 
                     EnableDebugPrivilege();
                     if (TerminateProcessByKernel(pid, content)) {
-                        infobar = CreateInfoBar(L"³É¹¦", content.c_str(), InfoBarSeverity::Success, XamlRoot());
+                        infobar = CreateInfoBar(L"æˆåŠŸ", content.c_str(), InfoBarSeverity::Success, XamlRoot());
                     }
                     else {
                         if (GetLastError() == 2148204812 || GetLastError() == 577) {
-                            content = L"Çı¶¯Ö¤ÊéÑéÖ¤Ê§°Ü£¬Çë¹Ø±ÕÇ©ÃûÑéÖ¤£¡";
+                            content = L"é©±åŠ¨è¯ä¹¦éªŒè¯å¤±è´¥ï¼Œè¯·å…³é—­ç­¾åéªŒè¯ï¼";
                         }
                         else {
                             content += L" (" + std::to_wstring(GetLastError()) + L")";
                         }
-                        infobar = CreateInfoBar(L"Ê§°Ü", content.c_str(), InfoBarSeverity::Error, XamlRoot());
+                        infobar = CreateInfoBar(L"å¤±è´¥", content.c_str(), InfoBarSeverity::Error, XamlRoot());
                     }
                 }
                 else {
-                    infobar = CreateInfoBar(L"¾¯¸æ", L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Warning, XamlRoot());
+                    infobar = CreateInfoBar(L"è­¦å‘Š", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Warning, XamlRoot());
                 }
             }
             else {
                 if (pid != 0) {
                     if (DoTerminateProcess(methodIndex, pid, XamlRoot(), InfoBarPanel())) {
-                        content = L"³É¹¦ÖÕÖ¹ÁËPIDÎª" + std::to_wstring(pid) + L"µÄ½ø³Ì£¡";
-                        infobar = CreateInfoBar(L"³É¹¦", content.c_str(), InfoBarSeverity::Success, XamlRoot());
+                        content = L"æˆåŠŸç»ˆæ­¢äº†PIDä¸º" + std::to_wstring(pid) + L"çš„è¿›ç¨‹ï¼";
+                        infobar = CreateInfoBar(L"æˆåŠŸ", content.c_str(), InfoBarSeverity::Success, XamlRoot());
                     }
                     else {
-                        content = L"ÎŞ·¨ÖÕÖ¹PIDÎª" + std::to_wstring(pid) + L"µÄ½ø³Ì£¡";
-                        infobar = CreateInfoBar(L"Ê§°Ü", content.c_str(), InfoBarSeverity::Error, XamlRoot());
+                        content = L"æ— æ³•ç»ˆæ­¢PIDä¸º" + std::to_wstring(pid) + L"çš„è¿›ç¨‹ï¼";
+                        infobar = CreateInfoBar(L"å¤±è´¥", content.c_str(), InfoBarSeverity::Error, XamlRoot());
                     }
                 }
                 else {
-                    infobar = CreateInfoBar(L"´íÎó", L"½ø³ÌÃû/PID²»´æÔÚ£¡", InfoBarSeverity::Error, XamlRoot());
+                    infobar = CreateInfoBar(L"é”™è¯¯", L"è¿›ç¨‹å/PIDä¸å­˜åœ¨ï¼", InfoBarSeverity::Error, XamlRoot());
                 }
             }
         }
         else {
-            infobar = CreateInfoBar(L"´íÎó", L"½ø³ÌÃû/PIDÎª¿Õ£¡", InfoBarSeverity::Error, XamlRoot());
+            infobar = CreateInfoBar(L"é”™è¯¯", L"è¿›ç¨‹å/PIDä¸ºç©ºï¼", InfoBarSeverity::Error, XamlRoot());
         }
 
         DisplayInfoBar(infobar, InfoBarPanel());
@@ -162,10 +158,10 @@ namespace winrt::StarlightGUI::implementation
         if (file != nullptr && file.IsAvailable()) {
             if (file.FileType() == L".exe" || file.FileType() == L".com") {
                 ElevatorEditBox().TextDocument().SetText(TextSetOptions::None, file.Path());
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑµ¼ÈëÎÄ¼şÂ·¾¶£¡", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¯¼å…¥æ–‡ä»¶è·¯å¾„ï¼", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             else {
-                CreateInfoBarAndDisplay(L"´íÎó", L"Çëµ¼Èë¿ÉÖ´ĞĞ³ÌĞòÎÄ¼ş£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"é”™è¯¯", L"è¯·å¯¼å…¥å¯æ‰§è¡Œç¨‹åºæ–‡ä»¶ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
         }
     }
@@ -192,23 +188,23 @@ namespace winrt::StarlightGUI::implementation
                 wideProcessName += L".exe";
             }
 
-            if (IsRunningAsAdmin()) {
+            if (KernelInstance::IsRunningAsAdmin()) {
                 int result = CreateProcessElevated(wideProcessName, fullPrivileges, XamlRoot(), InfoBarPanel());
 
                 if (result != 1) {
-                    content = L"³ÌĞòÆô¶¯³É¹¦£¬PID: " + std::to_wstring(result);
-                    infobar = CreateInfoBar(L"³É¹¦", content.c_str(), InfoBarSeverity::Success, XamlRoot());
+                    content = L"ç¨‹åºå¯åŠ¨æˆåŠŸï¼ŒPID: " + std::to_wstring(result);
+                    infobar = CreateInfoBar(L"æˆåŠŸ", content.c_str(), InfoBarSeverity::Success, XamlRoot());
                 }
                 else {
-                    infobar = CreateInfoBar(L"Ê§°Ü", L"³ÌĞòÆô¶¯Ê§°Ü£¡", InfoBarSeverity::Error, XamlRoot());
+                    infobar = CreateInfoBar(L"å¤±è´¥", L"ç¨‹åºå¯åŠ¨å¤±è´¥ï¼", InfoBarSeverity::Error, XamlRoot());
                 }
             }
             else {
-                infobar = CreateInfoBar(L"¾¯¸æ", L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Error, XamlRoot());
+                infobar = CreateInfoBar(L"è­¦å‘Š", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Error, XamlRoot());
             }
         }
         else {
-            infobar = CreateInfoBar(L"´íÎó", L"½ø³ÌÃû/PIDÎª¿Õ£¡", InfoBarSeverity::Error, XamlRoot());
+            infobar = CreateInfoBar(L"é”™è¯¯", L"è¿›ç¨‹å/PIDä¸ºç©ºï¼", InfoBarSeverity::Error, XamlRoot());
         }
 
         DisplayInfoBar(infobar, InfoBarPanel());
@@ -234,17 +230,17 @@ namespace winrt::StarlightGUI::implementation
         if (file != nullptr && file.IsAvailable()) {
             if (file.FileType() == L".sys") {
                 DriverLoaderEditBox().TextDocument().SetText(TextSetOptions::None, file.Path());
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑµ¼ÈëÎÄ¼şÂ·¾¶£¡", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¯¼å…¥æ–‡ä»¶è·¯å¾„ï¼", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             else {
-                CreateInfoBarAndDisplay(L"´íÎó", L"Çëµ¼Èë.sysÎÄ¼ş£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"é”™è¯¯", L"è¯·å¯¼å…¥.sysæ–‡ä»¶ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
         }
     }
 
     winrt::fire_and_forget ProcessPage::DriverLoaderLoadButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
-        if (!IsRunningAsAdmin()) {
-            CreateInfoBarAndDisplay(L"¾¯¸æ", L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+        if (!KernelInstance::IsRunningAsAdmin()) {
+            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             co_return;
         }
 
@@ -254,23 +250,23 @@ namespace winrt::StarlightGUI::implementation
             DriverLoaderEditBox().Document().GetText(TextGetOptions::NoHidden, filePath);
 
             if (filePath.empty()) {
-                CreateInfoBarAndDisplay(L"´íÎó", L"ÎÄ¼şÂ·¾¶Îª¿Õ£¡", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"é”™è¯¯", L"æ–‡ä»¶è·¯å¾„ä¸ºç©ºï¼", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
                 co_return;
             }
 
             auto file = co_await winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(filePath);
 
             if (!file) {
-                CreateInfoBarAndDisplay(L"´íÎó", L"ÎÄ¼ş²»´æÔÚ: " + filePath, InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"é”™è¯¯", L"æ–‡ä»¶ä¸å­˜åœ¨: " + filePath, InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
                 co_return;
             }
 
             if (file.FileType() != L".sys") {
-                CreateInfoBarAndDisplay(L"´íÎó", L"ÎÄ¼ş²»ÊÇÇı¶¯ÎÄ¼ş(.sys)£¡" + filePath, InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"é”™è¯¯", L"æ–‡ä»¶ä¸æ˜¯é©±åŠ¨æ–‡ä»¶(.sys)ï¼" + filePath, InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
                 co_return;
             }
 
-            CreateInfoBarAndDisplay(L"ĞÅÏ¢", L"½«Òª¼ÓÔØµÄÇı¶¯ÎÄ¼ş: " + file.Name(), InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"ä¿¡æ¯", L"å°†è¦åŠ è½½çš„é©±åŠ¨æ–‡ä»¶: " + file.Name(), InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
 
             std::wstring content;
             InfoBar infobar;
@@ -278,12 +274,12 @@ namespace winrt::StarlightGUI::implementation
             bool bypass = ReadConfig("bypass_signature", false);
 
             if (bypass) {
-                ContentDialog dialog = CreateContentDialog(L"¾¯¸æ", L"¸Ã·½·¨¿ÉÄÜµ¼ÖÂÏµÍ³³öÏÖÎÊÌâ£¬È·¶¨¼ÌĞøÂğ£¿\n±ØĞëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", L"¹Ø±Õ", XamlRoot());
+                ContentDialog dialog = CreateContentDialog(L"è­¦å‘Š", L"è¯¥æ–¹æ³•å¯èƒ½å¯¼è‡´ç³»ç»Ÿå‡ºç°é—®é¢˜ï¼Œç¡®å®šç»§ç»­å—ï¼Ÿ\nå¿…é¡»ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", L"å…³é—­", XamlRoot());
                 dialog.TitleTemplate(GetContentDialogInfoTemplate());
                 dialog.IsPrimaryButtonEnabled(true);
                 dialog.IsSecondaryButtonEnabled(true);
-                dialog.PrimaryButtonText(L"È·¶¨");
-                dialog.SecondaryButtonText(L"È¡Ïû");
+                dialog.PrimaryButtonText(L"ç¡®å®š");
+                dialog.SecondaryButtonText(L"å–æ¶ˆ");
                 dialog.DefaultButton(ContentDialogButton::Primary);
                 auto result = co_await dialog.ShowAsync();
 
@@ -296,24 +292,24 @@ namespace winrt::StarlightGUI::implementation
                 bool result = true;
 
                 if (bypass) {
-                    CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã²Ù×÷¿ÉÄÜËæ»úµ¼ÖÂÀ¶ÆÁ(PatchGuard)£¬Èô³öÏÖÒì³£ÇëÔÙ´Î³¢ÊÔ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥æ“ä½œå¯èƒ½éšæœºå¯¼è‡´è“å±(PatchGuard)ï¼Œè‹¥å‡ºç°å¼‚å¸¸è¯·å†æ¬¡å°è¯•ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                     result = KernelInstance::DisableDSE();
-                    if (result) CreateInfoBarAndDisplay(L"ĞÅÏ¢", L"Í£Ö¹ Driver Signature Enforcement", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+                    if (result) CreateInfoBarAndDisplay(L"ä¿¡æ¯", L"åœæ­¢ Driver Signature Enforcement", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
                 }
 
                 if (result) result = DriverUtils::LoadDriver(filePath.c_str(), file.Name().c_str(), unused);
 
                 if (bypass) {
                     result = KernelInstance::EnableDSE();
-                    if (result) CreateInfoBarAndDisplay(L"ĞÅÏ¢", L"¿ªÆô Driver Signature Enforcement", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+                    if (result) CreateInfoBarAndDisplay(L"ä¿¡æ¯", L"å¼€å¯ Driver Signature Enforcement", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
                 }
 
                 if (result) {
-                    infobar = CreateInfoBar(L"³É¹¦", L"Çı¶¯¼ÓÔØ³É¹¦£¡", InfoBarSeverity::Success, XamlRoot());
+                    infobar = CreateInfoBar(L"æˆåŠŸ", L"é©±åŠ¨åŠ è½½æˆåŠŸï¼", InfoBarSeverity::Success, XamlRoot());
                 }
                 else {
-                    content = L"Çı¶¯¼ÓÔØÊ§°Ü: " + content;
-                    infobar = CreateInfoBar(L"Ê§°Ü", content.c_str(), InfoBarSeverity::Error, XamlRoot());
+                    content = L"é©±åŠ¨åŠ è½½å¤±è´¥: " + content;
+                    infobar = CreateInfoBar(L"å¤±è´¥", content.c_str(), InfoBarSeverity::Error, XamlRoot());
                 }
 
                 DisplayInfoBar(infobar, InfoBarPanel());
@@ -324,23 +320,23 @@ namespace winrt::StarlightGUI::implementation
 
             switch (ex.code()) {
             case E_INVALIDARG:
-                errorMessage = L"Î´Öª¸ñÊ½";
+                errorMessage = L"æœªçŸ¥æ ¼å¼";
                 break;
             case HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND):
-                errorMessage = L"ÎÄ¼ş²»´æÔÚ";
+                errorMessage = L"æ–‡ä»¶ä¸å­˜åœ¨";
                 break;
             case HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND):
-                errorMessage = L"Â·¾¶²»´æÔÚ";
+                errorMessage = L"è·¯å¾„ä¸å­˜åœ¨";
                 break;
             case HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED):
-                errorMessage = L"ÎÄ¼ş¾Ü¾ø·ÃÎÊ";
+                errorMessage = L"æ–‡ä»¶æ‹’ç»è®¿é—®";
                 break;
             default:
                 errorMessage = winrt::to_hstring(ex.code());
                 break;
             }
 
-            CreateInfoBarAndDisplay(L"´íÎó", L"Ö´ĞĞÈÎÎñÊ±³ö´í: " + errorMessage, InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"é”™è¯¯", L"æ‰§è¡Œä»»åŠ¡æ—¶å‡ºé”™: " + errorMessage, InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
         }
     }
 }

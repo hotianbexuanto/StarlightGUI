@@ -7,7 +7,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 		if (!hSCM) {
-			dbgMsg = L"无法打开SCManager";
+			dbgMsg = L"鏃犳硶鎵撳紑SCManager";
 			return false;
 		}
 
@@ -19,7 +19,7 @@ namespace winrt::StarlightGUI::implementation {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
 				DeleteService(hService);
-				dbgMsg = L"无法查询服务信息";
+				dbgMsg = L"鏃犳硶鏌ヨ鏈嶅姟淇℃伅";
 				return false;
 			}
 
@@ -28,7 +28,7 @@ namespace winrt::StarlightGUI::implementation {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
 					DeleteService(hService);
-					dbgMsg = L"无法启动服务";
+					dbgMsg = L"鏃犳硶鍚姩鏈嶅姟";
 					return false;
 				}
 			}
@@ -46,7 +46,7 @@ namespace winrt::StarlightGUI::implementation {
 
 			if (!hService) {
 				CloseServiceHandle(hSCM);
-				dbgMsg = L"无法创建服务";
+				dbgMsg = L"鏃犳硶鍒涘缓鏈嶅姟";
 				return false;
 			}
 
@@ -55,7 +55,7 @@ namespace winrt::StarlightGUI::implementation {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
 				DeleteService(hService);
-				dbgMsg = L"无法启动服务";
+				dbgMsg = L"鏃犳硶鍚姩鏈嶅姟";
 				return false;
 			}
 
@@ -71,7 +71,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 		if (!hSCM) {
-			dbgMsg = L"无法打开SCManager";
+			dbgMsg = L"鏃犳硶鎵撳紑SCManager";
 			return false;
 		}
 
@@ -83,7 +83,7 @@ namespace winrt::StarlightGUI::implementation {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
 				DeleteService(hService);
-				dbgMsg = L"无法查询服务信息";
+				dbgMsg = L"鏃犳硶鏌ヨ鏈嶅姟淇℃伅";
 				return false;
 			}
 
@@ -92,7 +92,7 @@ namespace winrt::StarlightGUI::implementation {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
 					DeleteService(hService);
-					dbgMsg = L"无法启动服务";
+					dbgMsg = L"鏃犳硶鍚姩鏈嶅姟";
 					return false;
 				}
 			}
@@ -110,7 +110,7 @@ namespace winrt::StarlightGUI::implementation {
 
 			if (!hService) {
 				CloseServiceHandle(hSCM);
-				dbgMsg = L"无法创建服务";
+				dbgMsg = L"鏃犳硶鍒涘缓鏈嶅姟";
 				return false;
 			}
 
@@ -119,7 +119,7 @@ namespace winrt::StarlightGUI::implementation {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
 				DeleteService(hService);
-				dbgMsg = L"无法启动服务";
+				dbgMsg = L"鏃犳硶鍚姩鏈嶅姟";
 				return false;
 			}
 

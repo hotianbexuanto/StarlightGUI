@@ -1,0 +1,44 @@
+#include "pch.h"
+#include "RunProcessDialog.xaml.h"
+#if __has_include("RunProcessDialog.g.cpp")
+#include "RunProcessDialog.g.cpp"
+#endif
+#include <shellapi.h>
+
+using namespace winrt;
+using namespace Microsoft::UI::Xaml;
+using namespace Microsoft::UI::Xaml::Controls;
+
+namespace winrt::StarlightGUI::implementation
+{
+    RunProcessDialog::RunProcessDialog()
+    {
+        InitializeComponent();
+    }
+
+    void RunProcessDialog::OnPrimaryButtonClick(ContentDialog const& sender,
+        ContentDialogButtonClickEventArgs const& args)
+    {
+        auto deferral = args.GetDeferral();
+
+        OutputDebugString(L"Check");
+
+        m_processPath = ProcessPathTextBox().Text();
+        m_permission = PermissionComboBox().SelectedIndex();
+
+        std::wstring wideProcessName = std::wstring_view(m_processPath.c_str()).data();
+
+        if (wideProcessName.find(L"\"") != std::wstring::npos) {
+            wideProcessName.erase(wideProcessName.end());
+            wideProcessName.erase(wideProcessName.begin());
+        }
+
+        if (wideProcessName.find(L".exe") == std::wstring::npos) {
+            wideProcessName += L".exe";
+        }
+
+        m_processPath = wideProcessName;
+
+        deferral.Complete();
+    }
+}

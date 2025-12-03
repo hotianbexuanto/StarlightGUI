@@ -31,6 +31,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="任务管理器" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
                         <Button Grid.Column="1"
@@ -46,9 +47,16 @@
                                    Margin="20,0,0,0" 
                                    VerticalAlignment="Center"
                                    Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
-                        <RichEditBox Grid.Column="4"
+                        <CommandBar Grid.Column="4" DefaultLabelPosition="Right">
+                            <AppBarButton Label="运行进程" Click="CreateProcessButton_Click">
+                                <AppBarButton.Icon>
+                                    <FontIcon Glyph="&#xefda;" FontFamily="Segoe Fluent Icons"/>
+                                </AppBarButton.Icon>
+                            </AppBarButton>
+                        </CommandBar>
+                        <RichEditBox Grid.Column="5"
                                      x:Name="ProcessSearchBox" 
-                                     HorizontalAlignment="Center" Width="300" 
+                                     HorizontalAlignment="Center" Width="300" Height="32"
                                      PlaceholderText="搜索进程..."
                                      TextChanged="ProcessSearchBox_TextChanged"/>
                     </Grid>

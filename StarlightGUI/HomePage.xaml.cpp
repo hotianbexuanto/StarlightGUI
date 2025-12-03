@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "HomePage.xaml.h"
 #if __has_include("HomePage.g.cpp")
 #include "HomePage.g.cpp"
@@ -20,8 +20,6 @@
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <random>
 #include <chrono>
-#include <Utils/Utils.h>
-#include <Utils/KernelBase.h>
 
 using namespace winrt;
 using namespace Windows::Web::Http;
@@ -48,10 +46,10 @@ namespace winrt::StarlightGUI::implementation
 
         if (!loaded) {
             if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"µ±Ç°ÕıÒÔ³£¹æÄ£Ê½ÔËĞĞ£¬´ó²¿·Ö¹¦ÄÜ½«ÎŞ·¨Ê¹ÓÃ»ò¹¦ÄÜ²ĞÈ±¡£ÓûÊ¹ÓÃÍêÕû¹¦ÄÜÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"å½“å‰æ­£ä»¥å¸¸è§„æ¨¡å¼è¿è¡Œï¼Œå¤§éƒ¨åˆ†åŠŸèƒ½å°†æ— æ³•ä½¿ç”¨æˆ–åŠŸèƒ½æ®‹ç¼ºã€‚æ¬²ä½¿ç”¨å®Œæ•´åŠŸèƒ½è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
             else {
-                CreateInfoBarAndDisplay(L"ĞÅÏ¢", L"ÕıÔÚ¼ÓÔØÇı¶¯£¬Õâ¿ÉÄÜĞèÒªÒ»µãÊ±¼ä...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"ä¿¡æ¯", L"æ­£åœ¨åŠ è½½é©±åŠ¨ï¼Œè¿™å¯èƒ½éœ€è¦ä¸€ç‚¹æ—¶é—´...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
                 LoadDriverPath();
             }
             loaded = true;
@@ -62,8 +60,8 @@ namespace winrt::StarlightGUI::implementation
     {
         if (greeting.empty()) {
             std::vector<hstring> greetings = {
-                L"»¶Ó­»ØÀ´",
-                L"ÄãºÃ",
+                L"æ¬¢è¿å›æ¥",
+                L"ä½ å¥½",
                 L"Hi",
                 L"TimeFormat",
             };
@@ -81,20 +79,20 @@ namespace winrt::StarlightGUI::implementation
             if (greeting == L"TimeFormat") {
                 if (currentHour < 12)
                 {
-                    greeting = L"ÉÏÎçºÃ";
+                    greeting = L"ä¸Šåˆå¥½";
                 }
                 else if (currentHour < 18)
                 {
-                    greeting = L"ÏÂÎçºÃ";
+                    greeting = L"ä¸‹åˆå¥½";
                 }
                 else if (currentHour >= 18)
                 {
-                    greeting = L"ÍíÉÏºÃ";
+                    greeting = L"æ™šä¸Šå¥½";
                 }
             }
         }
 
-        AppIntroduction().Text(L"»¶Ó­Ê¹ÓÃ Starlight GUI£¡");
+        AppIntroduction().Text(L"æ¬¢è¿ä½¿ç”¨ Starlight GUIï¼");
     }
 
     winrt::fire_and_forget HomePage::SetUserProfile()
@@ -140,7 +138,7 @@ namespace winrt::StarlightGUI::implementation
         if (auto strong_this = weak_this.get()) {
             co_await wil::resume_foreground(DispatcherQueue());
             UserAvatar().ImageSource(avatar.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>());
-            WelcomeText().Text(greeting + L", " + username + L"£¡");
+            WelcomeText().Text(greeting + L", " + username + L"ï¼");
         }
     }
 
@@ -161,12 +159,12 @@ namespace winrt::StarlightGUI::implementation
 
                 // Read json object
                 auto json = Windows::Data::Json::JsonObject::Parse(result);
-                hitokoto = L"¡°" + json.GetNamedString(L"hitokoto") + L"¡±";
+                hitokoto = L"â€œ" + json.GetNamedString(L"hitokoto") + L"â€";
             }
         }
         catch (hresult_error)
         {
-            hitokoto = L"ÎŞ·¨¼ÓÔØÄÚÈİ... :(";
+            hitokoto = L"æ— æ³•åŠ è½½å†…å®¹... :(";
         }
         if (auto strong_this = weak_this.get()) {
             co_await wil::resume_foreground(DispatcherQueue());
@@ -200,8 +198,8 @@ namespace winrt::StarlightGUI::implementation
         int second = calendar.Second();
 
         auto splitDigits = [](int value) -> std::pair<hstring, hstring> {
-            int digit1 = value / 10;  // Ê®Î» (idk its english)
-            int digit2 = value % 10;  // ¸öÎ»
+            int digit1 = value / 10;  // åä½ (idk its english)
+            int digit2 = value % 10;  // ä¸ªä½
             return { to_hstring(digit1), to_hstring(digit2) };
             };
 
@@ -242,10 +240,10 @@ namespace winrt::StarlightGUI::implementation
                 }
 
                 co_await wil::resume_foreground(DispatcherQueue());
-                CreateInfoBarAndDisplay(L"³É¹¦", L"Çı¶¯¼ÓÔØ³É¹¦£¡", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"é©±åŠ¨åŠ è½½æˆåŠŸï¼", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             catch (winrt::hresult_error) {
-                CreateInfoBarAndDisplay(L"¾¯¸æ", L"Ò»¸ö»ò¶à¸öÇı¶¯ÎÄ¼şÎ´ÕÒµ½»òÎŞ·¨¼ÓÔØ£¬²¿·Ö¹¦ÄÜ¿ÉÄÜ²»¿ÉÓÃ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"è­¦å‘Š", L"ä¸€ä¸ªæˆ–å¤šä¸ªé©±åŠ¨æ–‡ä»¶æœªæ‰¾åˆ°æˆ–æ— æ³•åŠ è½½ï¼Œéƒ¨åˆ†åŠŸèƒ½å¯èƒ½ä¸å¯ç”¨ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
         }
     }

@@ -25,7 +25,6 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::Windows::Foundation::IAsyncOperation<bool> ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query);
 
-        // 进程列表相关方法
         winrt::Windows::Foundation::IAsyncAction LoadProcessList(bool force = false);
         winrt::Windows::Foundation::IAsyncAction GetProcessInfoAsync(const PROCESSENTRY32W& pe32, std::vector<winrt::StarlightGUI::ProcessInfo>& processes);
         winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process);
@@ -50,6 +49,8 @@ namespace winrt::StarlightGUI::implementation
 
         template <typename T>
         T FindParent(winrt::Microsoft::UI::Xaml::DependencyObject const& child);
+
+        winrt::fire_and_forget CreateProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     };
 }
 
