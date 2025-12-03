@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Language-C++/WinRT-0078d7.svg" alt="Language">
 </p>
 
-**主页**: [![Bilibili](https://img.shields.io/badge/Bilibili-Stars_Azusa-white?style=flat-square&logo=bilibili&logoColor=white&labelColor=ff69b4)](https://space.bilibili.com/3494361276877525)  
+**主页**: [![Bilibili](https://img.shields.io/badge/Bilibili-Stars_Azusa-white?style=flat-square&logo=bilibili&logoColor=white&labelColor=ff69b4)](https://space.bilibili.com/670866766)  
 **赞助**: <a href="https://afdian.com/a/StarsAzusa" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="40" width="130"></a>
 
 ## 简介
