@@ -7,7 +7,7 @@
     xmlns:essential="using:WinUI3Package" 
     Background="{StaticResource WindowBackgroundBrush}">
 
-    <Grid Padding="20">
+    <ScrollViewer Padding="20">
         <StackPanel>
             <Grid Padding="10" HorizontalAlignment="Left">
                 <TextBlock Text="功能" FontWeight="Bold" FontSize="14"/>
@@ -115,5 +115,5 @@
                 <ToggleSwitch x:Name="DangerousConfirmButton" Toggled="DangerousConfirmButton_Toggled" Margin="0,0,-80,0"/>
             </essential:SettingsCard>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>

@@ -8,9 +8,9 @@
     mc:Ignorable="d"
     Background="{StaticResource WindowBackgroundBrush}">
 
-    <Grid>
+    <Grid Padding="20">
         <ScrollViewer>
-            <Grid x:Name="RootGrid" Padding="20">
+            <Grid x:Name="RootGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
