@@ -78,15 +78,15 @@ namespace winrt::StarlightGUI::implementation
             MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         }
-        else if (invokedItem == L"任务管理") {
+        else if (invokedItem == L"任务管理器") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::TaskPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
         }
-        else if (invokedItem == L"系统管理") {
+        else if (invokedItem == L"系统工具") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::ProcessPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
         }
-        else if (invokedItem == L"帮助") {
+        else if (invokedItem == L"关于") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::HelpPage>());
             RootNavigation().SelectedItem(RootNavigation().FooterMenuItems().GetAt(0));
         }

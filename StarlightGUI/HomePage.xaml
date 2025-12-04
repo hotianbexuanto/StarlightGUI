@@ -9,15 +9,15 @@
     mc:Ignorable="d"
     Background="{StaticResource WindowBackgroundBrush}">
 
-    <Grid Padding="20">
-        <ScrollViewer>
+    <Grid>
+        <ScrollViewer Padding="20">
             <StackPanel>
                 <Button x:Name="MainButton"
                     Padding="16" 
                     VerticalAlignment="Top"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"
-                    Margin="0,0,0,30">
+                    Margin="0,0,0,10">
 
                     <Grid Padding="10">
                         <Grid.ColumnDefinitions>
@@ -97,7 +97,7 @@
                     VerticalAlignment="Top"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"
-                    Margin="0,0,0,30">
+                    Margin="0,0,0,10">
                     <Grid Padding="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -108,7 +108,7 @@
                            Source="/Assets/StarlightGUI.png" 
                            Width="225" Height="150"
                            HorizontalAlignment="Left"
-                           Margin="-10,0,20,0">
+                           Margin="-8,0,20,0">
                         </Image>
                         <StackPanel Grid.Column="1" HorizontalAlignment="Left" Margin="0,-10,0,0">
                             <TextBlock Text="Starlight GUI" FontSize="32" FontWeight="Bold"/>
@@ -139,6 +139,6 @@
                 </Button>
             </StackPanel>
         </ScrollViewer>
-        <StackPanel Width="1100" x:Name="InfoBarPanel" Margin="-10,-10,0,0"/>
+        <StackPanel Width="1100" x:Name="InfoBarPanel" Margin="0,10,0,0"/>
     </Grid>
 </Page>

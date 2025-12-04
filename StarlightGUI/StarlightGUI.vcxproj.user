@@ -15,4 +15,8 @@
     <PackageLogoSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</PackageLogoSource>
     <BadgeLogoSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</BadgeLogoSource>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebuggerType>NativeOnly</DebuggerType>
+    <DebuggerFlavor>AppHostLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

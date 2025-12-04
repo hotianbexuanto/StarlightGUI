@@ -5,6 +5,7 @@
 #endif
 
 
+#include <winrt/Microsoft.UI.Composition.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.Storage.Streams.h>
@@ -25,6 +26,7 @@
 #include <RunProcessDialog.xaml.h>
 
 using namespace winrt;
+using namespace WinUI3Package;
 using namespace Microsoft::UI::Text;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
@@ -69,8 +71,8 @@ namespace winrt::StarlightGUI::implementation
         // 加载一次列表
         LoadProcessList(true);
 
-        // 每15秒刷新一次列表
-        defaultRefreshTimer.Interval(std::chrono::seconds(15));
+        // 每10秒刷新一次列表
+        defaultRefreshTimer.Interval(std::chrono::seconds(10));
         defaultRefreshTimer.Tick([this](auto&&, auto&&) {
             if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
             });
@@ -131,7 +133,9 @@ namespace winrt::StarlightGUI::implementation
             else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
-        if (!KernelInstance::IsRunningAsAdmin()) item1_2.IsEnabled(false);
+        if (!KernelInstance::IsRunningAsAdmin()) {
+            item1_2.IsEnabled(false);
+        }
 
         // 选项1.3
         MenuFlyoutItem item1_3;
@@ -575,7 +579,6 @@ namespace winrt::StarlightGUI::implementation
         std::wstringstream countText;
         countText << L"共 " << m_processList.Size() << L" 个进程 (" << duration << " ms)";
         ProcessCountText().Text(countText.str());
-        processes.clear();
 
 		// 恢复选中项
         uint32_t selectedIndex;
@@ -978,6 +981,38 @@ namespace winrt::StarlightGUI::implementation
             CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
                 InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
         }
+    }
+
+    winrt::fire_and_forget TaskPage::TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+        if (ProcessListView().SelectedItem()) {
+            auto item = ProcessListView().SelectedItem().as<winrt::StarlightGUI::ProcessInfo>();
+
+            if (KernelInstance::IsRunningAsAdmin()) {
+                // 管理员权限时，尝试使用内核结束
+                if (KernelInstance::_ZwTerminateProcess(item.Id())) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    LoadProcessList(true);
+                }
+                else {
+                    // 无法结束，尝试使用常规结束
+                    if (TaskUtils::_TerminateProcess(item.Id())) {
+                        CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                        LoadProcessList(true);
+                    }
+                    else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                }
+            }
+            else {
+                // 用户权限时，直接使用常规结束
+                if (TaskUtils::_TerminateProcess(item.Id())) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    LoadProcessList(true);
+                }
+                else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            }
+        }
+
+        co_return;
     }
 
     void TaskPage::OnNavigatedFrom(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e)

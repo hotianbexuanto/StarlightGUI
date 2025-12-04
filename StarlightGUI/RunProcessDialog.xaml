@@ -25,7 +25,7 @@
 
         <!-- 输入框 -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="Starlight GUI将根据你所键入的名称，为你打开相应的程序。" 
+            <TextBlock Text="Starlight GUI 将根据你所键入的名称，为你打开相应的程序。" 
                        Margin="0,0,0,20"/>
             <TextBox x:Name="ProcessPathTextBox" 
                      PlaceholderText="进程名..."

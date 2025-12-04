@@ -309,6 +309,18 @@
     <Image Include="Assets\Starlight.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\github-mark.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\stars.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\winui.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\HO-COOH.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

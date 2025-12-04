@@ -66,14 +66,14 @@
             <!-- 选项，从上到下 -->
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItem Content="主页" Icon="Home"/>
-                <controls:NavigationViewItem Content="任务管理" Icon="Admin"/>
-                <controls:NavigationViewItem Content="系统管理" Icon="Permissions"/>
+                <controls:NavigationViewItem Content="任务管理器" Icon="Admin"/>
+                <controls:NavigationViewItem Content="系统工具" Icon="Permissions"/>
             </controls:NavigationView.MenuItems>
 
             <!-- 从下到上 -->
             <!-- 最下面是设置 -->
             <controls:NavigationView.FooterMenuItems>
-                <controls:NavigationViewItem Content="帮助" Icon="Help"/>
+                <controls:NavigationViewItem Content="关于" Icon="Help"/>
             </controls:NavigationView.FooterMenuItems>
 
             <!-- 内容 -->

@@ -9,10 +9,8 @@
 
     <ScrollViewer Padding="20">
         <StackPanel>
-            <Grid Padding="10" HorizontalAlignment="Left">
-                <TextBlock Text="功能" FontWeight="Bold" FontSize="14"/>
-            </Grid>
-            <!-- 启用完整特权 -->
+            <TextBlock Text="功能" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
+                <!-- 启用完整特权 -->
             <essential:SettingsCard Header="启用完整特权"
                                     Description="在Elevator功能中启动的程序将获得所有SE特权"
                                     IsClickEnabled="True"
@@ -36,9 +34,8 @@
                 <ToggleSwitch x:Name="BypassSignatureButton" Toggled="BypassSignatureButton_Toggled" Margin="0,0,-80,0"/>
             </essential:SettingsCard>
 
-            <Grid Padding="10" HorizontalAlignment="Left">
-                <TextBlock Text="外观" FontWeight="Bold" FontSize="14"/>
-            </Grid>
+            <TextBlock Text="外观" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
+            
             <!-- 背景 -->
             <essential:SettingsExpander Header="背景"
                                         Description="应用的背景颜色类型"
@@ -100,9 +97,7 @@
                 </ComboBox>
             </essential:SettingsCard>
 
-            <Grid Padding="10">
-                <TextBlock Text="信息" FontWeight="Bold" FontSize="14"/>
-            </Grid>
+            <TextBlock Text="信息" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
 
             <essential:SettingsCard Header="危险提示"
                                     Description="在运行危险操作前先进行确认"

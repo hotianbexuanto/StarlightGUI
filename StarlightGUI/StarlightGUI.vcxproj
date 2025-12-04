@@ -158,6 +158,7 @@
     </ClInclude>
     <ClInclude Include="HomePage.xaml.h">
       <DependentUpon>HomePage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="InfoWindow.xaml.h">
       <DependentUpon>InfoWindow.xaml</DependentUpon>
@@ -173,6 +174,7 @@
     </ClInclude>
     <ClInclude Include="ProcessPage.xaml.h">
       <DependentUpon>ProcessPage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="Process_HandlePage.xaml.h">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>
@@ -192,9 +194,11 @@
     </ClInclude>
     <ClInclude Include="SettingsPage.xaml.h">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="TaskPage.xaml.h">
       <DependentUpon>TaskPage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="Utils\AstralIO.h" />
     <ClInclude Include="Utils\Config.h" />
@@ -214,12 +218,16 @@
     <Page Include="HelpPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="HomePage.xaml" />
+    <Page Include="HomePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="InfoWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MainWindow.xaml" />
-    <Page Include="ProcessPage.xaml" />
+    <Page Include="MainWindow.xaml"/>
+    <Page Include="ProcessPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Process_HandlePage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -232,8 +240,12 @@
     <Page Include="RunProcessDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SettingsPage.xaml" />
-    <Page Include="TaskPage.xaml" />
+    <Page Include="SettingsPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TaskPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HelpPage.xaml.cpp">
@@ -242,6 +254,7 @@
     </ClCompile>
     <ClCompile Include="HomePage.xaml.cpp">
       <DependentUpon>HomePage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="InfoWindow.xaml.cpp">
       <DependentUpon>InfoWindow.xaml</DependentUpon>
@@ -259,6 +272,7 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="ProcessPage.xaml.cpp">
       <DependentUpon>ProcessPage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="Process_HandlePage.xaml.cpp">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>
@@ -279,9 +293,11 @@
     </ClCompile>
     <ClCompile Include="SettingsPage.xaml.cpp">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="TaskPage.xaml.cpp">
       <DependentUpon>TaskPage.xaml</DependentUpon>
+	  <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="Utils\CppUtils.cpp" />
     <ClCompile Include="Utils\DriverUtils.cpp" />
@@ -298,7 +314,10 @@
       <DependentUpon>HelpPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
-    <Midl Include="HomePage.idl" />
+    <Midl Include="HomePage.idl">
+      <DependentUpon>HomePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="InfoWindow.idl">
       <DependentUpon>InfoWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -307,7 +326,10 @@
       <SubType>Code</SubType>
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Midl>
-    <Midl Include="ProcessPage.idl" />
+    <Midl Include="ProcessPage.idl">
+      <DependentUpon>ProcessPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="Process_HandlePage.idl">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -324,8 +346,14 @@
       <DependentUpon>RunProcessDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
-    <Midl Include="SettingsPage.idl" />
-    <Midl Include="TaskPage.idl" />
+    <Midl Include="SettingsPage.idl">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="TaskPage.idl">
+      <DependentUpon>TaskPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="Utils\HandleInfo.idl" />
     <Midl Include="Utils\MokuaiInfo.idl" />
     <Midl Include="Utils\ProcessInfo.idl" />
@@ -337,6 +365,8 @@
     <Image Include="Assets\BadgeLogo.scale-150.png" />
     <Image Include="Assets\BadgeLogo.scale-200.png" />
     <Image Include="Assets\BadgeLogo.scale-400.png" />
+    <Image Include="Assets\github-mark.png" />
+    <Image Include="Assets\HO-COOH.png" />
     <Image Include="Assets\LargeTile.scale-100.png" />
     <Image Include="Assets\LargeTile.scale-125.png" />
     <Image Include="Assets\LargeTile.scale-150.png" />
@@ -380,6 +410,7 @@
     <Image Include="Assets\Square44x44Logo.targetsize-48.png" />
     <Image Include="Assets\Starlight.png" />
     <Image Include="Assets\StarlightGUI.png" />
+    <Image Include="Assets\stars.png" />
     <Image Include="Assets\StoreLogo.scale-100.png" />
     <Image Include="Assets\StoreLogo.scale-125.png" />
     <Image Include="Assets\StoreLogo.scale-150.png" />
@@ -390,6 +421,7 @@
     <Image Include="Assets\Wide310x150Logo.scale-150.png" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
     <Image Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Image Include="Assets\winui.png" />
   </ItemGroup>
   <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
