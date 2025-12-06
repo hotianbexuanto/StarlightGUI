@@ -20,8 +20,9 @@ namespace winrt::StarlightGUI::implementation
         HWND GetWindowHandle();
 
         // 外观
-        void LoadBackdrop();
-        void LoadNavigation();
+        winrt::fire_and_forget LoadBackdrop();
+        winrt::fire_and_forget LoadBackground();
+        winrt::fire_and_forget LoadNavigation();
 
         std::vector<winrt::StarlightGUI::InfoWindow> m_openWindows;
 

@@ -99,9 +99,9 @@
                                                Text="{Binding Type}" 
                                                FontSize="12" 
                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                               HorizontalAlignment="Center"
+                                               HorizontalAlignment="Left"
                                                VerticalAlignment="Center"
-                                               Margin="-32,0,0,0"/>
+                                               Margin="4,0,0,0"/>
 
                                     <Border Grid.Column="1"
                                             HorizontalAlignment="Left"

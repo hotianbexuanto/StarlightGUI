@@ -28,6 +28,19 @@ namespace winrt::StarlightGUI::implementation {
         return result;
     }
 
+    std::string WideStringToString(const winrt::hstring& hstr)
+    {
+        const wchar_t* wstr = hstr.c_str();
+        int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
+
+        std::string str(size_needed, 0);
+        WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &str[0], size_needed, nullptr, nullptr);
+
+        str.erase(std::find(str.begin(), str.end(), '\0'), str.end());
+
+        return str;
+    }
+
     std::wstring ULongToHexString(ULONG64 value)
     {
         return ULongToHexString(value, 16, true, true);

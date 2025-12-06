@@ -15,6 +15,10 @@
 
 using namespace winrt;
 using namespace WinUI3Package;
+using namespace Windows::UI;
+using namespace Windows::Graphics;
+using namespace Windows::Storage;
+using namespace Windows::Storage::Streams;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Media::Imaging;
@@ -37,14 +41,18 @@ namespace winrt::StarlightGUI::implementation
         windowNative->get_WindowHandle(&hWnd);
         globalHWND = hWnd;
 
-        SetWindowPos(hWnd, NULL, 0, 0, 1200, 800, SWP_NOMOVE);
-
         this->ExtendsContentIntoTitleBar(true);
         this->SetTitleBar(AppTitleBar());
         this->AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
 
+        int32_t width = ReadConfig("window_width", 1200);
+        int32_t height = ReadConfig("window_height", 800);
+
+        this->AppWindow().Resize(SizeInt32{ width, height });
+
         // 外观
         LoadBackdrop();
+        LoadBackground();
         LoadNavigation();
 
         g_mainWindowInstance = this;
@@ -52,6 +60,14 @@ namespace winrt::StarlightGUI::implementation
         // Home page
         MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
         RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
+
+        Closed([this](auto&& sender, const winrt::Microsoft::UI::Xaml::WindowEventArgs& args) {
+            int32_t width = this->AppWindow().Size().Width;
+            int32_t height = this->AppWindow().Size().Height;
+
+            SaveConfig("window_width", width);
+            SaveConfig("window_height", height);
+            });
     }
 
     MainWindow::~MainWindow()
@@ -78,13 +94,17 @@ namespace winrt::StarlightGUI::implementation
             MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         }
-        else if (invokedItem == L"任务管理器") {
+        else if (invokedItem == L"任务管理") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::TaskPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
         }
+        else if (invokedItem == L"内核模块") {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::KernelModulePage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
+        }
         else if (invokedItem == L"系统工具") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::ProcessPage>());
-            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(3));
         }
         else if (invokedItem == L"关于") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::HelpPage>());
@@ -92,7 +112,7 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    void MainWindow::LoadBackdrop()
+    winrt::fire_and_forget MainWindow::LoadBackdrop()
     {
         auto background_type = ReadConfig("background_type", "Static");
 
@@ -127,9 +147,54 @@ namespace winrt::StarlightGUI::implementation
         {
             this->SystemBackdrop(nullptr);
         }
+        co_return;
     }
 
-    void MainWindow::LoadNavigation()
+    winrt::fire_and_forget MainWindow::LoadBackground()
+    {
+        std::string background_image = ReadConfig("background_image", "");
+
+        HANDLE hFile = CreateFileA(background_image.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+        if (hFile != INVALID_HANDLE_VALUE) {
+            CloseHandle(hFile);
+
+            try {
+                StorageFile file = co_await StorageFile::GetFileFromPathAsync(to_hstring(background_image.c_str()));
+
+                if (file && file.IsAvailable() && (file.FileType() == L".png" || file.FileType() == L".jpg" || file.FileType() == L".bmp" || file.FileType() == L".jpeg")) {
+                    ImageBrush brush;
+                    BitmapImage bitmapImage;
+                    auto& stream = co_await file.OpenReadAsync();
+                    bitmapImage.SetSource(stream);
+                    brush.ImageSource(bitmapImage);
+
+                    auto opacity = ReadConfig("image_opacity", 20);
+                    auto stretch = ReadConfig("image_stretch", "UniformToFill");
+
+                    brush.Stretch(stretch == "None" ? Stretch::None : stretch == "Uniform" ? Stretch::Uniform : stretch == "Fill" ? Stretch::Fill : Stretch::UniformToFill);
+                    brush.Opacity(opacity / 100.0);
+
+                    MainWindowGrid().Background(brush);
+                }
+            }
+            catch (hresult_error) {
+                SolidColorBrush brush;
+                brush.Color(Colors::Transparent());
+
+                MainWindowGrid().Background(brush);
+            }
+        }
+        else {
+            SolidColorBrush brush;
+            brush.Color(Colors::Transparent());
+
+            MainWindowGrid().Background(brush);
+        }
+        co_return;
+    }
+
+    winrt::fire_and_forget MainWindow::LoadNavigation()
     {
         auto navigation_style = ReadConfig("navigation_style", "LeftCompact");
 
@@ -143,6 +208,7 @@ namespace winrt::StarlightGUI::implementation
         {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
         }
+        co_return;
     }
 
     HWND MainWindow::GetWindowHandle()

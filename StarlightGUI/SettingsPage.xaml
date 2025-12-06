@@ -79,6 +79,52 @@
                 </essential:SettingsExpander.Items>
             </essential:SettingsExpander>
 
+            <!-- 图片背景 -->
+            <essential:SettingsExpander Header="图片背景"
+                                    Description="在背景层添加自定义图片"
+                                    Margin="0,0,0,10">
+                <essential:SettingsExpander.HeaderIcon>
+                    <FontIcon Glyph="&#xee71;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsExpander.HeaderIcon>
+                <TextBlock x:Name="ImagePathText" Foreground="LightGray"/>
+                <essential:SettingsExpander.Items>
+                    <essential:SettingsCard Header="导入背景"
+                                    Description="从电脑中导入一张图片作为背景"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False">
+                        <Button Click="SetImageButton_Click" Content="导入"/>
+                    </essential:SettingsCard>
+                    <essential:SettingsCard Header="清除背景"
+                                    Description="清除已经设置的图片背景"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False">
+                        <Button Click="ClearImageButton_Click" Content="清除"/>
+                    </essential:SettingsCard>
+                    <essential:SettingsCard Header="图片拉伸模式"
+                                    Description="背景中图片大小的设置方式"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False">
+                        <ComboBox x:Name="ImageStretchComboBox" 
+                              SelectionChanged="ImageStretchComboBox_SelectionChanged" 
+                              essential:ComboBoxHelper.AcrylicWorkaround="True">
+                            <ComboBoxItem Content="None" />
+                            <ComboBoxItem Content="Fill" />
+                            <ComboBoxItem Content="Uniform" />
+                            <ComboBoxItem Content="UniformToFill" />
+                        </ComboBox>
+                    </essential:SettingsCard>
+                    <essential:SettingsCard Header="透明度"
+                                    Description="图片在背景中的透明度，会覆盖窗口色"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False">
+                        <StackPanel Orientation="Horizontal">
+                            <Slider x:Name="ImageOpacitySlider" Minimum="0" Maximum="100" Value="20" Width="300" Margin="0,0,10,0"/>
+                            <Button Click="RefreshOpacityButton_Click" Content="刷新"/>
+                        </StackPanel>
+                    </essential:SettingsCard>
+                </essential:SettingsExpander.Items>
+            </essential:SettingsExpander>
+
             <!-- 导航栏 -->
             <essential:SettingsCard Header="导航栏"
                                     Description="导航栏的位置和显示样式"

@@ -20,6 +20,7 @@
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <random>
 #include <chrono>
+#include "MainWindow.xaml.h"
 
 using namespace winrt;
 using namespace Windows::Web::Http;
@@ -217,6 +218,9 @@ namespace winrt::StarlightGUI::implementation
     }
 
     winrt::fire_and_forget HomePage::LoadDriverPath() {
+        auto strong = get_strong();
+
+        g_mainWindowInstance->RootNavigation().IsEnabled(false);
         if (kernelPath.empty() || astralPath.empty()) {
             try {
                 co_await winrt::resume_background();
@@ -246,5 +250,6 @@ namespace winrt::StarlightGUI::implementation
                 CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
         }
+        g_mainWindowInstance->RootNavigation().IsEnabled(true);
     }
 }

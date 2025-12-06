@@ -19,6 +19,7 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL HideProcess(DWORD pid);
 		static BOOL SetPPL(DWORD pid, int level);
 		static BOOL SetCriticalProcess(DWORD pid);
+		static BOOL InjectDLLToProcess(DWORD pid, PWCHAR dllPath);
 
 		// Thread
 		static BOOL _ZwTerminateThread(DWORD tid);
@@ -27,11 +28,17 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL _SuspendThread(DWORD tid);
 		static BOOL _ResumeThread(DWORD tid);
 
+		// Driver
+		static BOOL UnloadDriver(ULONG64 driverObj);
+		static BOOL HideDriver(ULONG64 driverObj);
+
 		// Enum
 		static BOOL EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList);
 		static BOOL EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads);
 		static BOOL EnumProcessHandle(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles);
 		static BOOL EnumProcessModule(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& threads);
+		static BOOL EnumProcessKernelCallbackTable(ULONG64 eprocess, std::vector<winrt::StarlightGUI::KCTInfo>& threads);
+		static BOOL EnumDrivers(std::vector<winrt::StarlightGUI::KernelModuleInfo>& kernelModules);
 
 		// System
 		static BOOL EnableDSE();

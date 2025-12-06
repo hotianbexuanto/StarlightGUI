@@ -21,8 +21,6 @@ namespace winrt::StarlightGUI::implementation
     {
         auto deferral = args.GetDeferral();
 
-        OutputDebugString(L"Check");
-
         m_processPath = ProcessPathTextBox().Text();
         m_permission = PermissionComboBox().SelectedIndex();
 

@@ -7,14 +7,11 @@
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.ApplicationModel.h>
-#include <winrt/Windows.Storage.h>
-#include <winrt/Microsoft.Windows.Storage.Pickers.h>
 #include <winrt/Microsoft.UI.h>
 #include <winrt/Microsoft.UI.Text.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
-#include <winrt/Microsoft.UI.Interop.h>
 #include <vector>
 #include <memory>
 #include <sstream>
@@ -139,7 +136,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::Windows::Foundation::IAsyncAction ProcessPage::ElevatorExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    winrt::fire_and_forget ProcessPage::ElevatorExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         HWND hWnd = g_mainWindowInstance->GetWindowHandle();
 
@@ -212,7 +209,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::Windows::Foundation::IAsyncAction ProcessPage::DriverLoaderExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    winrt::fire_and_forget ProcessPage::DriverLoaderExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         HWND hWnd = g_mainWindowInstance->GetWindowHandle();
 

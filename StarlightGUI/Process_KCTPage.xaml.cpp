@@ -1,7 +1,7 @@
-ï»¿#include "pch.h"
-#include "Process_ModulePage.xaml.h"
-#if __has_include("Process_ModulePage.g.cpp")
-#include "Process_ModulePage.g.cpp"
+#include "pch.h"
+#include "Process_KCTPage.xaml.h"
+#if __has_include("Process_KCTPage.g.cpp")
+#include "Process_KCTPage.g.cpp"
 #endif
 
 
@@ -35,19 +35,19 @@ using namespace Windows::System;
 
 namespace winrt::StarlightGUI::implementation
 {
-    Process_ModulePage::Process_ModulePage() {
+    Process_KCTPage::Process_KCTPage() {
         InitializeComponent();
 
-        ModuleListView().ItemsSource(m_moduleList);
-        ModuleListView().ItemContainerTransitions().Clear();
-        ModuleListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        KCTListView().ItemsSource(m_kctList);
+        KCTListView().ItemContainerTransitions().Clear();
+        KCTListView().ItemContainerTransitions().Append(EntranceThemeTransition());
 
         this->Loaded([this](auto&&, auto&&) {
-            LoadModuleList();
+            LoadKCTList();
             });
     }
 
-    void Process_ModulePage::ModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
+    void Process_KCTPage::KCTListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
     {
         auto listView = sender.as<ListView>();
 
@@ -62,57 +62,46 @@ namespace winrt::StarlightGUI::implementation
 
         if (!listView.SelectedItem()) return;
 
-        auto item = listView.SelectedItem().as<winrt::StarlightGUI::MokuaiInfo>();
+        auto item = listView.SelectedItem().as<winrt::StarlightGUI::KCTInfo>();
 
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem itemRefresh;
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
-        itemRefresh.Text(L"åˆ·æ–°");
+        itemRefresh.Text(L"Ë¢ĞÂ");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            LoadModuleList();
+            LoadKCTList();
             co_return;
             });
 
         MenuFlyoutSeparator separatorR;
 
-        // é€‰é¡¹1.1
+        // Ñ¡Ïî1.1
         MenuFlyoutSubItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue8c8"));
-        item1_1.Text(L"å¤åˆ¶ä¿¡æ¯");
+        item1_1.Text(L"¸´ÖÆĞÅÏ¢");
         MenuFlyoutItem item1_1_sub1;
         item1_1_sub1.Icon(CreateFontIcon(L"\ue943"));
-        item1_1_sub1.Text(L"åç§°");
+        item1_1_sub1.Text(L"Ãû³Æ");
         item1_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item1_1.Items().Append(item1_1_sub1);
         MenuFlyoutItem item1_1_sub2;
-        item1_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
-        item1_1_sub2.Text(L"è·¯å¾„");
+        item1_1_sub2.Icon(CreateFontIcon(L"\ueb1d"));
+        item1_1_sub2.Text(L"µØÖ·");
         item1_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
+                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
         item1_1.Items().Append(item1_1_sub2);
-        MenuFlyoutItem item1_1_sub3;
-        item1_1_sub3.Icon(CreateFontIcon(L"\ueb1d"));
-        item1_1_sub3.Text(L"åœ°å€");
-        item1_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-            }
-            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
-            co_return;
-            });
-        item1_1.Items().Append(item1_1_sub3);
 
         menuFlyout.Items().Append(itemRefresh);
         menuFlyout.Items().Append(separatorR);
@@ -121,7 +110,7 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
 
-    winrt::Windows::Foundation::IAsyncAction Process_ModulePage::LoadModuleList()
+    winrt::Windows::Foundation::IAsyncAction Process_KCTPage::LoadKCTList()
     {
         if (!processForInfoWindow) co_return;
 
@@ -131,12 +120,12 @@ namespace winrt::StarlightGUI::implementation
 
         co_await winrt::resume_background();
 
-        std::vector<winrt::StarlightGUI::MokuaiInfo> modules;
-        modules.reserve(500);
+        std::vector<winrt::StarlightGUI::KCTInfo> kcts;
+        kcts.reserve(500);
 
-        // è·å–å¥æŸ„åˆ—è¡¨
+        // »ñÈ¡¾ä±úÁĞ±í
         try {
-            KernelInstance::EnumProcessModule(processForInfoWindow.EProcessULong(), modules);
+            KernelInstance::EnumProcessKernelCallbackTable(processForInfoWindow.EProcessULong(), kcts);
         }
         catch (...) {
 
@@ -144,30 +133,30 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        if (modules.size() >= 1000) {
-            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥è¿›ç¨‹æŒæœ‰è¿‡å¤šæ¨¡å—ï¼Œç¨‹åºæ— æ³•å®Œæ•´æ˜¾ç¤ºï¼Œå°†æ˜¾ç¤ºå‰1000æ¡ï¼", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+        if (kcts.size() >= 1000) {
+            CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã½ø³Ì³ÖÓĞ¹ı¶àÄÚºË»Øµ÷±í¼ÇÂ¼£¬³ÌĞòÎŞ·¨ÍêÕûÏÔÊ¾£¬½«ÏÔÊ¾Ç°1000Ìõ£¡", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
         }
 
-        m_moduleList.Clear();
-        for (const auto& module : modules) {
-            if (module.Name().empty()) module.Name(L"(æœªçŸ¥)");
-            if (module.Path().empty()) module.Path(L"(æœªçŸ¥)");
+        m_kctList.Clear();
+        for (const auto& kct : kcts) {
+            if (kct.Name().empty()) kct.Name(L"(Î´Öª)");
+            if (kct.Address().empty()) kct.Address(L"(Î´Öª)");
 
-            m_moduleList.Append(module);
+            m_kctList.Append(kct);
         }
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-        // æ›´æ–°æ¨¡å—æ•°é‡æ–‡æœ¬
+        // ¸üĞÂÄ£¿éÊıÁ¿ÎÄ±¾
         std::wstringstream countText;
-        countText << L"å…± " << m_moduleList.Size() << L" ä¸ªæ¨¡å— (" << duration.count() << " ms)";
-        ModuleCountText().Text(countText.str());
-        modules.clear();
+        countText << L"¹² " << m_kctList.Size() << L" ¸öÄÚºË»Øµ÷±í¼ÇÂ¼ (" << duration.count() << " ms)";
+        KCTCountText().Text(countText.str());
+        kcts.clear();
     }
 
     template <typename T>
-    T Process_ModulePage::FindParent(DependencyObject const& child)
+    T Process_KCTPage::FindParent(DependencyObject const& child)
     {
         DependencyObject parent = VisualTreeHelper::GetParent(child);
         while (parent && !parent.try_as<T>())

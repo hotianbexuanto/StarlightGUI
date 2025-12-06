@@ -17,6 +17,8 @@
 
 using namespace winrt;
 using namespace WinUI3Package;
+using namespace Windows::UI;
+using namespace Windows::Storage;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Media::Imaging;
@@ -44,6 +46,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 外观
         LoadBackdrop();
+        LoadBackground();
         LoadNavigation();
 
         g_infoWindowInstance = this;
@@ -59,6 +62,10 @@ namespace winrt::StarlightGUI::implementation
         RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         ProcessName().Text(processForInfoWindow.Name());
         this->Title(processForInfoWindow.Name());
+    }
+
+    InfoWindow::~InfoWindow() {
+        g_infoWindowInstance = nullptr;
     }
 
     void InfoWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
@@ -80,9 +87,14 @@ namespace winrt::StarlightGUI::implementation
             MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ModulePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
         }
+        else if (invokedItem == L"内核回调表")
+        {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::Process_KCTPage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(3));
+        }
     }
 
-    void InfoWindow::LoadBackdrop()
+    winrt::fire_and_forget InfoWindow::LoadBackdrop()
     {
         auto background_type = ReadConfig("background_type", "Static");
 
@@ -117,9 +129,54 @@ namespace winrt::StarlightGUI::implementation
         {
             this->SystemBackdrop(nullptr);
         }
+        co_return;
     }
 
-    void InfoWindow::LoadNavigation()
+    winrt::fire_and_forget InfoWindow::LoadBackground()
+    {
+        std::string background_image = ReadConfig("background_image", "");
+
+        HANDLE hFile = CreateFileA(background_image.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+        if (hFile != INVALID_HANDLE_VALUE) {
+            CloseHandle(hFile);
+
+            try {
+                StorageFile file = co_await StorageFile::GetFileFromPathAsync(to_hstring(background_image.c_str()));
+
+                if (file && file.IsAvailable() && (file.FileType() == L".png" || file.FileType() == L".jpg" || file.FileType() == L".bmp" || file.FileType() == L".jpeg")) {
+                    ImageBrush brush;
+                    BitmapImage bitmapImage;
+                    auto& stream = co_await file.OpenReadAsync();
+                    bitmapImage.SetSource(stream);
+                    brush.ImageSource(bitmapImage);
+
+                    auto opacity = ReadConfig("image_opacity", 20);
+                    auto stretch = ReadConfig("image_stretch", "UniformToFill");
+
+                    brush.Stretch(stretch == "None" ? Stretch::None : stretch == "Uniform" ? Stretch::Uniform : stretch == "Fill" ? Stretch::Fill : Stretch::UniformToFill);
+                    brush.Opacity(opacity / 100.0);
+
+                    InfoWindowGrid().Background(brush);
+                }
+            }
+            catch (hresult_error) {
+                SolidColorBrush brush;
+                brush.Color(Colors::Transparent());
+
+                InfoWindowGrid().Background(brush);
+            }
+        }
+        else {
+            SolidColorBrush brush;
+            brush.Color(Colors::Transparent());
+
+            InfoWindowGrid().Background(brush);
+        }
+        co_return;
+    }
+
+    winrt::fire_and_forget InfoWindow::LoadNavigation()
     {
         auto navigation_style = ReadConfig("navigation_style", "LeftCompact");
 
@@ -133,8 +190,8 @@ namespace winrt::StarlightGUI::implementation
         {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
         }
+        co_return;
     }
-
 
     HWND InfoWindow::GetWindowHandle()
     {

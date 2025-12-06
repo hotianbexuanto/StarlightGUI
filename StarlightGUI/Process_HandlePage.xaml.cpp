@@ -35,8 +35,6 @@ using namespace Windows::System;
 
 namespace winrt::StarlightGUI::implementation
 {
-    static int safeAcceptedPID = -1;
-
     Process_HandlePage::Process_HandlePage() {
         InitializeComponent();
 

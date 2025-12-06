@@ -102,8 +102,7 @@ namespace winrt::StarlightGUI::implementation {
 			if (!pWorkSetBlock[i].Shared) // Remove shared pages
 				privateWorkingSet += pageSize;
 		}
-		if (pByte)
-			delete[] pByte;
+		if (pByte) delete[] pByte;
 		return privateWorkingSet;
 	}
 

@@ -1,0 +1,388 @@
+#include "pch.h"
+#include "KernelModulePage.xaml.h"
+#if __has_include("KernelModulePage.g.cpp")
+#include "KernelModulePage.g.cpp"
+#endif
+
+
+#include <winrt/Microsoft.UI.Composition.h>
+#include <winrt/Microsoft.UI.Xaml.h>
+#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.System.h>
+#include <winrt/Windows.UI.h>
+#include <winrt/Windows.UI.Core.h>
+#include <winrt/Windows.Graphics.Imaging.h>
+#include <winrt/Windows.Foundation.h>
+#include <TlHelp32.h>
+#include <Psapi.h>
+#include <sstream>
+#include <iomanip>
+#include <mutex>
+#include <shellapi.h>
+#include <unordered_set>
+#include <InfoWindow.xaml.h>
+#include <MainWindow.xaml.h>
+
+using namespace winrt;
+using namespace WinUI3Package;
+using namespace Microsoft::UI::Text;
+using namespace Microsoft::UI::Xaml;
+using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::UI::Xaml::Media;
+using namespace Microsoft::UI::Xaml::Media::Imaging;
+using namespace Windows::Storage::Streams;
+using namespace Windows::Graphics::Imaging;
+using namespace Windows::System;
+
+namespace winrt::StarlightGUI::implementation
+{
+    static std::vector<winrt::StarlightGUI::KernelModuleInfo> fullRecordedKernelModules;
+    static std::chrono::steady_clock::time_point lastRefresh;
+    static int safeAcceptedImage = -1;
+    static bool loaded;
+
+    KernelModulePage::KernelModulePage() {
+        InitializeComponent();
+
+        loaded = false;
+
+        KernelModuleListView().ItemsSource(m_kernelModuleList);
+        KernelModuleListView().ItemContainerTransitions().Clear();
+        KernelModuleListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        TaskUtils::EnsurePrivileges();
+
+        if (!KernelInstance::IsRunningAsAdmin()) {
+            CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+        }
+
+        this->Loaded([this](auto&&, auto&&) {
+            LoadKernelModuleList();
+            loaded = true;
+            });
+    }
+
+    void KernelModulePage::KernelModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
+    {
+        auto listView = sender.as<ListView>();
+
+        if (auto fe = e.OriginalSource().try_as<FrameworkElement>())
+        {
+            auto container = FindParent<ListViewItem>(fe);
+            if (container)
+            {
+                listView.SelectedItem(container.Content());
+            }
+        }
+
+        if (!listView.SelectedItem()) return;
+
+        auto item = listView.SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
+
+        MenuFlyout menuFlyout;
+
+        // 选项1.1
+        MenuFlyoutItem item1_1;
+        item1_1.Icon(CreateFontIcon(L"\uec91"));
+        item1_1.Text(L"卸载驱动");
+        item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功卸载驱动: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                LoadKernelModuleList();
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法卸载驱动: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+
+        // 选项1.2
+        MenuFlyoutItem item1_2;
+        item1_2.Icon(CreateFontIcon(L"\ued1a"));
+        item1_2.Text(L"隐藏驱动");
+        item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (KernelInstance::HideDriver(item.DriverObjectULong())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功隐藏驱动: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                LoadKernelModuleList();
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法隐藏驱动: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+
+        // 分割线1
+        MenuFlyoutSeparator separator1;
+
+        // 选项2.1
+        MenuFlyoutSubItem item2_1;
+        item2_1.Icon(CreateFontIcon(L"\ue8c8"));
+        item2_1.Text(L"复制信息");
+        MenuFlyoutItem item2_1_sub1;
+        item2_1_sub1.Icon(CreateFontIcon(L"\ue943"));
+        item2_1_sub1.Text(L"名称");
+        item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item2_1.Items().Append(item2_1_sub1);
+        MenuFlyoutItem item2_1_sub2;
+        item2_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
+        item2_1_sub2.Text(L"路径");
+        item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(item.Path().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item2_1.Items().Append(item2_1_sub2);
+        MenuFlyoutItem item2_1_sub3;
+        item2_1_sub3.Icon(CreateFontIcon(L"\ueb19"));
+        item2_1_sub3.Text(L"基址");
+        item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(item.ImageBase().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item2_1.Items().Append(item2_1_sub3);
+        MenuFlyoutItem item2_1_sub4;
+        item2_1_sub4.Icon(CreateFontIcon(L"\ueb1d"));
+        item2_1_sub4.Text(L"驱动对象");
+        item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(item.DriverObject().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item2_1.Items().Append(item2_1_sub4);
+
+        menuFlyout.Items().Append(item1_1);
+        menuFlyout.Items().Append(item1_2);
+        menuFlyout.Items().Append(separator1);
+        menuFlyout.Items().Append(item2_1);
+
+        menuFlyout.ShowAt(listView, e.GetPosition(listView));
+    }
+
+    winrt::Windows::Foundation::IAsyncAction KernelModulePage::LoadKernelModuleList()
+    {
+        if (!KernelInstance::IsRunningAsAdmin()) {
+            KernelModuleCountText().Text(L"请以管理员身份运行！");
+            co_return;
+        }
+        if (m_isLoadingKernelModules) {
+            co_return;
+        }
+
+        m_isLoadingKernelModules = true;
+
+        auto start = std::chrono::steady_clock::now();
+
+        auto lifetime = get_strong();
+
+        winrt::hstring query;
+        KernelModuleSearchBox().Document().GetText(TextGetOptions::NoHidden, query);
+
+        co_await winrt::resume_background();
+
+        std::vector<winrt::StarlightGUI::KernelModuleInfo> kernelModules;
+
+        if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 1) {
+
+            kernelModules.reserve(200);
+
+            try {
+                KernelInstance::EnumDrivers(kernelModules);
+            }
+            catch (...) {
+
+            }
+
+            fullRecordedKernelModules = kernelModules;
+
+            lastRefresh = std::chrono::steady_clock::now();
+        }
+        else {
+            kernelModules = fullRecordedKernelModules;
+        }
+
+        co_await wil::resume_foreground(DispatcherQueue());
+
+        m_kernelModuleList.Clear();
+        for (const auto& kernelModule : kernelModules) {
+            bool shouldRemove = query.empty() ? false : co_await ApplyFilter(kernelModule, query);
+            if (shouldRemove) continue;
+
+            if (kernelModule.Name().empty()) kernelModule.Name(L"(未知)");
+            if (kernelModule.Path().empty()) kernelModule.Path(L"(未知)");
+            if (kernelModule.ImageBase().empty()) kernelModule.ImageBase(L"(未知)");
+            if (kernelModule.DriverObject().empty()) kernelModule.DriverObject(L"(未知)");
+
+            m_kernelModuleList.Append(kernelModule);
+        }
+
+        // 恢复排序
+        ApplySort(currentSortingOption, currentSortingType);
+
+        auto end = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        // 更新内核模块数量文本
+        std::wstringstream countText;
+        countText << L"共 " << m_kernelModuleList.Size() << L" 个内核模块 (" << duration << " ms)";
+        KernelModuleCountText().Text(countText.str());
+
+        m_isLoadingKernelModules = false;
+    }
+
+    void KernelModulePage::ColumnHeader_Click(IInspectable const& sender, RoutedEventArgs const& e)
+    {
+        Button clickedButton = sender.as<Button>();
+        winrt::hstring columnName = clickedButton.Tag().as<winrt::hstring>();
+
+        if (columnName == L"Name")
+        {
+            ApplySort(m_isNameAscending, "Name");
+        }
+        else if (columnName == L"Size")
+        {
+            ApplySort(m_isSizeAscending, "Size");
+        }
+        else if (columnName == L"LoadOrder")
+        {
+            ApplySort(m_isLoadOrderAscending, "LoadOrder");
+        }
+    }
+
+    // 排序切换
+    winrt::fire_and_forget KernelModulePage::ApplySort(bool& isAscending, const std::string& column)
+    {
+        NameHeaderButton().Content(box_value(L"模块"));
+        SizeHeaderButton().Content(box_value(L"大小"));
+        LoadOrderHeaderButton().Content(box_value(L"加载顺序"));
+
+        std::vector<winrt::StarlightGUI::KernelModuleInfo> sortedKernelModules;
+
+        for (auto& kernelModule : m_kernelModuleList) {
+            sortedKernelModules.push_back(kernelModule);
+        }
+
+        if (column == "Name") {
+            if (isAscending) {
+                NameHeaderButton().Content(box_value(L"模块 ↓"));
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
+                    std::wstring aName = a.Name().c_str();
+                    std::wstring bName = b.Name().c_str();
+                    std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
+                    std::transform(bName.begin(), bName.end(), bName.begin(), ::towlower);
+
+                    return aName < bName;
+                    });
+
+            }
+            else {
+                NameHeaderButton().Content(box_value(L"模块 ↑"));
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
+                    std::wstring aName = a.Name().c_str();
+                    std::wstring bName = b.Name().c_str();
+                    std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
+                    std::transform(bName.begin(), bName.end(), bName.begin(), ::towlower);
+
+                    return aName > bName;
+                    });
+            }
+        }
+        else if (column == "Size") {
+            if (isAscending) {
+                SizeHeaderButton().Content(box_value(L"大小 ↓"));
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
+                    return a.SizeULong() < b.SizeULong();
+                    });
+            }
+            else {
+                SizeHeaderButton().Content(box_value(L"大小 ↑"));
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
+                    return a.SizeULong() > b.SizeULong();
+                    });
+            }
+        }
+        else if (column == "LoadOrder") {
+            if (isAscending) {
+                LoadOrderHeaderButton().Content(box_value(L"加载顺序 ↓"));
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
+                    return a.LoadOrderULong() < b.LoadOrderULong();
+                    });
+            }
+            else {
+                LoadOrderHeaderButton().Content(box_value(L"加载顺序 ↑"));
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
+                    return a.LoadOrderULong() > b.LoadOrderULong();
+                    });
+            }
+        }
+
+        m_kernelModuleList.Clear();
+        for (auto& kernelModule : sortedKernelModules) {
+            m_kernelModuleList.Append(kernelModule);
+        }
+
+        isAscending = !isAscending;
+        currentSortingOption = !isAscending;
+        currentSortingType = column;
+
+        co_return;
+    }
+
+    winrt::fire_and_forget KernelModulePage::KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        if (!loaded) co_return;
+
+        co_await LoadKernelModuleList();
+    }
+
+    winrt::Windows::Foundation::IAsyncOperation<bool> KernelModulePage::ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query) {
+        std::wstring name = kernelModule.Name().c_str();
+        std::wstring queryWStr = query.c_str();
+
+        // 不比较大小写
+        std::transform(name.begin(), name.end(), name.begin(), ::towlower);
+        std::transform(queryWStr.begin(), queryWStr.end(), queryWStr.begin(), ::towlower);
+
+        bool result = name.find(queryWStr) == std::wstring::npos;
+
+        co_return result;
+    }
+
+
+    winrt::fire_and_forget KernelModulePage::RefreshKernelModuleListButton_Click(IInspectable const&, RoutedEventArgs const&)
+    {
+        // 手动刷新时清空过滤列表，确保获取最新的进程列表
+        auto current = std::chrono::steady_clock::now();
+
+        if (std::chrono::duration_cast<std::chrono::seconds>(current - lastRefresh).count() < 1) {
+            CreateInfoBarAndDisplay(L"警告", L"刷新速度过快，请稍后再试！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            co_return;
+        }
+
+        RefreshKernelModuleListButton().IsEnabled(false);
+
+        co_await LoadKernelModuleList();
+
+        RefreshKernelModuleListButton().IsEnabled(true);
+        co_return;
+    }
+
+    template <typename T>
+    T KernelModulePage::FindParent(DependencyObject const& child)
+    {
+        DependencyObject parent = VisualTreeHelper::GetParent(child);
+        while (parent && !parent.try_as<T>())
+        {
+            parent = VisualTreeHelper::GetParent(parent);
+        }
+        return parent.try_as<T>();
+    }
+}

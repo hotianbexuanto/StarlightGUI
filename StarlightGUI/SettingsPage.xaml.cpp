@@ -5,11 +5,12 @@
 #include "SettingsPage.g.cpp"
 #endif
 #include "MainWindow.xaml.h"
-#include "InfoWindow.xaml.h"
 
 using namespace winrt;
+using namespace Windows::Storage;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::Windows::Storage::Pickers;
 
 namespace winrt::StarlightGUI::implementation
 {
@@ -21,6 +22,9 @@ namespace winrt::StarlightGUI::implementation
     static bool elevator_full_privileges;
     static bool bypass_signature;
     static std::string navigation_style;
+    static std::string background_image;
+    static double image_opacity;
+    static std::string image_stretch;
 
     SettingsPage::SettingsPage()
     {
@@ -36,6 +40,9 @@ namespace winrt::StarlightGUI::implementation
         elevator_full_privileges = ReadConfig("elevator_full_privileges", true);
         bypass_signature = ReadConfig("bypass_signature", false);
         navigation_style = ReadConfig("navigation_style", "LeftCompact");
+        background_image = ReadConfig("background_image", "");
+        image_opacity = ReadConfig("image_opacity", 20);
+        image_stretch = ReadConfig("image_stretch", "UniformToFill");
 
         InitializeOptions();
 
@@ -80,26 +87,42 @@ namespace winrt::StarlightGUI::implementation
             AcrylicTypeComboBox().SelectedIndex(0);
         }
 
+        if (image_stretch == "None") {
+            ImageStretchComboBox().SelectedIndex(0);
+        }
+        else if (image_stretch == "Fill") {
+            ImageStretchComboBox().SelectedIndex(1);
+        }
+        else if (image_stretch == "Uniform") {
+            ImageStretchComboBox().SelectedIndex(2);
+        } 
+        else {
+            ImageStretchComboBox().SelectedIndex(3);
+        }
+
         DangerousConfirmButton().IsOn(dangerous_confirm);
         FullPrivilegesButton().IsOn(elevator_full_privileges);
         BypassSignatureButton().IsOn(bypass_signature);
+
+        ImagePathText().Text(to_hstring(background_image));
+        ImageOpacitySlider().Value(image_opacity);
     }
 
     void SettingsPage::BackgroundComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
     {
         if (!loaded) return;
 
-        if (BackgroundComboBox().SelectedIndex() == 0)
-        {
-            background_type = "Static";
-        }
-        else if (BackgroundComboBox().SelectedIndex() == 1)
+        if (BackgroundComboBox().SelectedIndex() == 1)
         {
             background_type = "Mica";
         }
         else if (BackgroundComboBox().SelectedIndex() == 2)
         {
             background_type = "Acrylic";
+        }
+        else 
+        {
+            background_type = "Static";
         }
         SaveConfig("background_type", background_type);
 
@@ -150,25 +173,21 @@ namespace winrt::StarlightGUI::implementation
     {
         if (!loaded) return;
 
-        if (NavigationComboBox().SelectedIndex() == 0)
-        {
-            navigation_style = "LeftCompact";
-
-            g_mainWindowInstance->RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
-        }
-        else if (NavigationComboBox().SelectedIndex() == 1)
+        if (NavigationComboBox().SelectedIndex() == 1)
         {
             navigation_style = "Left";
-
-            g_mainWindowInstance->RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);
         }
         else if (NavigationComboBox().SelectedIndex() == 2)
         {
             navigation_style = "Top";
-
-            g_mainWindowInstance->RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Top);
+        }
+        else 
+        {
+            navigation_style = "LeftCompact";
         }
         SaveConfig("navigation_style", navigation_style);
+
+        g_mainWindowInstance->LoadNavigation();
     }
 
     void SettingsPage::DangerousConfirmButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
@@ -187,5 +206,74 @@ namespace winrt::StarlightGUI::implementation
     {
         bypass_signature = BypassSignatureButton().IsOn();
         SaveConfig("bypass_signature", bypass_signature);
+    }
+
+    void SettingsPage::ClearImageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+        SaveConfig("background_image", "");
+        ImagePathText().Text(L"");
+
+        g_mainWindowInstance->LoadBackground();
+    }
+
+    winrt::fire_and_forget SettingsPage::SetImageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+        HWND hWnd = g_mainWindowInstance->GetWindowHandle();
+
+        FileOpenPicker picker = FileOpenPicker(winrt::Microsoft::UI::GetWindowIdFromWindow(hWnd));
+
+        picker.SuggestedStartLocation(PickerLocationId::ComputerFolder);
+        picker.FileTypeFilter().Append(L".png");
+        picker.FileTypeFilter().Append(L".jpg");
+        picker.FileTypeFilter().Append(L".bmp");
+        picker.FileTypeFilter().Append(L".jpeg");
+
+        auto& result = co_await picker.PickSingleFileAsync();
+
+        if (!result) co_return;
+
+        try {
+            auto& file = co_await StorageFile::GetFileFromPathAsync(result.Path());
+
+            if (file && file.IsAvailable() && (file.FileType() == L".png" || file.FileType() == L".jpg" || file.FileType() == L".bmp" || file.FileType() == L".jpeg")) {
+                std::string path = WideStringToString(file.Path().c_str());
+                SaveConfig("background_image", path);
+                ImagePathText().Text(to_hstring(background_image));
+
+                g_mainWindowInstance->LoadBackground();
+            }
+        }
+        catch (hresult_error) {
+
+        }
+    }
+
+
+    void SettingsPage::RefreshOpacityButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+        SaveConfig("image_opacity", ImageOpacitySlider().Value());
+        g_mainWindowInstance->LoadBackground();
+    }
+
+    void SettingsPage::ImageStretchComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
+    {
+        if (!loaded) return;
+
+        if (ImageStretchComboBox().SelectedIndex() == 0)
+        {
+            image_stretch = "None";
+        }
+        else if (ImageStretchComboBox().SelectedIndex() == 1)
+        {
+            image_stretch = "Fill";
+        }
+        else if (ImageStretchComboBox().SelectedIndex() == 2)
+        {
+            image_stretch = "Uniform";
+        }
+        else
+        {
+            image_stretch = "UniformToFill";
+        }
+        SaveConfig("image_stretch", image_stretch);
+
+        g_mainWindowInstance->LoadBackground();
     }
 }

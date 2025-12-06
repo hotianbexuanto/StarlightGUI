@@ -14,7 +14,6 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Foundation.h>
-#include <TlHelp32.h>
 #include <Psapi.h>
 #include <sstream>
 #include <iomanip>
@@ -24,6 +23,7 @@
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
 #include <RunProcessDialog.xaml.h>
+#include <InjectDLLDialog.xaml.h>
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -51,9 +51,12 @@ namespace winrt::StarlightGUI::implementation
     static int safeAcceptedPID = -1;
     static std::chrono::steady_clock::time_point lastRefresh;
     static bool infoWindowOpen = false;
+    static bool loaded;
 
     TaskPage::TaskPage() {
         InitializeComponent();
+
+        loaded = false;
 
         ProcessListView().ItemsSource(m_processList);
         ProcessListView().ItemContainerTransitions().Clear();
@@ -64,6 +67,7 @@ namespace winrt::StarlightGUI::implementation
 
         this->Loaded([this](auto&&, auto&&) {
             StartLoop();
+            loaded = true;
 			});
     }
 
@@ -77,15 +81,6 @@ namespace winrt::StarlightGUI::implementation
             if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
             });
         defaultRefreshTimer.Start();
-
-        // 每100秒清除一次缓存
-        // 新进程产生相同PID的情况概率很小，所以这个间隔可以大一点
-        cacheClearTimer.Interval(std::chrono::seconds(100));
-        cacheClearTimer.Tick([this](auto&&, auto&&) {
-            iconCache.clear();
-            descriptionCache.clear();
-            });
-        cacheClearTimer.Start();
     }
 
     void TaskPage::ProcessListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -115,7 +110,7 @@ namespace winrt::StarlightGUI::implementation
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::_TerminateProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList(true);
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -128,7 +123,7 @@ namespace winrt::StarlightGUI::implementation
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ZwTerminateProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList(true);
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -145,7 +140,7 @@ namespace winrt::StarlightGUI::implementation
             if (safeAcceptedPID == item.Id()) {
                 if (KernelInstance::MurderProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                    LoadProcessList(true);
+                    WaitAndReloadAsync(1000);
                 }
                 else CreateInfoBarAndDisplay(L"失败", L"无法强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
@@ -170,7 +165,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_SuspendProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功暂停进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法暂停进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -182,7 +177,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ResumeProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功恢复进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法恢复进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -197,7 +192,7 @@ namespace winrt::StarlightGUI::implementation
         item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::HideProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList(true);
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -213,13 +208,9 @@ namespace winrt::StarlightGUI::implementation
         // PPL等级
         item2_3_sub1.Text(L"None");
         item2_3_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_None)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 None (0x00).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -228,13 +219,9 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_3_sub2;
         item2_3_sub2.Text(L"Authenticode");
         item2_3_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_Authenticode)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Authenticode (0x11).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -243,13 +230,9 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_3_sub3;
         item2_3_sub3.Text(L"Codegen");
         item2_3_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_Codegen)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Codegen (0x21).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -258,13 +241,9 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_3_sub4;
         item2_3_sub4.Text(L"Antimalware");
         item2_3_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_Antimalware)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Antimalware (0x31).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -273,13 +252,9 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_3_sub5;
         item2_3_sub5.Text(L"Lsa");
         item2_3_sub5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_Lsa)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Lsa (0x41).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -288,13 +263,9 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_3_sub6;
         item2_3_sub6.Text(L"Windows");
         item2_3_sub6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_Windows)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Windows (0x51).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -303,13 +274,9 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_3_sub7;
         item2_3_sub7.Text(L"WinTcb");
         item2_3_sub7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_WinTcb)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinTcb (0x61).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -318,13 +285,9 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_3_sub8;
         item2_3_sub8.Text(L"WinSystem");
         item2_3_sub8.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (KernelInstance::SetPPL(item.Id(), PPL_WinSystem)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinSystem (0x71).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -337,14 +300,10 @@ namespace winrt::StarlightGUI::implementation
         item2_4.Icon(CreateFontIcon(L"\ue8c9"));
         item2_4.Text(L"设置为关键进程");
         item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                co_return;
-            }
             if (safeAcceptedPID == item.Id()) {
                 if (KernelInstance::SetCriticalProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                    LoadProcessList();
+                    WaitAndReloadAsync(1000);
                 }
                 else CreateInfoBarAndDisplay(L"失败", L"无法设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
@@ -356,13 +315,23 @@ namespace winrt::StarlightGUI::implementation
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_4.IsEnabled(false);
 
-        MenuFlyoutItem item2_x;
-        item2_x.Icon(CreateFontIcon(L"\uf1e8"));
-        item2_x.Text(L"效率模式");
-        item2_x.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+        // 选项2.5
+        MenuFlyoutItem item2_5;
+        item2_5.Icon(CreateFontIcon(L"\uebe8"));
+        item2_5.Text(L"注入DLL");
+        item2_5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            InjectDLL(item.Id());
+            co_return;
+            });
+        if (!KernelInstance::IsRunningAsAdmin()) item2_5.IsEnabled(false);
+
+        MenuFlyoutItem item2_6;
+        item2_6.Icon(CreateFontIcon(L"\uf1e8"));
+        item2_6.Text(L"效率模式");
+        item2_6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::EnableProcessPerformanceMode(item)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功为进程开启效率模式: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadProcessList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法为进程开启效率模式: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -464,7 +433,8 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item2_2);
         menuFlyout.Items().Append(item2_3);
         menuFlyout.Items().Append(item2_4);
-        menuFlyout.Items().Append(item2_x);
+        menuFlyout.Items().Append(item2_5);
+        menuFlyout.Items().Append(item2_6);
         menuFlyout.Items().Append(separator2);
         menuFlyout.Items().Append(item3_1);
         menuFlyout.Items().Append(item3_2);
@@ -497,7 +467,7 @@ namespace winrt::StarlightGUI::implementation
         std::map<DWORD, hstring> processCpuTable;
 
         if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 1 || force) {
-            processes.reserve(300);
+            processes.reserve(200);
 
             HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
             if (hSnapshot == INVALID_HANDLE_VALUE) {
@@ -544,7 +514,7 @@ namespace winrt::StarlightGUI::implementation
         co_await wil::resume_foreground(DispatcherQueue());
 
         m_processList.Clear();
-        winrt::StarlightGUI::ProcessInfo& selectedTarget = fullRecordedProcesses[0];
+        winrt::StarlightGUI::ProcessInfo& selectedTarget = winrt::make<winrt::StarlightGUI::implementation::ProcessInfo>();
         for (const auto& process : processes) {
             bool shouldRemove = query.empty() ? false : co_await ApplyFilter(process, query);
             if (shouldRemove) continue;
@@ -648,7 +618,6 @@ namespace winrt::StarlightGUI::implementation
                 processInfo.Description(descriptionCache[processName]);
                 processInfo.MemoryUsageByte(memoryUsage);
                 processInfo.ExecutablePath(processName);
-                processInfo.Icon(nullptr); // 先设置成null，后面再加载
 
                 processes.push_back(processInfo);
             }
@@ -665,7 +634,6 @@ namespace winrt::StarlightGUI::implementation
             if (!SHGetFileInfoW(process.ExecutablePath().c_str(), 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON | SHGFI_SMALLICON)) {
                 SHGetFileInfoW(L"C:\\Windows\\System32\\ntoskrnl.exe", 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON);
             }
-            auto stream = winrt::Windows::Storage::Streams::InMemoryRandomAccessStream();
             ICONINFO iconInfo;
             if (GetIconInfo(shfi.hIcon, &iconInfo)) {
                 BITMAP bmp;
@@ -847,6 +815,7 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget TaskPage::ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
+        if (!loaded) co_return;
 		// 每次搜索都清空之前缓存的过滤结果
         filteredPids.clear();
 
@@ -870,7 +839,7 @@ namespace winrt::StarlightGUI::implementation
             }
         }
 
-        co_await LoadProcessList(false);
+        co_await WaitAndReloadAsync(200);
     }
 
     winrt::Windows::Foundation::IAsyncOperation<bool> TaskPage::ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query) {
@@ -894,14 +863,6 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget TaskPage::RefreshProcessListButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
-        // 手动刷新时清空过滤列表，确保获取最新的进程列表
-        auto current = std::chrono::steady_clock::now();
-
-        if (std::chrono::duration_cast<std::chrono::seconds>(current - lastRefresh).count() < 1) {
-            CreateInfoBarAndDisplay(L"警告", L"刷新速度过快，请稍后再试！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-            co_return;
-        }
-
         RefreshProcessListButton().IsEnabled(false);
 
         filteredPids.clear();
@@ -955,7 +916,6 @@ namespace winrt::StarlightGUI::implementation
                     if (permission == 1) sei.lpVerb = L"runas";
 
                     BOOL stauts = ShellExecuteExW(&sei);
-                    DWORD error = GetLastError();
 
                     if (stauts && sei.hProcess != NULL) {
                         DWORD processId = GetProcessId(sei.hProcess);
@@ -972,15 +932,62 @@ namespace winrt::StarlightGUI::implementation
                     }
                 }
 
-                co_await LoadProcessList();
+                co_await WaitAndReloadAsync(1000);
             }
-
-            dialog = nullptr;
         }
         catch (winrt::hresult_error const& ex) {
             CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
                 InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
         }
+        co_return;
+    }
+
+    winrt::fire_and_forget TaskPage::InjectDLL(ULONG pid) {
+        try {
+            auto dialog = winrt::make<winrt::StarlightGUI::implementation::InjectDLLDialog>();
+            dialog.XamlRoot(this->XamlRoot());
+
+            auto result = co_await dialog.ShowAsync();
+
+            if (result == ContentDialogResult::Primary) {
+                std::wstring path = std::wstring(dialog.DLLPath().c_str());
+
+                size_t dotPos = path.rfind(L'.');
+                if (dotPos == std::wstring::npos) {
+                    CreateInfoBarAndDisplay(L"错误", L"文件不是DLL类型！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    co_return;
+                }
+                else {
+                    std::wstring extension = path.substr(dotPos + 1);
+                    if (_wcsicmp(extension.c_str(), L"dll") != 0 && _wcsicmp(extension.c_str(), L"DLL") != 0) {
+                        CreateInfoBarAndDisplay(L"错误", L"文件不是DLL类型！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                        co_return;
+                    }
+                }
+
+                HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+                if (hFile == INVALID_HANDLE_VALUE) {
+                    CreateInfoBarAndDisplay(L"错误", L"文件不存在！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    co_return;
+                }
+
+                CloseHandle(hFile);
+                
+                if (KernelInstance::InjectDLLToProcess(pid, const_cast<PWCHAR>(path.c_str()))) {
+                    CreateInfoBarAndDisplay(L"成功", L"注入成功！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    WaitAndReloadAsync(1000);
+                }
+                else {
+                    CreateInfoBarAndDisplay(L"失败", L"注入失败，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                }
+            }
+        }
+        catch (winrt::hresult_error const& ex) {
+            CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
+                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+        }
+        co_return;
     }
 
     winrt::fire_and_forget TaskPage::TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
@@ -991,13 +998,13 @@ namespace winrt::StarlightGUI::implementation
                 // 管理员权限时，尝试使用内核结束
                 if (KernelInstance::_ZwTerminateProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                    LoadProcessList(true);
+                    WaitAndReloadAsync(1000);
                 }
                 else {
                     // 无法结束，尝试使用常规结束
                     if (TaskUtils::_TerminateProcess(item.Id())) {
                         CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                        LoadProcessList(true);
+                        WaitAndReloadAsync(1000);
                     }
                     else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
                 }
@@ -1006,25 +1013,17 @@ namespace winrt::StarlightGUI::implementation
                 // 用户权限时，直接使用常规结束
                 if (TaskUtils::_TerminateProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                    LoadProcessList(true);
+                    WaitAndReloadAsync(1000);
                 }
                 else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
         }
-
         co_return;
-    }
-
-    void TaskPage::OnNavigatedFrom(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e)
-    {
-        defaultRefreshTimer.Stop();
-        cacheClearTimer.Stop();
-        ReleaseDC(NULL, hdc);
     }
 
     TaskPage::~TaskPage() {
         defaultRefreshTimer.Stop();
-        cacheClearTimer.Stop();
+        reloadTimer.Stop();
         ReleaseDC(NULL, hdc);
     }
 
@@ -1037,5 +1036,19 @@ namespace winrt::StarlightGUI::implementation
             parent = VisualTreeHelper::GetParent(parent);
         }
         return parent.try_as<T>();
+    }
+
+    winrt::Windows::Foundation::IAsyncAction TaskPage::WaitAndReloadAsync(int interval) {
+        auto strong = get_strong();
+
+        reloadTimer.Stop();
+        reloadTimer.Interval(std::chrono::milliseconds(interval));
+        reloadTimer.Tick([this](auto&&, auto&&) {
+            if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
+            reloadTimer.Stop();
+            });
+        reloadTimer.Start();
+
+        co_return;
     }
 }

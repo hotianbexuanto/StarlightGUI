@@ -2,11 +2,11 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "advapi32.lib")
 #pragma comment(lib, "version.lib")
 #pragma comment(lib, "shell32.lib")
 #pragma comment(lib, "gdi32.lib")
+#pragma comment(lib, "ntdll.lib")
 
 // Undefine GetCurrentTime macro to prevent
 // conflict with Storyboard::GetCurrentTime
@@ -18,6 +18,7 @@
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Microsoft.Windows.Storage.Pickers.h>
 #include <winrt/Microsoft.UI.Composition.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
@@ -32,6 +33,7 @@
 #include <winrt/Microsoft.UI.Xaml.Shapes.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Windowing.h>
+#include <winrt/Microsoft.UI.Interop.h>
 #include <winrt/Microsoft.UI.Text.h>
 #include <winrt/Microsoft.UI.h>
 #include <wil/cppwinrt_helpers.h>
@@ -41,6 +43,8 @@
 #include <Utils/ThreadInfo.h>
 #include <Utils/HandleInfo.h>
 #include <Utils/MokuaiInfo.h>
+#include <Utils/KCTInfo.h>
+#include <Utils/KernelModuleInfo.h>
 
 #include <Utils/TaskUtils.h>
 #include <Utils/Utils.h>

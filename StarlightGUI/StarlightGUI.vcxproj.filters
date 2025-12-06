@@ -33,6 +33,15 @@
     <Page Include="RunProcessDialog.xaml">
       <Filter>Utils\Elements</Filter>
     </Page>
+    <Page Include="Process_KCTPage.xaml">
+      <Filter>Pages\Process</Filter>
+    </Page>
+    <Page Include="KernelModulePage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="InjectDLLDialog.xaml">
+      <Filter>Utils\Elements</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -58,6 +67,12 @@
       <Filter>Utils\Types</Filter>
     </Midl>
     <Midl Include="Utils\MokuaiInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\KCTInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\KernelModuleInfo.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
   </ItemGroup>
@@ -89,6 +104,12 @@
       <Filter>Utils\Types</Filter>
     </ClCompile>
     <ClCompile Include="Utils\MokuaiInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KCTInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelModuleInfo.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,6 +152,12 @@
       <Filter>Utils\Types</Filter>
     </ClInclude>
     <ClInclude Include="Utils\MokuaiInfo.h">
+      <Filter>Utils\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KCTInfo.h">
+      <Filter>Utils\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelModuleInfo.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
   </ItemGroup>
