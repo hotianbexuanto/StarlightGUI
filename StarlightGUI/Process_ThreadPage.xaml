@@ -12,6 +12,7 @@
         <Grid Padding="20,10,20,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -36,59 +37,34 @@
                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
             </Grid>
 
-            <ScrollViewer Grid.Row="1"
+            <Border Grid.Row="1" CornerRadius="5" BorderThickness="1" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="IdHeaderButton" Grid.Column="0" Height="30" CornerRadius="0" Content="TID" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Id"/>
+                    <Button x:Name="EThreadHeaderButton" Grid.Column="1" Height="30" CornerRadius="0" Content="ETHREAD" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="AddressHeaderButton" Grid.Column="2" Height="30" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="StatusHeaderButton" Grid.Column="3" Height="30" CornerRadius="0" Content="状态" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="PriorityHeaderButton" Grid.Column="4" Height="30" CornerRadius="0" Content="优先级" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Priority"/>
+                    <Button x:Name="ModuleHeaderButton" Grid.Column="5" Height="30" CornerRadius="0" Content="模块" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="2"
                           CornerRadius="5"
                           BorderThickness="1"
+                          Background="{ThemeResource ControlFillColorDefaultBrush}"
                           BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
                 <Grid>
                     <ListView x:Name="ThreadListView"
                           Background="Transparent"
                           RightTapped="ThreadListView_RightTapped">
-
-                        <!-- 列标题 -->
-                        <ListView.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Button x:Name="IdHeaderButton" Grid.Column="0" Height="30" Content="TID" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Id"/>
-                                <Button x:Name="EThreadHeaderButton" Grid.Column="1" Height="30" Content="ETHREAD" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="AddressHeaderButton" Grid.Column="2" Height="30" Content="地址" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="StatusHeaderButton" Grid.Column="3" Height="30" Content="状态" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="PriorityHeaderButton" Grid.Column="4" Height="30" Content="优先级" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Priority"/>
-                                <Button x:Name="ModuleHeaderButton" Grid.Column="5" Height="30" Content="模块" HorizontalAlignment="Stretch"/>
-                                <Border Grid.Column="1"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="2"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="3"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="4"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="5"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-                            </Grid>
-                        </ListView.Header>
 
                         <ListView.ItemTemplate>
                             <DataTemplate>

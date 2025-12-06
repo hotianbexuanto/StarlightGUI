@@ -12,6 +12,7 @@
         <Grid Padding="20,10,20,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -72,59 +73,35 @@
                          TextChanged="ProcessSearchBox_TextChanged"/>
             </Grid>
 
-            <ScrollViewer Grid.Row="1"
+            <Border Grid.Row="1" CornerRadius="5" BorderThickness="1" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="NameHeaderButton" Grid.Column="0" Height="30" CornerRadius="0" Content="进程" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Name"/>
+                    <Button x:Name="EProcessHeaderButton" Grid.Column="1" Height="30" CornerRadius="0" Content="EPROCESS" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="CpuHeaderButton" Grid.Column="2" Height="30" CornerRadius="0" Content="CPU" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="CpuUsage"/>
+                    <Button x:Name="MemoryHeaderButton" Grid.Column="3" Height="30" CornerRadius="0" Content="内存" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="MemoryUsage"/>
+                    <Button x:Name="StatusHeaderButton" Grid.Column="4" Height="30" CornerRadius="0" Content="状态" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="IdHeaderButton" Grid.Column="5" Height="30" CornerRadius="0" Content="PID" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Id"/>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="2"
                           CornerRadius="5"
                           BorderThickness="1"
+                          Background="{ThemeResource ControlFillColorDefaultBrush}" 
                           BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
                 <Grid>
                     <ListView x:Name="ProcessListView"
                           Background="Transparent"
                           RightTapped="ProcessListView_RightTapped">
-
-                        <!-- 列标题 -->
-                        <ListView.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                </Grid.ColumnDefinitions>
-                                <Button x:Name="NameHeaderButton" Grid.Column="0" Height="30" Content="进程" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Name"/>
-                                <Button x:Name="EProcessHeaderButton" Grid.Column="1" Height="30" Content="EPROCESS" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="CpuHeaderButton" Grid.Column="2" Height="30" Content="CPU" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="CpuUsage"/>
-                                <Button x:Name="MemoryHeaderButton" Grid.Column="3" Height="30" Content="内存" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="MemoryUsage"/>
-                                <Button x:Name="StatusHeaderButton" Grid.Column="4" Height="30" Content="状态" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="IdHeaderButton" Grid.Column="5" Height="30" Content="PID" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Id"/>
-                                <Border Grid.Column="1"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="2"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="3"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="4"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="5"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                            </Grid>
-                        </ListView.Header>
 
                         <!-- 进程数据 -->
                         <ListView.ItemTemplate>

@@ -12,6 +12,7 @@
         <Grid Padding="20,10,20,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -36,32 +37,26 @@
                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
             </Grid>
 
-            <ScrollViewer Grid.Row="1"
+            <Border Grid.Row="1" CornerRadius="5" BorderThickness="1" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="160"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Height="30" CornerRadius="0" Content="函数" HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="1" Height="30" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="2"
                           CornerRadius="5"
                           BorderThickness="1"
+                          Background="{ThemeResource ControlFillColorDefaultBrush}"
                           BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
                 <Grid>
                     <ListView x:Name="KCTListView"
                               Background="Transparent"
                               RightTapped="KCTListView_RightTapped">
-
-                        <!-- 列标题 -->
-                        <ListView.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="160"/>
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Height="30" Content="函数" HorizontalAlignment="Stretch"/>
-                                <Button Grid.Column="1" Height="30" Content="地址" HorizontalAlignment="Stretch"/>
-                                <Border Grid.Column="1"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-  
-                            </Grid>
-                        </ListView.Header>
 
                         <ListView.ItemTemplate>
                             <DataTemplate>

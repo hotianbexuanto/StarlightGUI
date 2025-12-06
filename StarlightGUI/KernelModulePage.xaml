@@ -12,6 +12,7 @@
         <Grid Padding="20,10,20,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -59,52 +60,32 @@
                          TextChanged="KernelModuleSearchBox_TextChanged"/>
             </Grid>
 
-            <ScrollViewer Grid.Row="1"
+            <Border Grid.Row="1" CornerRadius="5" BorderThickness="1" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="160"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="NameHeaderButton" Grid.Column="0" Height="30" CornerRadius="0" Content="模块" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Name"/>
+                    <Button x:Name="ImageBaseHeaderButton" Grid.Column="1" Height="30" CornerRadius="0" Content="基址" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="DriverObjectHeaderButton" Grid.Column="2" Height="30" CornerRadius="0" Content="驱动对象" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="SizeHeaderButton" Grid.Column="3" Height="30" CornerRadius="0" Content="大小" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Size"/>
+                    <Button x:Name="LoadOrderHeaderButton" Grid.Column="4" Height="30" CornerRadius="0" Content="加载顺序" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="LoadOrder"/>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Row="2"
                           CornerRadius="5"
                           BorderThickness="1"
+                          Background="{ThemeResource ControlFillColorDefaultBrush}" 
                           BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
                 <Grid>
                     <ListView x:Name="KernelModuleListView"
                           Background="Transparent"
                           RightTapped="KernelModuleListView_RightTapped">
-
-                        <!-- 列标题 -->
-                        <ListView.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="160"/>
-                                </Grid.ColumnDefinitions>
-                                <Button x:Name="NameHeaderButton" Grid.Column="0" Height="30" Content="模块" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Name"/>
-                                <Button x:Name="ImageBaseHeaderButton" Grid.Column="1" Height="30" Content="基址" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="DriverObjectHeaderButton" Grid.Column="2" Height="30" Content="驱动对象" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="SizeHeaderButton" Grid.Column="3" Height="30" Content="大小" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Size"/>
-                                <Button x:Name="LoadOrderHeaderButton" Grid.Column="4" Height="30" Content="加载顺序" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="LoadOrder"/>
-                                <Border Grid.Column="1"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="2"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="3"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="4"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                    BorderThickness="0,0,1,0" />
-                            </Grid>
-                        </ListView.Header>
 
                         <!-- 进程数据 -->
                         <ListView.ItemTemplate>
