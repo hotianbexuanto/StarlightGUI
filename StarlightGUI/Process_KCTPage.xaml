@@ -43,8 +43,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="160"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Height="30" CornerRadius="0" Content="函数" HorizontalAlignment="Stretch"/>
-                    <Button Grid.Column="1" Height="30" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="0" Height="32" CornerRadius="0" Content="函数" HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="1" Height="32" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch"/>
                 </Grid>
             </Border>
 
