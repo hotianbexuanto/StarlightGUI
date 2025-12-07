@@ -8,7 +8,6 @@ namespace winrt::StarlightGUI::implementation
     struct InfoWindow : InfoWindowT<InfoWindow>
     {
         InfoWindow();
-        ~InfoWindow();
 
         HWND GetWindowHandle();
 

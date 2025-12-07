@@ -61,11 +61,12 @@ namespace winrt::StarlightGUI::implementation
         MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ThreadPage>());
         RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         ProcessName().Text(processForInfoWindow.Name());
-        this->Title(processForInfoWindow.Name());
-    }
+        Title(processForInfoWindow.Name());
 
-    InfoWindow::~InfoWindow() {
-        g_infoWindowInstance = nullptr;
+        Closed([this](auto&& sender, const winrt::Microsoft::UI::Xaml::WindowEventArgs& args) {
+            g_mainWindowInstance->m_openWindows.clear();
+            g_infoWindowInstance = nullptr;
+            });
     }
 
     void InfoWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
