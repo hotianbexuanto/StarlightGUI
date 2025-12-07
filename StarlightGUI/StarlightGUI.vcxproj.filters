@@ -8,9 +8,6 @@
     <Page Include="HomePage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="ProcessPage.xaml">
-      <Filter>Pages</Filter>
-    </Page>
     <Page Include="SettingsPage.xaml">
       <Filter>Pages</Filter>
     </Page>
@@ -40,6 +37,9 @@
       <Filter>Pages</Filter>
     </Page>
     <Page Include="InjectDLLDialog.xaml">
+      <Filter>Utils\Elements</Filter>
+    </Page>
+    <Page Include="LoadDriverDialog.xaml">
       <Filter>Utils\Elements</Filter>
     </Page>
   </ItemGroup>

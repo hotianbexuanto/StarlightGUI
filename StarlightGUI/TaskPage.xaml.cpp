@@ -137,7 +137,7 @@ namespace winrt::StarlightGUI::implementation
         item1_3.Icon(CreateFontIcon(L"\ue945"));
         item1_3.Text(L"强制结束进程");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id()) {
+            if (safeAcceptedPID == item.Id() || !ReadConfig("dangerous_confirm", true)) {
                 if (KernelInstance::MurderProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                     WaitAndReloadAsync(1000);
@@ -300,7 +300,7 @@ namespace winrt::StarlightGUI::implementation
         item2_4.Icon(CreateFontIcon(L"\ue8c9"));
         item2_4.Text(L"设置为关键进程");
         item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id()) {
+            if (safeAcceptedPID == item.Id() || !ReadConfig("dangerous_confirm", true)) {
                 if (KernelInstance::SetCriticalProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                     WaitAndReloadAsync(1000);
@@ -890,10 +890,10 @@ namespace winrt::StarlightGUI::implementation
             if (result == ContentDialogResult::Primary) {
                 hstring processPath = dialog.ProcessPath();
                 int permission = dialog.Permission();
+                bool fullPrivileges = dialog.FullPrivileges();
 
                 if (permission == 2) {
                     if (KernelInstance::IsRunningAsAdmin()) {
-                        bool fullPrivileges = ReadConfig("elevator_full_privileges", true);
                         int status = CreateProcessElevated(processPath.c_str(), fullPrivileges, XamlRoot(), InfoBarPanel());
                         if (status != 1) {
                             std::wstring content = L"程序启动成功，PID: " + std::to_wstring(status);

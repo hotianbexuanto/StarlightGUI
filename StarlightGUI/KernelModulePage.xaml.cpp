@@ -23,6 +23,7 @@
 #include <unordered_set>
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
+#include <LoadDriverDialog.xaml.h>
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -53,6 +54,9 @@ namespace winrt::StarlightGUI::implementation
         TaskUtils::EnsurePrivileges();
 
         if (!KernelInstance::IsRunningAsAdmin()) {
+            RefreshKernelModuleListButton().IsEnabled(false);
+            LoadDriverButton().IsEnabled(false);
+            UnloadModuleButton().IsEnabled(false);
             CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
         }
 
@@ -84,26 +88,26 @@ namespace winrt::StarlightGUI::implementation
         // 选项1.1
         MenuFlyoutItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\uec91"));
-        item1_1.Text(L"卸载驱动");
+        item1_1.Text(L"卸载模块");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功卸载驱动: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadKernelModuleList();
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法卸载驱动: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
         // 选项1.2
         MenuFlyoutItem item1_2;
         item1_2.Icon(CreateFontIcon(L"\ued1a"));
-        item1_2.Text(L"隐藏驱动");
+        item1_2.Text(L"隐藏模块");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::HideDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功隐藏驱动: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功隐藏模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 LoadKernelModuleList();
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法隐藏驱动: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法隐藏模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
 
@@ -222,6 +226,7 @@ namespace winrt::StarlightGUI::implementation
             if (kernelModule.Path().empty()) kernelModule.Path(L"(未知)");
             if (kernelModule.ImageBase().empty()) kernelModule.ImageBase(L"(未知)");
             if (kernelModule.DriverObject().empty()) kernelModule.DriverObject(L"(未知)");
+            if (kernelModule.DriverObjectULong() == 0x0) kernelModule.DriverObject(L"(无)");
 
             m_kernelModuleList.Append(kernelModule);
         }
@@ -376,6 +381,60 @@ namespace winrt::StarlightGUI::implementation
         co_await LoadKernelModuleList();
 
         RefreshKernelModuleListButton().IsEnabled(true);
+        co_return;
+    }
+
+    winrt::fire_and_forget KernelModulePage::LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+        try {
+            auto dialog = winrt::make<winrt::StarlightGUI::implementation::LoadDriverDialog>();
+            dialog.XamlRoot(this->XamlRoot());
+
+            auto result = co_await dialog.ShowAsync();
+
+            if (result == ContentDialogResult::Primary) {
+                hstring driverPath = dialog.DriverPath();
+                bool bypass = dialog.Bypass();
+
+                auto file = co_await winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(driverPath);
+
+                if (bypass) {
+                    KernelInstance::DisableDSE();
+                }
+
+                bool status = DriverUtils::LoadDriver(driverPath.c_str(), file.Name().c_str(), unused);
+
+                if (bypass) {
+                    KernelInstance::EnableDSE();
+                }
+
+                if (status) {
+                    CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                }
+                else {
+                    CreateInfoBarAndDisplay(L"失败", L"驱动加载失败, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                }
+
+                LoadKernelModuleList();
+            }
+        }
+        catch (winrt::hresult_error const& ex) {
+            CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
+                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+        }
+        co_return;
+    }
+
+    winrt::fire_and_forget KernelModulePage::UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+        if (KernelModuleListView().SelectedItem()) {
+            auto item = KernelModuleListView().SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
+
+            if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+
+                LoadKernelModuleList();
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+        }
         co_return;
     }
 

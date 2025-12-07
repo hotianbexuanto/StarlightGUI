@@ -19,8 +19,6 @@ namespace winrt::StarlightGUI::implementation
     static std::string mica_type;
     static std::string acrylic_type;
     static bool dangerous_confirm;
-    static bool elevator_full_privileges;
-    static bool bypass_signature;
     static std::string navigation_style;
     static std::string background_image;
     static double image_opacity;
@@ -37,8 +35,6 @@ namespace winrt::StarlightGUI::implementation
         mica_type = ReadConfig("mica_type", "BaseAlt");
         acrylic_type = ReadConfig("acrylic_type", "Default");
         dangerous_confirm = ReadConfig("dangerous_confirm", true);
-        elevator_full_privileges = ReadConfig("elevator_full_privileges", true);
-        bypass_signature = ReadConfig("bypass_signature", false);
         navigation_style = ReadConfig("navigation_style", "LeftCompact");
         background_image = ReadConfig("background_image", "");
         image_opacity = ReadConfig("image_opacity", 20);
@@ -101,8 +97,6 @@ namespace winrt::StarlightGUI::implementation
         }
 
         DangerousConfirmButton().IsOn(dangerous_confirm);
-        FullPrivilegesButton().IsOn(elevator_full_privileges);
-        BypassSignatureButton().IsOn(bypass_signature);
 
         ImagePathText().Text(to_hstring(background_image));
         ImageOpacitySlider().Value(image_opacity);
@@ -194,18 +188,6 @@ namespace winrt::StarlightGUI::implementation
     {
         dangerous_confirm = DangerousConfirmButton().IsOn();
         SaveConfig("dangerous_confirm", dangerous_confirm);
-    }
-
-    void SettingsPage::FullPrivilegesButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-    {
-        elevator_full_privileges = FullPrivilegesButton().IsOn();
-        SaveConfig("elevator_full_privileges", elevator_full_privileges);
-    }
-
-    void SettingsPage::BypassSignatureButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-    {
-        bypass_signature = BypassSignatureButton().IsOn();
-        SaveConfig("bypass_signature", bypass_signature);
     }
 
     void SettingsPage::ClearImageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {

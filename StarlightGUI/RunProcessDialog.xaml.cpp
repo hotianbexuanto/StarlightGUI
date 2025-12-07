@@ -14,6 +14,11 @@ namespace winrt::StarlightGUI::implementation
     RunProcessDialog::RunProcessDialog()
     {
         InitializeComponent();
+
+        if (!KernelInstance::IsRunningAsAdmin()) {
+            TIComboBoxItem().IsEnabled(false);
+            FullPrivilegesCheckBox().Visibility(Visibility::Collapsed);
+        }
     }
 
     void RunProcessDialog::OnPrimaryButtonClick(ContentDialog const& sender,
@@ -23,6 +28,7 @@ namespace winrt::StarlightGUI::implementation
 
         m_processPath = ProcessPathTextBox().Text();
         m_permission = PermissionComboBox().SelectedIndex();
+        m_fullPrivileges = FullPrivilegesCheckBox().IsChecked().GetBoolean();
 
         std::wstring wideProcessName = std::wstring_view(m_processPath.c_str()).data();
 

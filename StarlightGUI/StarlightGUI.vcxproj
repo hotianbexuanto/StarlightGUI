@@ -173,16 +173,16 @@
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="LoadDriverDialog.xaml.h">
+      <DependentUpon>LoadDriverDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
     </ClInclude>
     <ClInclude Include="MainWindow.xaml.h">
       <DependentUpon>MainWindow.xaml</DependentUpon>
-    </ClInclude>
-    <ClInclude Include="ProcessPage.xaml.h">
-      <DependentUpon>ProcessPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="Process_HandlePage.xaml.h">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>
@@ -245,10 +245,10 @@
     <Page Include="KernelModulePage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MainWindow.xaml" />
-    <Page Include="ProcessPage.xaml">
+    <Page Include="LoadDriverDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="MainWindow.xaml" />
     <Page Include="Process_HandlePage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -292,6 +292,10 @@
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="LoadDriverDialog.xaml.cpp">
+      <DependentUpon>LoadDriverDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -302,10 +306,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="ProcessPage.xaml.cpp">
-      <DependentUpon>ProcessPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="Process_HandlePage.xaml.cpp">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -368,13 +368,13 @@
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
+    <Midl Include="LoadDriverDialog.idl">
+      <DependentUpon>LoadDriverDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="MainWindow.idl">
       <SubType>Code</SubType>
       <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Midl>
-    <Midl Include="ProcessPage.idl">
-      <DependentUpon>ProcessPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
     </Midl>
     <Midl Include="Process_HandlePage.idl">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>

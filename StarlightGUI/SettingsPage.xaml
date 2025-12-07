@@ -9,31 +9,6 @@
 
     <ScrollViewer Padding="20">
         <StackPanel>
-            <TextBlock Text="功能" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
-                <!-- 启用完整特权 -->
-            <essential:SettingsCard Header="启用完整特权"
-                                    Description="在Elevator功能中启动的程序将获得所有SE特权"
-                                    IsClickEnabled="True"
-                                    IsActionIconVisible="False"
-                                    Margin="0,0,0,10">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon Glyph="&#xe7ef;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
-                </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch x:Name="FullPrivilegesButton" Toggled="FullPrivilegesButton_Toggled" Margin="0,0,-80,0"/>
-            </essential:SettingsCard>
-
-            <!-- 绕过签名验证 -->
-            <essential:SettingsCard Header="绕过签名验证"
-                                    Description="在Driver Loader功能中将使用漏洞绕过系统对驱动文件的签名验证"
-                                    IsClickEnabled="True"
-                                    IsActionIconVisible="False"
-                                    Margin="0,0,0,10">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon Glyph="&#xeb19;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
-                </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch x:Name="BypassSignatureButton" Toggled="BypassSignatureButton_Toggled" Margin="0,0,-80,0"/>
-            </essential:SettingsCard>
-
             <TextBlock Text="外观" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
             
             <!-- 背景 -->

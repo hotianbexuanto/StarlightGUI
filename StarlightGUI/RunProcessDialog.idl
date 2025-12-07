@@ -6,5 +6,6 @@ namespace StarlightGUI
         RunProcessDialog();
         String ProcessPath{ get; };
         Int32 Permission{ get; };
+        Boolean FullPrivileges{ get; };
     }
 }

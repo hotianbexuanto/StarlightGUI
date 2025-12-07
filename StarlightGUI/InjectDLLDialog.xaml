@@ -31,13 +31,13 @@
         </Grid.RowDefinitions>
 
         <!-- 输入框 -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
             <TextBlock Text="Starlight GUI 将根据选定 DLL 文件路径，注入文件至指定进程。" 
                        Margin="0,0,0,20"/>
             <TextBox x:Name="DLLPathTextBox" 
                      PlaceholderText="文件路径..."
                      HorizontalAlignment="Stretch" Margin="0,0,0,10"/>
-            <Button Content="浏览..." Click="ExploreButton_Click" Margin="0,0,0,20"/>
+            <Button Content="浏览..." Click="ExploreButton_Click"/>
             <TextBlock x:Name="ErrorText" Text="" Foreground="Red"/>
         </StackPanel>
     </Grid>

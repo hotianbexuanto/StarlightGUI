@@ -43,10 +43,24 @@
                        DefaultLabelPosition="Right"
                        HorizontalAlignment="Right">
                     <AppBarButton Label="刷新" 
-                             x:Name="RefreshKernelModuleListButton" 
-                             Click="RefreshKernelModuleListButton_Click">
+                                  x:Name="RefreshKernelModuleListButton" 
+                                  Click="RefreshKernelModuleListButton_Click">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xe72c;" FontFamily="Segoe Fluent Icons"/>
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Label="加载驱动" 
+                                  x:Name="LoadDriverButton" 
+                                  Click="LoadDriverButton_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xeda2;" FontFamily="Segoe Fluent Icons"/>
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Label="卸载模块" 
+                                  x:Name="UnloadModuleButton" 
+                                  Click="UnloadModuleButton_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xec91;" FontFamily="Segoe Fluent Icons"/>
                         </AppBarButton.Icon>
                     </AppBarButton>
                 </CommandBar>
@@ -56,7 +70,7 @@
                          HorizontalAlignment="Right" 
                          Width="300" 
                          Height="32"
-                         PlaceholderText="搜索进程..."
+                         PlaceholderText="搜索模块..."
                          TextChanged="KernelModuleSearchBox_TextChanged"/>
             </Grid>
 
