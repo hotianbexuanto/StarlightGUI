@@ -226,6 +226,7 @@
     <ClInclude Include="Utils\Terminator.h" />
     <ClInclude Include="Utils\ThreadInfo.h" />
     <ClInclude Include="Utils\Utils.h" />
+    <ClInclude Include="WinUI3Package\Taskbar.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />

@@ -179,6 +179,8 @@ namespace winrt::StarlightGUI::implementation
 
         m_isLoadingKernelModules = true;
 
+        LoadingRing().IsActive(true);
+
         auto start = std::chrono::steady_clock::now();
 
         auto lifetime = get_strong();
@@ -234,6 +236,8 @@ namespace winrt::StarlightGUI::implementation
         std::wstringstream countText;
         countText << L"共 " << m_kernelModuleList.Size() << L" 个内核模块 (" << duration << " ms)";
         KernelModuleCountText().Text(countText.str());
+
+        LoadingRing().IsActive(false);
 
         m_isLoadingKernelModules = false;
     }

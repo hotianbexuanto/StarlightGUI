@@ -17,6 +17,10 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Grid.Resources>
+            <essential:ModernStandardWindowContextMenu x:Name="Menu" Window="{x:Bind}" />
+        </Grid.Resources>
+
         <Grid.Background>
             <SolidColorBrush Color="Transparent"></SolidColorBrush>
         </Grid.Background>

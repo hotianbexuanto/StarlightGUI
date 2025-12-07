@@ -33,11 +33,11 @@
                        VerticalAlignment="Center"/>
 
                 <TextBlock Grid.Column="1" 
-                       x:Name="ProcessCountText" 
-                       Text="正在加载..." 
-                       Margin="20,0,0,0" 
-                       VerticalAlignment="Center"
-                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
+                           x:Name="ProcessCountText" 
+                           Text="正在加载..."
+                           Margin="20,0,0,0" 
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
 
                 <CommandBar Grid.Column="3" 
                        DefaultLabelPosition="Right"
@@ -73,7 +73,7 @@
                          TextChanged="ProcessSearchBox_TextChanged"/>
             </Grid>
 
-            <Border Grid.Row="1" CornerRadius="5" BorderThickness="1" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
+            <Border Grid.Row="1" CornerRadius="5,5,0,0" BorderThickness="1" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -94,11 +94,13 @@
             </Border>
 
             <ScrollViewer Grid.Row="2"
-                          CornerRadius="5"
-                          BorderThickness="1"
+                          CornerRadius="0,0,5,5"
+                          BorderThickness="1,0,1,1"
                           Background="{ThemeResource ControlFillColorDefaultBrush}" 
                           BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}">
                 <Grid>
+                    <ProgressRing x:Name="LoadingRing" IsActive="False" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    
                     <ListView x:Name="ProcessListView"
                           Background="Transparent"
                           RightTapped="ProcessListView_RightTapped">
@@ -221,8 +223,8 @@
                 </Grid>
             </ScrollViewer>
         </Grid>
-        <StackPanel Width="1100" 
+        <StackPanel HorizontalAlignment="Right"
                     x:Name="InfoBarPanel" 
-                    Margin="0,10,0,0"/>
+                    Margin="0,10,10,0"/>
     </Grid>
 </Page>

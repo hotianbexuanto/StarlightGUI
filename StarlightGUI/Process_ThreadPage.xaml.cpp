@@ -213,6 +213,8 @@ namespace winrt::StarlightGUI::implementation
     {
         if (!processForInfoWindow) co_return;
 
+        LoadingRing().IsActive(true);
+
         auto start = std::chrono::high_resolution_clock::now();
 
         auto lifetime = get_strong();
@@ -248,7 +250,7 @@ namespace winrt::StarlightGUI::implementation
         std::wstringstream countText;
         countText << L"共 " << m_threadList.Size() << L" 个线程 (" << duration.count() << " ms)";
         ThreadCountText().Text(countText.str());
-        threads.clear();
+        LoadingRing().IsActive(false);
     }
 
 

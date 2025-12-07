@@ -452,6 +452,8 @@ namespace winrt::StarlightGUI::implementation
 
         m_isLoadingProcesses = true;
 
+        LoadingRing().IsActive(true);
+
         auto start = std::chrono::steady_clock::now();
 
         auto lifetime = get_strong();
@@ -549,6 +551,7 @@ namespace winrt::StarlightGUI::implementation
         std::wstringstream countText;
         countText << L"共 " << m_processList.Size() << L" 个进程 (" << duration << " ms)";
         ProcessCountText().Text(countText.str());
+        LoadingRing().IsActive(false);
 
 		// 恢复选中项
         uint32_t selectedIndex;

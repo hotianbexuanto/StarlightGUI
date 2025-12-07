@@ -121,8 +121,8 @@
                 </Button>
             </StackPanel>
         </ScrollView>
-        <StackPanel Width="1100" 
+        <StackPanel HorizontalAlignment="Right"
                     x:Name="InfoBarPanel" 
-                    Margin="0,10,0,0"/>
+                    Margin="0,10,10,0"/>
     </Grid>
 </Page>
