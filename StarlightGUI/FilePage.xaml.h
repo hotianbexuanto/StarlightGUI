@@ -47,6 +47,8 @@ namespace winrt::StarlightGUI::implementation
         bool m_hasMoreFiles = true;
 
         inline static bool m_isNameAscending = true;
+        inline static bool m_isModifyTimeAscending = true;
+        inline static bool m_isSizeAscending = true;
         inline static bool currentSortingOption;
         inline static std::string currentSortingType;
 
