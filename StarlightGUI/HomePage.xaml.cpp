@@ -21,6 +21,7 @@
 #include <random>
 #include <chrono>
 #include "MainWindow.xaml.h"
+#include "UpdateDialog.xaml.h"
 
 using namespace winrt;
 using namespace Windows::Web::Http;
@@ -42,18 +43,31 @@ namespace winrt::StarlightGUI::implementation
 
         SetGreetingText();
         SetUserProfile();
-        FetchHitokoto();
+        try {
+            FetchHitokoto();
+        }
+        catch (...) {
+            hitokoto = L"无法加载内容... :(";
+        }
         SetupClock();
 
         if (!loaded) {
-            if (!KernelInstance::IsRunningAsAdmin()) {
-                CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-            }
-            else {
-                CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
-                LoadDriverPath();
-            }
-            loaded = true;
+            this->Loaded([this](auto&&, auto&&) {
+                if (!KernelInstance::IsRunningAsAdmin()) {
+                    CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                }
+                else {
+                    CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+                    LoadDriverPath();
+                }
+                try {
+                    CheckUpdate();
+                }
+                catch (...) {
+                    CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                }
+                loaded = true;
+                });
         }
     }
 
@@ -147,30 +161,80 @@ namespace winrt::StarlightGUI::implementation
     {
         auto weak_this = get_weak();
 
-        try
-        {
-            if (hitokoto.empty()) {
-                co_await winrt::resume_background();
+        if (hitokoto.empty()) {
+            co_await winrt::resume_background();
 
-                // Async request to get hitokoto text
-                HttpClient client;
-                Uri uri(L"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=i&c=k");
+            // Async request to get hitokoto text
+            HttpClient client;
+            Uri uri(L"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=i&c=k");
 
-                hstring result = co_await client.GetStringAsync(uri);
+            hstring result = co_await client.GetStringAsync(uri);
 
-                // Read json object
-                auto json = Windows::Data::Json::JsonObject::Parse(result);
-                hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
-            }
+            // Read json object
+            auto json = Windows::Data::Json::JsonObject::Parse(result);
+            hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
         }
-        catch (hresult_error)
-        {
-            hitokoto = L"无法加载内容... :(";
-        }
+
         if (auto strong_this = weak_this.get()) {
             co_await wil::resume_foreground(DispatcherQueue());
             HitokotoText().Text(hitokoto);
         }
+        co_return;
+    }
+
+    winrt::fire_and_forget HomePage::CheckUpdate()
+    {
+        if (!ReadConfig("check_update", true)) co_return;
+
+        auto weak_this = get_weak();
+
+        int currentBuildNumber = unbox_value<int>(Application::Current().Resources().TryLookup(box_value(L"BuildNumber")));
+        int latestBuildNumber = 0;
+
+        co_await winrt::resume_background();
+
+        HttpClient client;
+        Uri uri(L"https://pastebin.com/raw/kz5qViYF");
+
+        hstring result = co_await client.GetStringAsync(uri);
+
+        auto json = Windows::Data::Json::JsonObject::Parse(result);
+        latestBuildNumber = json.GetNamedNumber(L"build_number");
+
+        if (auto strong_this = weak_this.get()) {
+            co_await wil::resume_foreground(DispatcherQueue());
+
+            if (latestBuildNumber == 0) {
+                CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            }
+            else if (latestBuildNumber == currentBuildNumber) {
+                CreateInfoBarAndDisplay(L"信息", L"你正在使用最新版本的 Starlight GUI！", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+            }
+            else if (latestBuildNumber > currentBuildNumber) {
+                auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
+                dialog.LatestVersion(json.GetNamedString(L"version"));
+                dialog.XamlRoot(this->XamlRoot());
+
+                auto result = co_await dialog.ShowAsync();
+
+                if (result == ContentDialogResult::Primary) {
+                    Uri target(json.GetNamedString(L"download_link"));
+                    auto result = co_await Launcher::LaunchUriAsync(target);
+
+                    if (result) {
+                        CreateInfoBarAndDisplay(L"成功", L"已在浏览器打开网页！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    }
+                    else {
+                        CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    }
+                }
+            }
+            else if (latestBuildNumber < currentBuildNumber) {
+                CreateInfoBarAndDisplay(L"信息", L"你正在使用 Starlight GUI 的开发版本！", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+            }
+        }
+
+        co_return;
     }
 
     void HomePage::SetupClock()
@@ -199,7 +263,7 @@ namespace winrt::StarlightGUI::implementation
         int second = calendar.Second();
 
         auto splitDigits = [](int value) -> std::pair<hstring, hstring> {
-            int digit1 = value / 10;  // 十位 (idk its english)
+            int digit1 = value / 10;  // 十位
             int digit2 = value % 10;  // 个位
             return { to_hstring(digit1), to_hstring(digit2) };
             };

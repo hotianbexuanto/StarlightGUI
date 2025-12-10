@@ -216,6 +216,10 @@
       <DependentUpon>TaskPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="UpdateDialog.xaml.h">
+      <DependentUpon>UpdateDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="Utils\AstralIO.h" />
     <ClInclude Include="Utils\Config.h" />
     <ClInclude Include="Utils\CppUtils.h" />
@@ -275,6 +279,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="TaskPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UpdateDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
@@ -344,6 +351,10 @@
     </ClCompile>
     <ClCompile Include="TaskPage.xaml.cpp">
       <DependentUpon>TaskPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="UpdateDialog.xaml.cpp">
+      <DependentUpon>UpdateDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="Utils\CppUtils.cpp" />
@@ -418,6 +429,10 @@
     </Midl>
     <Midl Include="TaskPage.idl">
       <DependentUpon>TaskPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="UpdateDialog.idl">
+      <DependentUpon>UpdateDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="Utils\FileInfo.idl" />

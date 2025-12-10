@@ -20,6 +20,7 @@ namespace winrt::StarlightGUI::implementation
     static std::string mica_type;
     static std::string acrylic_type;
     static bool dangerous_confirm;
+    static bool check_update;
     static std::string navigation_style;
     static std::string background_image;
     static double image_opacity;
@@ -37,6 +38,7 @@ namespace winrt::StarlightGUI::implementation
         mica_type = ReadConfig("mica_type", "BaseAlt");
         acrylic_type = ReadConfig("acrylic_type", "Default");
         dangerous_confirm = ReadConfig("dangerous_confirm", true);
+        check_update = ReadConfig("check_update", true);
         navigation_style = ReadConfig("navigation_style", "LeftCompact");
         background_image = ReadConfig("background_image", "");
         image_opacity = ReadConfig("image_opacity", 20);
@@ -109,6 +111,7 @@ namespace winrt::StarlightGUI::implementation
         }
 
         DangerousConfirmButton().IsOn(dangerous_confirm);
+        CheckUpdateButton().IsOn(check_update);
 
         ImagePathText().Text(to_hstring(background_image));
         ImageOpacitySlider().Value(image_opacity);
@@ -224,6 +227,12 @@ namespace winrt::StarlightGUI::implementation
     {
         dangerous_confirm = DangerousConfirmButton().IsOn();
         SaveConfig("dangerous_confirm", dangerous_confirm);
+    }
+
+    void SettingsPage::CheckUpdateButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        check_update = CheckUpdateButton().IsOn();
+        SaveConfig("check_update", check_update);
     }
 
     void SettingsPage::ClearImageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {

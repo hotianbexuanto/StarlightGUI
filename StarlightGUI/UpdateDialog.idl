@@ -1,0 +1,10 @@
+namespace StarlightGUI
+{
+    [default_interface]
+    runtimeclass UpdateDialog : Microsoft.UI.Xaml.Controls.ContentDialog
+    {
+        UpdateDialog();
+
+        String LatestVersion{ get; set; };
+    }
+}

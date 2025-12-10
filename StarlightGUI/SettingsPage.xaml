@@ -148,6 +148,17 @@
                 </essential:SettingsCard.HeaderIcon>
                 <ToggleSwitch x:Name="DangerousConfirmButton" Toggled="DangerousConfirmButton_Toggled" Margin="0,0,-80,0"/>
             </essential:SettingsCard>
+
+            <essential:SettingsCard Header="检查更新"
+                                    Description="每次启动时检查更新"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xecc5;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ToggleSwitch x:Name="CheckUpdateButton" Toggled="CheckUpdateButton_Toggled" Margin="0,0,-80,0"/>
+            </essential:SettingsCard>
         </StackPanel>
     </ScrollViewer>
 </Page>
