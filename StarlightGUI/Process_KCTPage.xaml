@@ -44,7 +44,7 @@
                         <ColumnDefinition Width="160"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Height="32" CornerRadius="0" Content="函数" HorizontalAlignment="Stretch"/>
-                    <Button Grid.Column="1" Height="32" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="1" Height="32" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
                 </Grid>
             </Border>
 

@@ -84,10 +84,10 @@
                         <ColumnDefinition Width="160"/>
                     </Grid.ColumnDefinitions>
                     <Button x:Name="NameHeaderButton" Grid.Column="0" Height="32" CornerRadius="0" Content="模块" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Name"/>
-                    <Button x:Name="ImageBaseHeaderButton" Grid.Column="1" Height="32" CornerRadius="0" Content="基址" HorizontalAlignment="Stretch"/>
-                    <Button x:Name="DriverObjectHeaderButton" Grid.Column="2" Height="32" CornerRadius="0" Content="驱动对象" HorizontalAlignment="Stretch"/>
-                    <Button x:Name="SizeHeaderButton" Grid.Column="3" Height="32" CornerRadius="0" Content="大小" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Size"/>
-                    <Button x:Name="LoadOrderHeaderButton" Grid.Column="4" Height="32" CornerRadius="0" Content="加载顺序" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="LoadOrder"/>
+                    <Button x:Name="ImageBaseHeaderButton" Grid.Column="1" Height="32" CornerRadius="0" Content="基址" HorizontalAlignment="Stretch" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button x:Name="DriverObjectHeaderButton" Grid.Column="2" Height="32" CornerRadius="0" Content="驱动对象" HorizontalAlignment="Stretch" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button x:Name="SizeHeaderButton" Grid.Column="3" Height="32" CornerRadius="0" Content="大小" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Size" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button x:Name="LoadOrderHeaderButton" Grid.Column="4" Height="32" CornerRadius="0" Content="加载顺序" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="LoadOrder" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
                 </Grid>
             </Border>
 

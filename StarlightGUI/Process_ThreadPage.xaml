@@ -48,11 +48,11 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Button x:Name="IdHeaderButton" Grid.Column="0" Height="32" CornerRadius="0" Content="TID" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Id"/>
-                    <Button Grid.Column="1" Height="32" CornerRadius="0" Content="ETHREAD" HorizontalAlignment="Stretch"/>
-                    <Button Grid.Column="2" Height="32" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch"/>
-                    <Button Grid.Column="3" Height="32" CornerRadius="0" Content="状态" HorizontalAlignment="Stretch"/>
-                    <Button x:Name="PriorityHeaderButton" Grid.Column="4" Height="32" CornerRadius="0" Content="优先级" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Priority"/>
-                    <Button Grid.Column="5" Height="32" CornerRadius="0" Content="模块" HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="1" Height="32" CornerRadius="0" Content="ETHREAD" HorizontalAlignment="Stretch" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button Grid.Column="2" Height="32" CornerRadius="0" Content="地址" HorizontalAlignment="Stretch" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button Grid.Column="3" Height="32" CornerRadius="0" Content="状态" HorizontalAlignment="Stretch" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button x:Name="PriorityHeaderButton" Grid.Column="4" Height="32" CornerRadius="0" Content="优先级" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Priority" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button Grid.Column="5" Height="32" CornerRadius="0" Content="模块" HorizontalAlignment="Stretch" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
                 </Grid>
             </Border>
 
