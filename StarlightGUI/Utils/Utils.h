@@ -169,51 +169,21 @@ namespace winrt::StarlightGUI::implementation {
         return XamlReader::Load(xaml).as<DataTemplate>();
     }
 
-    inline winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage ConvertHIconToImageSource(HICON hIcon)
-    {
-        if (hIcon == nullptr)
-        {
-            return nullptr;
+    inline bool CheckIllegalComboBoxAction(IInspectable const& sender, SelectionChangedEventArgs const& e) {
+        auto cb = sender.as<ComboBox>();
+
+        if (!cb) return true;
+
+        int index = cb.SelectedIndex();
+        int itemCount = cb.Items().Size();
+
+        // 非法索引，返回true并重置索引
+        if (index < 0 || index >= itemCount) {
+            cb.SelectedIndex(0);
+            return true; 
         }
 
-        auto stream = winrt::Windows::Storage::Streams::InMemoryRandomAccessStream();
-        ICONINFO iconInfo;
-        if (GetIconInfo(hIcon, &iconInfo)) {
-            HDC hdc = GetDC(NULL);
-
-            BITMAP bmp;
-            GetObject(iconInfo.hbmColor, sizeof(bmp), &bmp);
-            BITMAPINFOHEADER bmiHeader = { 0 };
-            bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-            bmiHeader.biWidth = bmp.bmWidth;
-            bmiHeader.biHeight = bmp.bmHeight;
-            bmiHeader.biPlanes = 1;
-            bmiHeader.biBitCount = 32;
-            bmiHeader.biCompression = BI_RGB;
-
-            int dataSize = bmp.bmWidthBytes * bmp.bmHeight;
-            std::vector<BYTE> buffer(dataSize);
-
-            // 获取图像位图数据
-            GetDIBits(hdc, iconInfo.hbmColor, 0, bmp.bmHeight, buffer.data(), reinterpret_cast<BITMAPINFO*>(&bmiHeader), DIB_RGB_COLORS);
-
-            // 将数据写入内存流
-            Windows::Storage::Streams::DataWriter writer;
-            writer.WriteBytes(buffer);
-            stream.WriteAsync(writer.DetachBuffer()).get();
-
-            // Load stream to bitmap
-            BitmapImage bitmapImage;
-            stream.Seek(0);
-            bitmapImage.SetSource(stream);
-
-            ReleaseDC(NULL, hdc);
-            DeleteObject(iconInfo.hbmColor);
-            DeleteObject(iconInfo.hbmMask);
-
-            return bitmapImage;
-        }
-
-        return nullptr;
+        // 正常索引，返回false
+        return false;
     }
 }

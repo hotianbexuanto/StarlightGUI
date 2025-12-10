@@ -28,8 +28,6 @@ using namespace Microsoft::UI::Composition::SystemBackdrops;
 namespace winrt::StarlightGUI::implementation
 {
     MainWindow* g_mainWindowInstance = nullptr;
-    CustomMicaBackdrop micaBackdrop = nullptr;
-    CustomAcrylicBackdrop acrylicBackdrop = nullptr;
     static HWND globalHWND;
 
     MainWindow::MainWindow()
@@ -117,7 +115,8 @@ namespace winrt::StarlightGUI::implementation
         auto background_type = ReadConfig("background_type", "Static");
 
         if (background_type == "Mica") {
-            micaBackdrop = CustomMicaBackdrop();
+            CustomMicaBackdrop micaBackdrop = CustomMicaBackdrop();
+
             this->SystemBackdrop(micaBackdrop);
 
             auto mica_type = ReadConfig("mica_type", "BaseAlt");
@@ -129,7 +128,8 @@ namespace winrt::StarlightGUI::implementation
             }
         }
         else if (background_type == "Acrylic") {
-            acrylicBackdrop = CustomAcrylicBackdrop();
+            CustomAcrylicBackdrop acrylicBackdrop = CustomAcrylicBackdrop();
+
             this->SystemBackdrop(acrylicBackdrop);
 
             auto acrylic_type = ReadConfig("acrylic_type", "Default");

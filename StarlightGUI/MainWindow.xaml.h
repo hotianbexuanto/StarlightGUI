@@ -7,9 +7,6 @@
 
 namespace winrt::StarlightGUI::implementation
 {
-    extern winrt::WinUI3Package::CustomMicaBackdrop micaBackdrop;
-    extern winrt::WinUI3Package::CustomAcrylicBackdrop acrylicBackdrop;
-
     struct MainWindow : MainWindowT<MainWindow>
     {
         MainWindow();
