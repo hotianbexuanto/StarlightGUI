@@ -184,6 +184,7 @@
                     </StackPanel>
                 </essential:SettingsCard>
 
+                <!-- 蓝屏 -->
                 <essential:SettingsCard Header="蓝屏"
                                     Description="使系统发生崩溃 (Blue Screen Of Death)"
                                     IsClickEnabled="True"
@@ -196,7 +197,6 @@
                     </essential:SettingsCard.HeaderIcon>
                     <StackPanel Orientation="Horizontal">
                         <ComboBox x:Name="BSODColorComboBox" 
-                                  Text="颜色"
                                   SelectedIndex="0"
                                   essential:ComboBoxHelper.AcrylicWorkaround="True"
                                   Margin="0,0,16,0">
@@ -218,6 +218,30 @@
                             <ComboBoxItem Content="银色" />
                         </ComboBox>
                         <Button Content="崩溃" Click="Button_Click" Tag="BSOD"/>
+                    </StackPanel>
+                </essential:SettingsCard>
+
+                <!-- PatchGuard -->
+                <essential:SettingsCard Header="禁用内核保护"
+                                    Description="禁用内核PatchGuard保护"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                    <essential:SettingsCard.HeaderIcon>
+                        <Grid>
+                            <FontIcon Glyph="&#xf540;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                        </Grid>
+                    </essential:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox x:Name="PGTypeComboBox" 
+                                  SelectedIndex="2"
+                                  essential:ComboBoxHelper.AcrylicWorkaround="True"
+                                  Margin="0,0,16,0">
+                            <ComboBoxItem Content="EFI" />
+                            <ComboBoxItem Content="BIOS" />
+                            <ComboBoxItem Content="自动 (可能蓝屏)" />
+                        </ComboBox>
+                        <Button Content="禁用" Click="Button_Click" Tag="PatchGuard"/>
                     </StackPanel>
                 </essential:SettingsCard>
             </StackPanel>

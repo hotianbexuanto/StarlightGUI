@@ -70,6 +70,7 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL DisableCmpCallback() noexcept;
 		static BOOL EnableLKD() noexcept;
 		static BOOL DisableLKD() noexcept;
+		static BOOL DisablePatchGuard(ULONG type) noexcept;
 		static BOOL Shutdown() noexcept;
 		static BOOL Reboot() noexcept;
 		static BOOL RebootForce() noexcept;

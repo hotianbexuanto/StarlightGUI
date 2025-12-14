@@ -838,6 +838,20 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_DISABLE_LKD, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
+	BOOL KernelInstance::DisablePatchGuard(ULONG type) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		if (type == 0) {
+			return DeviceIoControl(driverDevice, IOCTL_DISABLE_PATCHGUARD_EFI, NULL, 0, NULL, 0, NULL, NULL);
+		}
+		else if (type == 1) {
+			return DeviceIoControl(driverDevice, IOCTL_DISABLE_PATCHGUARD_BIOS, NULL, 0, NULL, 0, NULL, NULL);
+		}
+		else if (type == 2) {
+			return DeviceIoControl(driverDevice, IOCTL_DISABLE_PATCHGUARD_DYNAMIC, NULL, 0, NULL, 0, NULL, NULL);
+		}
+	}
+
 	BOOL KernelInstance::Shutdown() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		return DeviceIoControl(driverDevice, IOCTL_SHUTDOWN, NULL, 0, NULL, 0, NULL, NULL);

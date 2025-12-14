@@ -117,6 +117,10 @@ namespace winrt::StarlightGUI::implementation{
 			ULONG color = BSODColorComboBox().SelectedIndex() - 1;
 			result = KernelInstance::BlueScreen(color);
 		}
+		else if (tag == L"PatchGuard") {
+			ULONG type = PGTypeComboBox().SelectedIndex();
+			result = KernelInstance::DisablePatchGuard(type);
+		}
 		else {
 			CreateInfoBarAndDisplay(L"´íÎó", L"Î´Öª²Ù×÷£¡", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
 			co_return;
