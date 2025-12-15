@@ -71,10 +71,10 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL EnableLKD() noexcept;
 		static BOOL DisableLKD() noexcept;
 		static BOOL DisablePatchGuard(ULONG type) noexcept;
-		static BOOL Shutdown() noexcept;
-		static BOOL Reboot() noexcept;
-		static BOOL RebootForce() noexcept;
-		static BOOL BlueScreen(ULONG color) noexcept;
+		static BOOL Shutdown();
+		static BOOL Reboot();
+		static BOOL RebootForce();
+		static BOOL BlueScreen(ULONG color);
 
 	private:
 		static BOOL GetDriverDevice() noexcept;

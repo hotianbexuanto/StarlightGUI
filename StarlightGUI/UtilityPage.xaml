@@ -164,7 +164,8 @@
                     </StackPanel>
                 </essential:SettingsCard>
 
-                <TextBlock Text="系统操作" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
+                <TextBlock Text="系统操作" FontWeight="Bold" FontSize="14" Padding="10,0,0,0" HorizontalAlignment="Left"/>
+                <TextBlock Text="(警告: 该区域的功能可能无法正常工作，导致蓝屏或崩溃是正常现象！)" FontSize="12" Padding="10,0,0,10" HorizontalAlignment="Left" Foreground="LightGray"/>
 
                 <!-- 电源状态 -->
                 <essential:SettingsCard Header="电源状态"

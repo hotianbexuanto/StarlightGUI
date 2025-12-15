@@ -852,22 +852,22 @@ namespace winrt::StarlightGUI::implementation {
 		}
 	}
 
-	BOOL KernelInstance::Shutdown() noexcept {
+	BOOL KernelInstance::Shutdown() {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		return DeviceIoControl(driverDevice, IOCTL_SHUTDOWN, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
-	BOOL KernelInstance::Reboot() noexcept {
+	BOOL KernelInstance::Reboot() {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		return DeviceIoControl(driverDevice, IOCTL_REBOOT, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
-	BOOL KernelInstance::RebootForce() noexcept {
+	BOOL KernelInstance::RebootForce() {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_REBOOT, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
-	BOOL KernelInstance::BlueScreen(ULONG color) noexcept {
+	BOOL KernelInstance::BlueScreen(ULONG color) {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		if (color == -1) {

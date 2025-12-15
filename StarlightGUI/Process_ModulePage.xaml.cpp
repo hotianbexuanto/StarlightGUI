@@ -124,6 +124,11 @@ namespace winrt::StarlightGUI::implementation
     winrt::Windows::Foundation::IAsyncAction Process_ModulePage::LoadModuleList()
     {
         if (!processForInfoWindow) co_return;
+        // 跳过内核进程，获取可能导致异常或蓝屏
+        if (processForInfoWindow.Id() >= 0 && processForInfoWindow.Id() <= 272) {
+            CreateInfoBarAndDisplay(L"警告", L"该进程不包含任何此类型的信息！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            co_return;
+        }
 
         LoadingRing().IsActive(true);
 
