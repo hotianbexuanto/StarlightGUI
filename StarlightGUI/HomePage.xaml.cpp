@@ -53,10 +53,10 @@ namespace winrt::StarlightGUI::implementation
         if (!loaded) {
             this->Loaded([this](auto&&, auto&&) {
                 if (!KernelInstance::IsRunningAsAdmin()) {
-                    CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
                 }
                 else {
-                    CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, g_mainWindowInstance);
                     LoadDriverPath();
                 }
                 loaded = true;
@@ -254,12 +254,12 @@ namespace winrt::StarlightGUI::implementation
 
                 LOG_SUCCESS(L"DriverUtils", L"Loaded successfully.", kernelPath.c_str());
                 co_await wil::resume_foreground(DispatcherQueue());
-                CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, g_mainWindowInstance);
             }
             catch (winrt::hresult_error e) {
                 LOG_ERROR(L"DriverUtils", L"Error while loading drivers!", kernelPath.c_str());
                 LOG_ERROR(L"DriverUtils", L"%s", e.message().c_str());
-                CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, g_mainWindowInstance);
             }
         }
         g_mainWindowInstance->RootNavigation().IsEnabled(true);

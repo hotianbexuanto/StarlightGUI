@@ -55,11 +55,11 @@
 #include <Utils/Config.h>
 #include <Utils/CppUtils.h>
 
+#include <ConsoleLogger.h>
+
 extern winrt::hstring kernelPath;
 extern winrt::hstring astralPath;
 extern std::wstring unused;
-
-#include <ConsoleLogger.h>
 
 #define __WFUNCTION__ ExtractFunctionName(__FUNCTION__)
 

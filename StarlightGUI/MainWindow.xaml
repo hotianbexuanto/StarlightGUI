@@ -11,59 +11,56 @@
     Title="Starlight GUI">
    
     <Grid x:Name="MainWindowGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid Background="{StaticResource WindowBackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <Grid.Resources>
-            <essential:ModernStandardWindowContextMenu x:Name="Menu" Window="{x:Bind}" />
-        </Grid.Resources>
+            <Grid.Resources>
+                <essential:ModernStandardWindowContextMenu x:Name="Menu" Window="{x:Bind}" />
+            </Grid.Resources>
 
-        <Grid.Background>
-            <SolidColorBrush Color="Transparent"></SolidColorBrush>
-        </Grid.Background>
-
-        <!-- 自定义标题栏 -->
-        <Grid x:Name="AppTitleBar"
+            <!-- 自定义标题栏 -->
+            <Grid x:Name="AppTitleBar"
               Background="{StaticResource WindowBackgroundBrush}"
               Height="48">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- 应用图标和标题 -->
-            <StackPanel Grid.Column="0" 
+                <!-- 应用图标和标题 -->
+                <StackPanel Grid.Column="0" 
                        Orientation="Horizontal" 
                        HorizontalAlignment="Left"
                        Margin="16,0,0,0"
                        VerticalAlignment="Center">
-                <Image Source="/Assets/Starlight.png" Width="24" Height="24" Margin="0,4,0,0"/>
-                <TextBlock Text="Starlight GUI" 
+                    <Image Source="/Assets/Starlight.png" Width="24" Height="24" Margin="0,4,0,0"/>
+                    <TextBlock Text="Starlight GUI" 
                            FontSize="14"
                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                            Margin="16,0,0,0"
                            VerticalAlignment="Center"/>
-                <TextBlock Text="{StaticResource Version}" 
+                    <TextBlock Text="{StaticResource Version}" 
                            FontSize="14"
                            Margin="4,0,0,0"
                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                            VerticalAlignment="Center"/>
-            </StackPanel>
+                </StackPanel>
 
-            <!-- 标题栏拖拽区域 -->
-            <Grid Grid.Column="1" 
+                <!-- 标题栏拖拽区域 -->
+                <Grid Grid.Column="1" 
                   x:Name="DragRegion"
                   Background="Transparent"/>
 
-            <!-- 窗口控制按钮 -->
-            <essential:WindowCaptionButtonThemeWorkaround Window="{x:Bind}"/>
-        </Grid>
+                <!-- 窗口控制按钮 -->
+                <essential:WindowCaptionButtonThemeWorkaround Window="{x:Bind}"/>
+            </Grid>
 
-        <!-- 侧边栏区域 -->
-        <controls:NavigationView Grid.Row="1"
+            <!-- 侧边栏区域 -->
+            <controls:NavigationView Grid.Row="1"
                                  x:Name="RootNavigation"
                                  PaneDisplayMode="LeftCompact"
                                  IsBackButtonVisible="Collapsed"
@@ -76,41 +73,41 @@
                                  ItemInvoked="RootNavigation_ItemInvoked"
                                  Background="{StaticResource WindowBackgroundBrush}">
 
-            <!-- 选项，从上到下 -->
-            <controls:NavigationView.MenuItems>
-                <controls:NavigationViewItem Content="主页" Icon="Home"/>
-                <controls:NavigationViewItem Content="任务管理">
-                    <controls:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xf120;" FontFamily="Segoe Fluent Icons"/>
-                    </controls:NavigationViewItem.Icon>
-                </controls:NavigationViewItem>
-                <controls:NavigationViewItem Content="内核模块">
-                    <controls:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xe8ce;" FontFamily="Segoe Fluent Icons"/>
-                    </controls:NavigationViewItem.Icon>
-                </controls:NavigationViewItem>
-                <controls:NavigationViewItem Content="文件管理">
-                    <controls:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xec50;" FontFamily="Segoe Fluent Icons"/>
-                    </controls:NavigationViewItem.Icon>
-                </controls:NavigationViewItem>
-                <controls:NavigationViewItem Content="系统功能">
-                    <controls:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xec7a;" FontFamily="Segoe Fluent Icons"/>
-                    </controls:NavigationViewItem.Icon>
-                </controls:NavigationViewItem>
-            </controls:NavigationView.MenuItems>
+                <!-- 选项，从上到下 -->
+                <controls:NavigationView.MenuItems>
+                    <controls:NavigationViewItem Content="主页" Icon="Home"/>
+                    <controls:NavigationViewItem Content="任务管理">
+                        <controls:NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xf120;" FontFamily="Segoe Fluent Icons"/>
+                        </controls:NavigationViewItem.Icon>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="内核模块">
+                        <controls:NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xe8ce;" FontFamily="Segoe Fluent Icons"/>
+                        </controls:NavigationViewItem.Icon>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="文件管理">
+                        <controls:NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xec50;" FontFamily="Segoe Fluent Icons"/>
+                        </controls:NavigationViewItem.Icon>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="系统功能">
+                        <controls:NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xec7a;" FontFamily="Segoe Fluent Icons"/>
+                        </controls:NavigationViewItem.Icon>
+                    </controls:NavigationViewItem>
+                </controls:NavigationView.MenuItems>
 
-            <!-- 从下到上 -->
-            <!-- 最下面是设置 -->
-            <controls:NavigationView.FooterMenuItems>
-                <controls:NavigationViewItem Content="关于" Icon="Help"/>
-            </controls:NavigationView.FooterMenuItems>
+                <!-- 从下到上 -->
+                <!-- 最下面是设置 -->
+                <controls:NavigationView.FooterMenuItems>
+                    <controls:NavigationViewItem Content="关于" Icon="Help"/>
+                </controls:NavigationView.FooterMenuItems>
 
-            <!-- 内容 -->
-            <Frame x:Name="MainFrame" Grid.Row="1"/>
-        </controls:NavigationView>
-
+                <!-- 内容 -->
+                <Frame x:Name="MainFrame" Grid.Row="1"/>
+            </controls:NavigationView>
+        </Grid>
         <StackPanel HorizontalAlignment="Right"
                     x:Name="InfoBarPanel" 
                     Margin="0,58,10,0"/>

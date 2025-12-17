@@ -13,6 +13,7 @@ using namespace Microsoft::UI::Xaml::Media::Imaging;
 using namespace Microsoft::UI::Xaml::Media::Animation;
 
 static Windows::UI::Color& infobarColor = Windows::UI::Color();
+static winrt::StarlightGUI::implementation::MainWindow* mainWindowInstance = nullptr;
 
 namespace winrt::StarlightGUI::implementation {
     inline auto CreateFontIcon(hstring glyph) {
@@ -123,6 +124,7 @@ namespace winrt::StarlightGUI::implementation {
     }
 
     inline void CreateInfoBarAndDisplay(hstring title, hstring message, InfoBarSeverity severity, winrt::StarlightGUI::implementation::MainWindow* instance) {
+        mainWindowInstance = instance;
         DisplayInfoBar(CreateInfoBar(title, message, severity, instance->MainWindowGrid().XamlRoot()), instance->InfoBarPanel());
     }
 

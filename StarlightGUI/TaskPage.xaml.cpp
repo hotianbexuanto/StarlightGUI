@@ -101,10 +101,10 @@ namespace winrt::StarlightGUI::implementation
         item1_1.Text(L"结束进程");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::_TerminateProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -114,10 +114,10 @@ namespace winrt::StarlightGUI::implementation
         item1_2.Text(L"结束进程 (内核)");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ZwTerminateProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         if (!KernelInstance::IsRunningAsAdmin()) {
@@ -131,14 +131,14 @@ namespace winrt::StarlightGUI::implementation
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (safeAcceptedPID == item.Id() || !ReadConfig("dangerous_confirm", true)) {
                 if (KernelInstance::MurderProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             else {
                 safeAcceptedPID = item.Id();
-                CreateInfoBarAndDisplay(L"警告", L"该操作可能导致系统崩溃或进程数据丢失，如果确认继续请再次点击！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"警告", L"该操作可能导致系统崩溃或进程数据丢失，如果确认继续请再次点击！", InfoBarSeverity::Warning, g_mainWindowInstance);
             }
             co_return;
             });
@@ -156,10 +156,10 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub1.Text(L"暂停进程");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_SuspendProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功暂停进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功暂停进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法暂停进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法暂停进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
@@ -168,10 +168,10 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub2.Text(L"恢复进程");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ResumeProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功恢复进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功恢复进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法恢复进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法恢复进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
@@ -183,10 +183,10 @@ namespace winrt::StarlightGUI::implementation
         item2_2.Text(L"隐藏进程");
         item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::HideProcess(item.Id())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法隐藏进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_2.IsEnabled(false);
@@ -201,10 +201,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub1.Text(L"None");
         item2_3_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_None)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 None (0x00).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 None (0x00).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub1);
@@ -212,10 +212,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub2.Text(L"Authenticode");
         item2_3_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Authenticode)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Authenticode (0x11).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Authenticode (0x11).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub2);
@@ -223,10 +223,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub3.Text(L"Codegen");
         item2_3_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Codegen)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Codegen (0x21).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Codegen (0x21).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub3);
@@ -234,10 +234,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub4.Text(L"Antimalware");
         item2_3_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Antimalware)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Antimalware (0x31).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Antimalware (0x31).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub4);
@@ -245,10 +245,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub5.Text(L"Lsa");
         item2_3_sub5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Lsa)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Lsa (0x41).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Lsa (0x41).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub5);
@@ -256,10 +256,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub6.Text(L"Windows");
         item2_3_sub6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Windows)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Windows (0x51).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Windows (0x51).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub6);
@@ -267,10 +267,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub7.Text(L"WinTcb");
         item2_3_sub7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_WinTcb)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinTcb (0x61).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinTcb (0x61).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub7);
@@ -278,10 +278,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub8.Text(L"WinSystem");
         item2_3_sub8.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_WinSystem)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinSystem (0x71).", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinSystem (0x71).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub8);
@@ -294,14 +294,14 @@ namespace winrt::StarlightGUI::implementation
         item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (safeAcceptedPID == item.Id() || !ReadConfig("dangerous_confirm", true)) {
                 if (KernelInstance::SetCriticalProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             else {
                 safeAcceptedPID = item.Id();
-                CreateInfoBarAndDisplay(L"警告", L"设置为关键进程后，该进程退出会导致蓝屏，如果确认继续请再次点击！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"警告", L"设置为关键进程后，该进程退出会导致蓝屏，如果确认继续请再次点击！", InfoBarSeverity::Warning, g_mainWindowInstance);
             }
             co_return;
             });
@@ -333,10 +333,10 @@ namespace winrt::StarlightGUI::implementation
         item2_7.Text(L"效率模式");
         item2_7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::EnableProcessPerformanceMode(item)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功为进程开启效率模式: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功为进程开启效率模式: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法为进程开启效率模式: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法为进程开启效率模式: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -364,9 +364,9 @@ namespace winrt::StarlightGUI::implementation
         item3_2_sub1.Text(L"名称");
         item3_2_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_2.Items().Append(item3_2_sub1);
@@ -375,9 +375,9 @@ namespace winrt::StarlightGUI::implementation
         item3_2_sub2.Text(L"PID");
         item3_2_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(std::to_wstring(item.Id()))) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_2.Items().Append(item3_2_sub2);
@@ -386,9 +386,9 @@ namespace winrt::StarlightGUI::implementation
         item3_2_sub3.Text(L"文件路径");
         item3_2_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.ExecutablePath().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_2.Items().Append(item3_2_sub3);
@@ -397,9 +397,9 @@ namespace winrt::StarlightGUI::implementation
         item3_2_sub4.Text(L"EPROCESS");
         item3_2_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.EProcess().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_2.Items().Append(item3_2_sub4);
@@ -411,9 +411,9 @@ namespace winrt::StarlightGUI::implementation
         item3_3.Text(L"打开文件所在位置");
         item3_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFolderAndSelectFile(item.ExecutablePath().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已打开文件夹", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已打开文件夹", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件夹, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件夹, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -423,9 +423,9 @@ namespace winrt::StarlightGUI::implementation
         item3_4.Text(L"属性");
         item3_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFileProperties(item.ExecutablePath().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已打开文件属性", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已打开文件属性", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件属性, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件属性, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -479,7 +479,7 @@ namespace winrt::StarlightGUI::implementation
             HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
             if (hSnapshot == INVALID_HANDLE_VALUE) {
                 co_await wil::resume_foreground(DispatcherQueue());
-                CreateInfoBarAndDisplay(L"错误", L"无法获取进程快照", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"错误", L"无法获取进程快照", InfoBarSeverity::Error, g_mainWindowInstance);
                 co_return;
             }
 
@@ -885,17 +885,17 @@ namespace winrt::StarlightGUI::implementation
                         if (status != 1) {
                             std::wstring content = L"程序启动成功，PID: " + std::to_wstring(status);
                             CreateInfoBarAndDisplay(L"成功", content.c_str(),
-                                InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                                InfoBarSeverity::Success, g_mainWindowInstance);
                         }
                         else {
                             std::wstring content = L"程序启动失败，错误码: " + std::to_wstring(GetLastError());
                             CreateInfoBarAndDisplay(L"失败", content.c_str(),
-                                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                                InfoBarSeverity::Error, g_mainWindowInstance);
                         }
                     }
                     else {
                         CreateInfoBarAndDisplay(L"失败", L"请以管理员身份运行！",
-                            InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                            InfoBarSeverity::Error, g_mainWindowInstance);
                     }
                 }
                 else {
@@ -913,12 +913,12 @@ namespace winrt::StarlightGUI::implementation
                         CloseHandle(sei.hIcon);
                         std::wstring content = L"程序启动成功，PID: " + std::to_wstring(processId);
                         CreateInfoBarAndDisplay(L"成功", content.c_str(),
-                            InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                            InfoBarSeverity::Success, g_mainWindowInstance);
                     }
                     else {
                         std::wstring content = L"程序启动失败，错误码: " + std::to_wstring(GetLastError());
                         CreateInfoBarAndDisplay(L"失败", content.c_str(),
-                            InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                            InfoBarSeverity::Error, g_mainWindowInstance);
                     }
                 }
 
@@ -927,7 +927,7 @@ namespace winrt::StarlightGUI::implementation
         }
         catch (winrt::hresult_error const& ex) {
             CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
-                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }
@@ -944,13 +944,13 @@ namespace winrt::StarlightGUI::implementation
 
                 size_t dotPos = path.rfind(L'.');
                 if (dotPos == std::wstring::npos) {
-                    CreateInfoBarAndDisplay(L"错误", L"文件不是DLL类型！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"错误", L"文件不是DLL类型！", InfoBarSeverity::Error, g_mainWindowInstance);
                     co_return;
                 }
                 else {
                     std::wstring extension = path.substr(dotPos + 1);
                     if (_wcsicmp(extension.c_str(), L"dll") != 0 && _wcsicmp(extension.c_str(), L"DLL") != 0) {
-                        CreateInfoBarAndDisplay(L"错误", L"文件不是DLL类型！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                        CreateInfoBarAndDisplay(L"错误", L"文件不是DLL类型！", InfoBarSeverity::Error, g_mainWindowInstance);
                         co_return;
                     }
                 }
@@ -958,24 +958,24 @@ namespace winrt::StarlightGUI::implementation
                 HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
                 if (hFile == INVALID_HANDLE_VALUE) {
-                    CreateInfoBarAndDisplay(L"错误", L"文件不存在！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"错误", L"文件不存在！", InfoBarSeverity::Error, g_mainWindowInstance);
                     co_return;
                 }
 
                 CloseHandle(hFile);
                 
                 if (KernelInstance::InjectDLLToProcess(pid, const_cast<PWCHAR>(path.c_str()))) {
-                    CreateInfoBarAndDisplay(L"成功", L"注入成功！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"注入成功！", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
                 else {
-                    CreateInfoBarAndDisplay(L"失败", L"注入失败，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"失败", L"注入失败，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
                 }
             }
         }
         catch (winrt::hresult_error const& ex) {
             CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
-                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }
@@ -993,23 +993,23 @@ namespace winrt::StarlightGUI::implementation
                 // 如果是TrustedInstaller的话要先启动服务，检测一下
                 if (tokenType == 1) {
                     if (FindProcessId(L"TrustedInstaller.exe") == 0) {
-                        CreateInfoBarAndDisplay(L"失败", L"未启动TrustedInstaller服务！请手动启动！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                        CreateInfoBarAndDisplay(L"失败", L"未启动TrustedInstaller服务！请手动启动！", InfoBarSeverity::Error, g_mainWindowInstance);
                         co_return;
                     }
                 }
 
                 if (KernelInstance::ModifyProcessToken(pid, tokenType)) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功修改令牌！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功修改令牌！", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
                 else {
-                    CreateInfoBarAndDisplay(L"失败", L"修改令牌失败，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"失败", L"修改令牌失败，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
                 }
             }
         }
         catch (winrt::hresult_error const& ex) {
             CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
-                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }
@@ -1021,25 +1021,25 @@ namespace winrt::StarlightGUI::implementation
             if (KernelInstance::IsRunningAsAdmin()) {
                 // 管理员权限时，尝试使用内核结束
                 if (KernelInstance::_ZwTerminateProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
                 else {
                     // 无法结束，尝试使用常规结束
                     if (TaskUtils::_TerminateProcess(item.Id())) {
-                        CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                        CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                         WaitAndReloadAsync(1000);
                     }
-                    else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
                 }
             }
             else {
                 // 用户权限时，直接使用常规结束
                 if (TaskUtils::_TerminateProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
         }
         co_return;
