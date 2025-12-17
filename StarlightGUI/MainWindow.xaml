@@ -110,5 +110,9 @@
             <!-- 内容 -->
             <Frame x:Name="MainFrame" Grid.Row="1"/>
         </controls:NavigationView>
+
+        <StackPanel HorizontalAlignment="Right"
+                    x:Name="InfoBarPanel" 
+                    Margin="0,58,10,0"/>
     </Grid>
 </Window>

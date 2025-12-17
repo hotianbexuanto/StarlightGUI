@@ -11,6 +11,9 @@ namespace winrt::StarlightGUI::implementation
         bool IsUpdate() const { return m_isUpdate; }
 		void IsUpdate(bool value) { m_isUpdate = value; }
 
+		int32_t Channel() const { return m_channel; }
+		void Channel(int32_t value) { m_channel = value; }
+
         hstring LatestVersion() const { return m_latestVersion; }
         void LatestVersion(const hstring& value) { m_latestVersion = value; }
 
@@ -48,6 +51,7 @@ namespace winrt::StarlightGUI::implementation
 
     private:
         bool m_isUpdate{ false };
+        int32_t m_channel{ 0 };
         hstring m_latestVersion{ L"" };
         hstring m_an_line1{ L"" };
         hstring m_an_line2{ L"" };

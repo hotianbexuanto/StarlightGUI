@@ -13,7 +13,6 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget SetUserProfile();
         winrt::fire_and_forget FetchHitokoto();
         winrt::fire_and_forget LoadDriverPath();
-        winrt::fire_and_forget CheckUpdate();
         void SetupClock();
         void OnClockTick(IInspectable const&, IInspectable const&);
         void UpdateClock();

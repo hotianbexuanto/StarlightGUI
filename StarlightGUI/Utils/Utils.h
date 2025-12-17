@@ -1,6 +1,7 @@
 #pragma once
 
-#include <pch.h>
+#include "pch.h"
+#include "MainWindow.xaml.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -119,6 +120,10 @@ namespace winrt::StarlightGUI::implementation {
 
     inline void CreateInfoBarAndDisplay(hstring title, hstring message, InfoBarSeverity severity, XamlRoot xamlRoot, Panel parent) {
         DisplayInfoBar(CreateInfoBar(title, message, severity, xamlRoot), parent);
+    }
+
+    inline void CreateInfoBarAndDisplay(hstring title, hstring message, InfoBarSeverity severity, winrt::StarlightGUI::implementation::MainWindow* instance) {
+        DisplayInfoBar(CreateInfoBar(title, message, severity, instance->MainWindowGrid().XamlRoot()), instance->InfoBarPanel());
     }
 
     inline auto CreateContentDialog(hstring title, hstring content, hstring closeMessage, XamlRoot xamlRoot) {

@@ -6,6 +6,7 @@
     xmlns:local="using:StarlightGUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:essential="using:WinUI3Package"
     mc:Ignorable="d"
     DefaultButton="Primary"
     PrimaryButtonClick="OnPrimaryButtonClick"    
@@ -33,8 +34,16 @@
                 <Run x:Name="LatestVersionText"/>
             </TextBlock>
             <TextBlock Text="您可以通过这个对话框直接打开下载网页，或选择不进行更新。" />
-            <TextBlock Text="Tips: 可以在设置里修改是否检测更新" Foreground="LightGray" FontSize="12"/>
-            <TextBlock Text="（用手机保存！！！求求了！！！这可以给我带来一点收益！！！）" Foreground="LightGray" FontSize="12"/>
+            <TextBlock Text="Tips: 可以在设置里修改是否检测更新" Foreground="LightGray" FontSize="12"  Margin="0,0,0,10"/>
+            <Border HorizontalAlignment="Stretch" Height="1" Background="LightGray" Margin="0,0,0,10"/>
+            <TextBlock Text="夸克网盘提取码: vVmj | 迅雷云盘提取码: 8mcz"/>
+            <TextBlock Text="（最好能用手机保存！这可以给我带来一些收益！谢谢！）" Foreground="LightGray" FontSize="12" Margin="0,0,0,5"/>
+            <ComboBox x:Name="ChannelComboBox" 
+                      SelectedIndex="0"
+                      essential:ComboBoxHelper.AcrylicWorkaround="True">
+                <ComboBoxItem Content="迅雷" />
+                <ComboBoxItem Content="夸克" />
+            </ComboBox>
         </StackPanel>
         <StackPanel x:Name="AnnouncementStackPanel" Margin="0,0,0,10" Visibility="Collapsed">
             <TextBlock x:Name="AnnouncementLine1"/>

@@ -21,8 +21,11 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget LoadBackground();
         winrt::fire_and_forget LoadNavigation();
 
+        winrt::fire_and_forget CheckUpdate();
+
         std::vector<winrt::StarlightGUI::InfoWindow> m_openWindows;
 
+        inline static bool loaded = false;
     };
 
     extern MainWindow* g_mainWindowInstance;

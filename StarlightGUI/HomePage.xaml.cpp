@@ -8,7 +8,6 @@
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Web.Http.h>
-#include <winrt/Windows.Web.Http.Headers.h>
 #include <winrt/Windows.Data.Json.h>
 #include <winrt/Windows.System.UserProfile.h>
 #include <winrt/Windows.Foundation.h>
@@ -22,7 +21,6 @@
 #include <random>
 #include <chrono>
 #include "MainWindow.xaml.h"
-#include "UpdateDialog.xaml.h"
 
 using namespace winrt;
 using namespace Windows::Web::Http;
@@ -61,14 +59,7 @@ namespace winrt::StarlightGUI::implementation
                     CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
                     LoadDriverPath();
                 }
-                try {
-                    CheckUpdate();
-                }
-                catch (hresult_error) {
-                    CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                }
                 loaded = true;
-                
                 });
         }
 
@@ -184,85 +175,6 @@ namespace winrt::StarlightGUI::implementation
         if (auto strong_this = weak_this.get()) {
             co_await wil::resume_foreground(DispatcherQueue());
             HitokotoText().Text(hitokoto);
-        }
-
-        co_return;
-    }
-
-    winrt::fire_and_forget HomePage::CheckUpdate()
-    {
-        if (!ReadConfig("check_update", true)) co_return;
-
-        auto weak_this = get_weak();
-
-        int currentBuildNumber = unbox_value<int>(Application::Current().Resources().TryLookup(box_value(L"BuildNumber")));
-        int latestBuildNumber = 0;
-
-        co_await winrt::resume_background();
-
-        HttpClient client;
-        Uri uri(L"https://pastebin.com/raw/kz5qViYF"); 
-
-        // 防止获取旧数据
-        client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");
-        client.DefaultRequestHeaders().Append(L"If-None-Match", L"");
-
-        LOG_INFO(L"Updater", L"Sending update check request...");
-        hstring result = co_await client.GetStringAsync(uri);
-
-        auto json = Windows::Data::Json::JsonObject::Parse(result);
-        latestBuildNumber = json.GetNamedNumber(L"build_number");
-
-        if (auto strong_this = weak_this.get()) {
-            co_await wil::resume_foreground(DispatcherQueue());
-
-            LOG_INFO(L"Updater", L"Current: %d, Latest: %d", currentBuildNumber, latestBuildNumber);
-
-            if (latestBuildNumber == 0) {
-                LOG_WARNING(L"Updater", L"Latest = 0, check failed.");
-                CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-            }
-            else if (latestBuildNumber == currentBuildNumber) {
-                LOG_INFO(L"Updater", L"Latest = current, we are on the latest version.");
-                CreateInfoBarAndDisplay(L"信息", L"你正在使用最新版本的 Starlight GUI！", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
-
-                if (ReadConfig("last_announcement_date", 0) < GetDateAsInt()) {
-                    auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
-                    dialog.IsUpdate(false);
-                    dialog.LatestVersion(json.GetNamedString(L"an_update_time"));
-                    dialog.SetAnLine(1, json.GetNamedString(L"an_line1"));
-                    dialog.SetAnLine(2, json.GetNamedString(L"an_line2"));
-                    dialog.SetAnLine(3, json.GetNamedString(L"an_line3"));
-                    dialog.XamlRoot(this->XamlRoot());
-                    co_await dialog.ShowAsync();
-                }
-            }
-            else if (latestBuildNumber > currentBuildNumber) {
-                LOG_INFO(L"Updater", L"Latest > current, new version avaliable. Calling up update dialog.");
-                CreateInfoBarAndDisplay(L"信息", L"检测到新版本的 Starlight GUI！", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
-                auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
-                dialog.IsUpdate(true);
-                dialog.LatestVersion(json.GetNamedString(L"version"));
-                dialog.XamlRoot(this->XamlRoot());
-
-                auto result = co_await dialog.ShowAsync();
-
-                if (result == ContentDialogResult::Primary) {
-                    Uri target(json.GetNamedString(L"download_link"));
-                    auto result = co_await Launcher::LaunchUriAsync(target);
-
-                    if (result) {
-                        CreateInfoBarAndDisplay(L"成功", L"已在浏览器打开网页！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                    }
-                    else {
-                        CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
-                    }
-                }
-            }
-            else if (latestBuildNumber < currentBuildNumber) {
-                LOG_INFO(L"Updater", L"Latest < current, maybe we are on a dev environment.", kernelPath.c_str());
-                CreateInfoBarAndDisplay(L"信息", L"你正在使用 Starlight GUI 的开发版本！", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
-            }
         }
 
         co_return;
