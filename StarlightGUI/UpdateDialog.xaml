@@ -44,7 +44,7 @@
             <TextBlock Text=" [3] 可以同时在*两个*网盘进行转存操作，我都可以得到收益。" Foreground="LightGray" FontSize="12"/>
             <TextBlock Text=" [4] 可以*每日*进行一次转存，我可以一直得到收益。" Foreground="LightGray" FontSize="12" Margin="0,0,0,10"/>
             <ComboBox x:Name="ChannelComboBox" 
-                      SelectedIndex="0"
+                      SelectedIndex="1"
                       essential:ComboBoxHelper.AcrylicWorkaround="True">
                 <ComboBoxItem Content="迅雷 (推荐电脑端)" />
                 <ComboBoxItem Content="夸克 (推荐手机端)" />

@@ -4,12 +4,12 @@
 #include <tlhelp32.h>
 #include <vector>
 #include <Utils/Utils.h>
+#include <MainWindow.xaml.h>
 
 using namespace winrt;
 using namespace winrt::StarlightGUI::implementation;
 
-static XamlRoot e_root{ nullptr };
-static Panel e_parent{ nullptr };
+static MainWindow* instance = nullptr;
 
 static bool EnablePrivilege0(LPCTSTR privilege) {
     HANDLE hToken;
@@ -76,15 +76,15 @@ static bool EnableAllPrivileges(HANDLE hToken) {
     return GetLastError() == ERROR_SUCCESS;
 }
 
-static int createProcess(std::wstring processName, bool fullPrivileges) {
+static int _CreateProcess(std::wstring processName, bool fullPrivileges) {
 
     if (!EnablePrivilege0(SE_DEBUG_NAME)) {
-        CreateInfoBarAndDisplay(L"Elevator", L"无法获取SE_DEBUG_PRIVILEGE权限", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法获取SE_DEBUG_PRIVILEGE权限", InfoBarSeverity::Error, instance);
         return 1;
     }
 
     if (!EnablePrivilege0(SE_TCB_NAME)) {
-        CreateInfoBarAndDisplay(L"Elevator", L"无法获取SE_TCB_PRIVILEGE权限", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法获取SE_TCB_PRIVILEGE权限", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -95,20 +95,20 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
 
     DWORD winlogonPid = FindProcessId(L"winlogon.exe");
     if (winlogonPid == 0) {
-        CreateInfoBarAndDisplay(L"Elevator", L"无法找到Winlogon进程", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法找到Winlogon进程", InfoBarSeverity::Error, instance);
         return 1;
     }
 
     HANDLE hWinlogon = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, winlogonPid);
     if (!hWinlogon) {
-        CreateInfoBarAndDisplay(L"Elevator", L"无法打开Winlogon进程", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法打开Winlogon进程", InfoBarSeverity::Error, instance);
         return 1;
     }
 
     HANDLE hWinlogonToken = nullptr;
     if (!OpenProcessToken(hWinlogon, TOKEN_DUPLICATE | TOKEN_QUERY, &hWinlogonToken)) {
         CloseHandle(hWinlogon);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法获取Winlogon进程令牌", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法获取Winlogon进程令牌", InfoBarSeverity::Error, instance);
         return 1;
     }
     CloseHandle(hWinlogon);
@@ -116,7 +116,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
     if (!DuplicateTokenEx(hWinlogonToken, MAXIMUM_ALLOWED, nullptr,
         SecurityImpersonation, TokenPrimary, &hSystemToken)) {
         CloseHandle(hWinlogonToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法复制Winlogon进程令牌 [1]", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法复制Winlogon进程令牌 [1]", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -124,7 +124,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         SecurityImpersonation, TokenImpersonation, &hImpersonationToken)) {
         CloseHandle(hWinlogonToken);
         CloseHandle(hSystemToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法复制Winlogon进程令牌 [2]", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法复制Winlogon进程令牌 [2]", InfoBarSeverity::Error, instance);
         return 1;
     }
     CloseHandle(hWinlogonToken);
@@ -132,14 +132,14 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
     if (!ImpersonateLoggedOnUser(hImpersonationToken)) {
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法模拟以SYSTEM身份登录", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法模拟以SYSTEM身份登录", InfoBarSeverity::Error, instance);
         return 1;
     }
 
     if (!SetThreadToken(NULL, hImpersonationToken)) {
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法设置线程令牌", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法设置线程令牌", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -148,7 +148,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法打开SCManager", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法打开SCManager", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -158,7 +158,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
     if (service) {
         if (!StartServiceW(service, 0, nullptr)) {
             if (GetLastError() != ERROR_SERVICE_ALREADY_RUNNING) {
-                CreateInfoBarAndDisplay(L"Elevator", L"无法启动服务，尝试直接创建进程...", InfoBarSeverity::Warning, e_root, e_parent);
+                CreateInfoBarAndDisplay(L"Elevator", L"无法启动服务，尝试直接创建进程...", InfoBarSeverity::Warning, instance);
                 std::wstring trustedInstallerPath = L"C:\\Windows\\servicing\\TrustedInstaller.exe";
 
                 STARTUPINFOW si = { sizeof(si) };
@@ -192,7 +192,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"所有启动尝试都失败了！", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"所有启动尝试都失败了！", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -208,7 +208,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法找到TrustedInstaller进程", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法找到TrustedInstaller进程", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -217,7 +217,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法打开TrustedInstaller进程", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法打开TrustedInstaller进程", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -226,7 +226,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法获取TrustedInstaller进程令牌", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法获取TrustedInstaller进程令牌", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -236,7 +236,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法复制TrustInstaller进程令牌", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法复制TrustInstaller进程令牌", InfoBarSeverity::Error, instance);
         return 1;
     }
     CloseHandle(hTiProcess);
@@ -247,7 +247,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
             RevertToSelf();
             CloseHandle(hSystemToken);
             CloseHandle(hImpersonationToken);
-            CreateInfoBarAndDisplay(L"Elevator", L"无法设置完整权限", InfoBarSeverity::Error, e_root, e_parent);
+            CreateInfoBarAndDisplay(L"Elevator", L"无法设置完整权限", InfoBarSeverity::Error, instance);
             return 1;
         }
     }
@@ -260,7 +260,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         RevertToSelf();
         CloseHandle(hSystemToken);
         CloseHandle(hImpersonationToken);
-        CreateInfoBarAndDisplay(L"Elevator", L"无法设置令牌信息", InfoBarSeverity::Error, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"无法设置令牌信息", InfoBarSeverity::Error, instance);
         return 1;
     }
 
@@ -281,7 +281,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
         nullptr,
         &si,
         &pi)) {
-        CreateInfoBarAndDisplay(L"Elevator", L"使用令牌创建进程失败，尝试其他方法...", InfoBarSeverity::Warning, e_root, e_parent);
+        CreateInfoBarAndDisplay(L"Elevator", L"使用令牌创建进程失败，尝试其他方法...", InfoBarSeverity::Warning, instance);
 
         if (!CreateProcessAsUserW(hTrustedInstallerToken,
             processName.c_str(),
@@ -299,7 +299,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
             CloseHandle(hTrustedInstallerToken);
             CloseHandle(hSystemToken);
             CloseHandle(hImpersonationToken);
-            CreateInfoBarAndDisplay(L"Elevator", L"所有启动尝试都失败了！", InfoBarSeverity::Error, e_root, e_parent);
+            CreateInfoBarAndDisplay(L"Elevator", L"所有启动尝试都失败了！", InfoBarSeverity::Error, instance);
             return 1;
         }
     }
@@ -313,9 +313,7 @@ static int createProcess(std::wstring processName, bool fullPrivileges) {
     return pi.dwProcessId;
 }
 
-static int CreateProcessElevated(std::wstring name, bool full, XamlRoot xamlRoot, Panel panel) {
-    e_root = xamlRoot;
-    e_parent = panel;
-    
-    return createProcess(name, full);
+static int CreateProcessElevated(std::wstring name, bool full, MainWindow* mainWindow) {
+    instance = mainWindow;
+    return _CreateProcess(name, full);
 }

@@ -4,6 +4,8 @@
 #include "HelpPage.g.cpp"
 #endif
 
+#include "MainWindow.xaml.h"
+
 using namespace winrt;
 using namespace Windows::System;
 using namespace Windows::Foundation;
@@ -68,10 +70,10 @@ namespace winrt::StarlightGUI::implementation
         auto result = co_await Launcher::LaunchUriAsync(target);
 
         if (result) {
-            CreateInfoBarAndDisplay(L"成功", L"已在浏览器打开网页！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"成功", L"已在浏览器打开网页！", InfoBarSeverity::Success, g_mainWindowInstance);
         }
         else {
-            CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, g_mainWindowInstance);
         }
     }
 }

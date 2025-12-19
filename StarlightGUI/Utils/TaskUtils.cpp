@@ -6,9 +6,11 @@
 
 typedef BOOL(WINAPI* P_EndTask)(HWND hwnd, BOOL fShutdown, BOOL fForce);
 typedef NTSTATUS(NTAPI* P_NtQuerySystemInformation)(_SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
+typedef LONG(WINAPI* P_RtlGetVersion)(PRTL_OSVERSIONINFOW lpVersionInformation);
 
 P_EndTask _EndTask{ nullptr };
 P_NtQuerySystemInformation _NtQuerySystemInformation{ nullptr };
+P_RtlGetVersion _RtlGetVersion{ nullptr };
 
 namespace winrt::StarlightGUI::implementation {
 	void TaskUtils::EnsurePrivileges() {
@@ -237,6 +239,23 @@ namespace winrt::StarlightGUI::implementation {
 		sei.nShow = SW_SHOW;
 
 		return ShellExecuteExW(&sei) != FALSE;
+	}
+
+	/*
+	* 获取Windows版本
+	*/
+	DWORD TaskUtils::GetWindowsBuildNumber() {
+		if (!_RtlGetVersion) {
+			HMODULE hNtdll = LoadLibraryW(L"ntdll.dll");
+			_RtlGetVersion = (P_RtlGetVersion)GetProcAddress(hNtdll, "RtlGetVersion");
+		}
+		if (!_RtlGetVersion) return 0;
+		RTL_OSVERSIONINFOW osInfo = { 0 };
+		osInfo.dwOSVersionInfoSize = sizeof(osInfo);
+		if (_RtlGetVersion(&osInfo) == 0) {
+			return osInfo.dwBuildNumber;
+		}
+		return 0;
 	}
 
 	// =====================================================

@@ -58,7 +58,7 @@ namespace winrt::StarlightGUI::implementation
             LoadDriverButton().IsEnabled(false);
             UnloadModuleButton().IsEnabled(false);
             KernelModuleCountText().Text(L"请以管理员身份运行！");
-            CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
         }
         else {
             this->Loaded([this](auto&&, auto&&) {
@@ -95,10 +95,10 @@ namespace winrt::StarlightGUI::implementation
         item1_1.Text(L"卸载模块");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -108,10 +108,10 @@ namespace winrt::StarlightGUI::implementation
         item1_2.Text(L"隐藏模块");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::HideDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功隐藏模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功隐藏模块: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法隐藏模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法隐藏模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -127,9 +127,9 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub1.Text(L"名称");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
@@ -138,9 +138,9 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub2.Text(L"路径");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
@@ -149,9 +149,9 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub3.Text(L"基址");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.ImageBase().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub3);
@@ -160,9 +160,9 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub4.Text(L"驱动对象");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.DriverObject().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub4);
@@ -400,10 +400,10 @@ namespace winrt::StarlightGUI::implementation
                 }
 
                 if (status) {
-                    CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, g_mainWindowInstance);
                 }
                 else {
-                    CreateInfoBarAndDisplay(L"失败", L"驱动加载失败, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"失败", L"驱动加载失败, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
                 }
 
                 LoadKernelModuleList();
@@ -411,7 +411,7 @@ namespace winrt::StarlightGUI::implementation
         }
         catch (winrt::hresult_error const& ex) {
             CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
-                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }
@@ -421,11 +421,11 @@ namespace winrt::StarlightGUI::implementation
             auto item = KernelModuleListView().SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
 
             if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
 
                 LoadKernelModuleList();
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }

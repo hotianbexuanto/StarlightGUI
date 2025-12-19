@@ -4,6 +4,8 @@
 #include "UtilityPage.g.cpp"
 #endif
 
+#include "MainWindow.xaml.h"
+
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
 
@@ -14,7 +16,7 @@ namespace winrt::StarlightGUI::implementation{
 		InitializeComponent();
 		
 		if (!KernelInstance::IsRunningAsAdmin()) {
-			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
 			this->Loaded([this](auto&&, auto&&) {
 				FindButtonsAndDisable(*this);
 				});
@@ -38,7 +40,7 @@ namespace winrt::StarlightGUI::implementation{
 	winrt::fire_and_forget UtilityPage::Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 	{
 		if (!KernelInstance::IsRunningAsAdmin()) {
-			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
 			co_return;
 		}
 
@@ -47,8 +49,8 @@ namespace winrt::StarlightGUI::implementation{
 
 		if (safeAcceptedTag != tag) {
 			safeAcceptedTag = tag;
-			CreateInfoBarAndDisplay(L"警告", L"该操作可能导致系统不稳定或崩溃！如果你知道自己在做什么，请再次点击！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-			CreateInfoBarAndDisplay(L"警告", L"如果多次进行了同一个禁用操作，也需要多次进行启用才可恢复！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"警告", L"该操作可能导致系统不稳定或崩溃！如果你知道自己在做什么，请再次点击！", InfoBarSeverity::Warning, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"警告", L"如果多次进行了同一个禁用操作，也需要多次进行启用才可恢复！", InfoBarSeverity::Warning, g_mainWindowInstance);
 			co_return;
 		}
 
@@ -129,21 +131,21 @@ namespace winrt::StarlightGUI::implementation{
 		}
 		else {
 			co_await wil::resume_foreground(DispatcherQueue());
-			CreateInfoBarAndDisplay(L"错误", L"未知操作！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"错误", L"未知操作！", InfoBarSeverity::Error, g_mainWindowInstance);
 			co_return;
 		}
 
 		co_await wil::resume_foreground(DispatcherQueue());
 
 		if (result) {
-			CreateInfoBarAndDisplay(L"成功", L"成功完成操作！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"成功", L"成功完成操作！", InfoBarSeverity::Success, g_mainWindowInstance);
 		}
 		else {
 			if (GetLastError() == 0) {
-				CreateInfoBarAndDisplay(L"失败", L"无法完成操作，该功能可能已经是预期的状态了！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+				CreateInfoBarAndDisplay(L"失败", L"无法完成操作，该功能可能已经是预期的状态了！", InfoBarSeverity::Error, g_mainWindowInstance);
 			}
 			else {
-				CreateInfoBarAndDisplay(L"失败", L"无法完成操作，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+				CreateInfoBarAndDisplay(L"失败", L"无法完成操作，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
 			}
 		}
 
@@ -153,7 +155,7 @@ namespace winrt::StarlightGUI::implementation{
 	winrt::fire_and_forget UtilityPage::Button_Click2(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 	{
 		if (!KernelInstance::IsRunningAsAdmin()) {
-			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
 			co_return;
 		}
 
@@ -176,17 +178,17 @@ namespace winrt::StarlightGUI::implementation{
 			result = KernelInstance::RebootForce();
 		}
 		else {
-			CreateInfoBarAndDisplay(L"错误", L"未知操作！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"错误", L"未知操作！", InfoBarSeverity::Error, g_mainWindowInstance);
 			co_return;
 		}
 
 		co_await wil::resume_foreground(DispatcherQueue());
 
 		if (result) {
-			CreateInfoBarAndDisplay(L"成功", L"成功完成操作！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"成功", L"成功完成操作！", InfoBarSeverity::Success, g_mainWindowInstance);
 		}
 		else {
-			CreateInfoBarAndDisplay(L"失败", L"无法完成操作，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"失败", L"无法完成操作，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
 		}
 
 		co_return;

@@ -502,7 +502,14 @@ namespace winrt::StarlightGUI::implementation
                 processIndexMap[process.Id()] = i;
             }
 
-            KernelInstance::EnumProcess(processIndexMap, processes);
+            // 对于 Windows 11，我们使用 AstralX 进行枚举
+			// 对于 Windows 10 及以下版本，我们使用 SKT64 进行枚举
+            if (TaskUtils::GetWindowsBuildNumber() >= 22000 && !ReadConfig("enum_strengthen", false)) {
+                KernelInstance::EnumProcess(processIndexMap, processes);
+            }
+            else {
+                KernelInstance::EnumProcess2(processIndexMap, processes);
+            }
 
             LOG_INFO(__WFUNCTION__, L"Enumerated processes (kernel mode), %d entry(s).", processes.size());
 
@@ -881,7 +888,7 @@ namespace winrt::StarlightGUI::implementation
 
                 if (permission == 2) {
                     if (KernelInstance::IsRunningAsAdmin()) {
-                        int status = CreateProcessElevated(processPath.c_str(), fullPrivileges, XamlRoot(), InfoBarPanel());
+                        int status = CreateProcessElevated(processPath.c_str(), fullPrivileges, g_mainWindowInstance);
                         if (status != 1) {
                             std::wstring content = L"程序启动成功，PID: " + std::to_wstring(status);
                             CreateInfoBarAndDisplay(L"成功", content.c_str(),

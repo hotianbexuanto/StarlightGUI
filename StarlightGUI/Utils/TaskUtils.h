@@ -65,6 +65,8 @@ namespace winrt::StarlightGUI::implementation {
 		static bool OpenFolderAndSelectFile(std::wstring filePath);
 
 		static bool OpenFileProperties(std::wstring filePath);
+
+		static DWORD GetWindowsBuildNumber();
 	private:
 		static BOOL CALLBACK EndTaskByWindow(HWND hwnd, LPARAM lparam);
 

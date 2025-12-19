@@ -35,6 +35,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		// Enum
 		static BOOL EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept;
+		static BOOL EnumProcess2(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept;
 		static BOOL EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads) noexcept;
 		static BOOL EnumProcessHandle(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles) noexcept;
 		static BOOL EnumProcessModule(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& threads) noexcept;

@@ -87,9 +87,9 @@ namespace winrt::StarlightGUI::implementation
         item1_1_sub1.Text(L"名称");
         item1_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_infoWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
             co_return;
             });
         item1_1.Items().Append(item1_1_sub1);
@@ -98,9 +98,9 @@ namespace winrt::StarlightGUI::implementation
         item1_1_sub2.Text(L"路径");
         item1_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_infoWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
             co_return;
             });
         item1_1.Items().Append(item1_1_sub2);
@@ -109,9 +109,9 @@ namespace winrt::StarlightGUI::implementation
         item1_1_sub3.Text(L"地址");
         item1_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_infoWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
             co_return;
             });
         item1_1.Items().Append(item1_1_sub3);
@@ -128,7 +128,7 @@ namespace winrt::StarlightGUI::implementation
         if (!processForInfoWindow) co_return;
         // 跳过内核进程，获取可能导致异常或蓝屏
         if (processForInfoWindow.Id() >= 0 && processForInfoWindow.Id() <= 272) {
-            CreateInfoBarAndDisplay(L"警告", L"该进程不包含任何此类型的信息！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"警告", L"该进程不包含任何此类型的信息！", InfoBarSeverity::Warning, g_infoWindowInstance);
             co_return;
         }
 
@@ -152,7 +152,7 @@ namespace winrt::StarlightGUI::implementation
         co_await wil::resume_foreground(DispatcherQueue());
 
         if (modules.size() >= 1000) {
-            CreateInfoBarAndDisplay(L"警告", L"该进程持有过多模块，程序无法完整显示，将显示前1000条！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"警告", L"该进程持有过多模块，程序无法完整显示，将显示前1000条！", InfoBarSeverity::Warning, g_infoWindowInstance);
         }
 
         m_moduleList.Clear();

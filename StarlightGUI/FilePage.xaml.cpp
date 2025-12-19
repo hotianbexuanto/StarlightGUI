@@ -116,10 +116,10 @@ namespace winrt::StarlightGUI::implementation
         item2_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::DeleteFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
 
@@ -130,10 +130,10 @@ namespace winrt::StarlightGUI::implementation
         item2_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::_DeleteFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_2.IsEnabled(false);
@@ -145,10 +145,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::MurderFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);
@@ -160,10 +160,10 @@ namespace winrt::StarlightGUI::implementation
         item2_4.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::LockFile(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功锁定文件: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功锁定文件: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法锁定文件: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法锁定文件: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_4.IsEnabled(false);
@@ -188,9 +188,9 @@ namespace winrt::StarlightGUI::implementation
         item3_1_sub1.Text(L"名称");
         item3_1_sub1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(selectedFiles[0].Name().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_1.Items().Append(item3_1_sub1);
@@ -199,9 +199,9 @@ namespace winrt::StarlightGUI::implementation
         item3_1_sub2.Text(L"路径");
         item3_1_sub2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(selectedFiles[0].Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_1.Items().Append(item3_1_sub2);
@@ -210,9 +210,9 @@ namespace winrt::StarlightGUI::implementation
         item3_1_sub3.Text(L"修改日期");
         item3_1_sub3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(selectedFiles[0].ModifyTime().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_1.Items().Append(item3_1_sub3);
@@ -223,9 +223,9 @@ namespace winrt::StarlightGUI::implementation
         item3_2.Text(L"在文件管理器内打开");
         item3_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFolderAndSelectFile(selectedFiles[0].Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已打开文件夹", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已打开文件夹", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件夹, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件夹, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -236,9 +236,9 @@ namespace winrt::StarlightGUI::implementation
         item3_3.Text(L"属性");
         item3_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFileProperties(selectedFiles[0].Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"已打开文件属性", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                CreateInfoBarAndDisplay(L"成功", L"已打开文件属性", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件属性, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件属性, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -754,10 +754,10 @@ namespace winrt::StarlightGUI::implementation
 
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::_CopyFile(std::wstring(item.Path().c_str()).substr(0, item.Path().size() - item.Name().size()), copyPath + L"\\" + item.Name().c_str(), item.Name().c_str())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功复制文件至: " + dialog.CopyPath(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    CreateInfoBarAndDisplay(L"成功", L"成功复制文件至: " + dialog.CopyPath(), InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法复制文件, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                else CreateInfoBarAndDisplay(L"失败", L"无法复制文件, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
         }
     }

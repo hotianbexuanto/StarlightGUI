@@ -16,6 +16,7 @@ namespace winrt::StarlightGUI::implementation
 {
     static bool loaded;
     static std::string enum_file_mode;
+    static bool enum_strengthen;
     static std::string background_type;
     static std::string mica_type;
     static std::string acrylic_type;
@@ -33,6 +34,7 @@ namespace winrt::StarlightGUI::implementation
         loaded = false;
 
         enum_file_mode = ReadConfig("enum_file_mode", "ENUM_FILE_NTAPI");
+		enum_strengthen = ReadConfig("enum_strengthen", false);
         background_type = ReadConfig("background_type", "Static");
         mica_type = ReadConfig("mica_type", "BaseAlt");
         acrylic_type = ReadConfig("acrylic_type", "Default");
@@ -111,6 +113,7 @@ namespace winrt::StarlightGUI::implementation
 
         DangerousConfirmButton().IsOn(dangerous_confirm);
         CheckUpdateButton().IsOn(check_update);
+        EnumStrengthenButton().IsOn(enum_strengthen);
 
         ImagePathText().Text(to_hstring(background_image));
         ImageOpacitySlider().Value(image_opacity);
@@ -134,6 +137,11 @@ namespace winrt::StarlightGUI::implementation
             enum_file_mode = "ENUM_FILE_NTAPI";
         }
         SaveConfig("enum_file_mode", enum_file_mode);
+    }
+
+    void SettingsPage::EnumStrengthenButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+		enum_strengthen = EnumStrengthenButton().IsOn();
+        SaveConfig("enum_strengthen", enum_strengthen);
     }
 
     void SettingsPage::BackgroundComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)

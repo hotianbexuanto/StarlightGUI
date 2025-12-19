@@ -12,54 +12,51 @@
     Title="Starlight GUI Info">
 
     <Grid x:Name="InfoWindowGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid Background="{StaticResource WindowBackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <Grid.Resources>
-            <essential:ModernStandardWindowContextMenu x:Name="Menu" Window="{x:Bind}" />
-        </Grid.Resources>
+            <Grid.Resources>
+                <essential:ModernStandardWindowContextMenu x:Name="Menu" Window="{x:Bind}" />
+            </Grid.Resources>
 
-        <Grid.Background>
-            <SolidColorBrush Color="Transparent"></SolidColorBrush>
-        </Grid.Background>
-
-        <!-- 自定义标题栏 -->
-        <Grid x:Name="AppTitleBar"
+            <!-- 自定义标题栏 -->
+            <Grid x:Name="AppTitleBar"
               Background="{StaticResource WindowBackgroundBrush}"
               Height="48">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- 应用图标和标题 -->
-            <StackPanel Grid.Column="0" 
+                <!-- 应用图标和标题 -->
+                <StackPanel Grid.Column="0" 
                        Orientation="Horizontal" 
                        HorizontalAlignment="Left"
                        Margin="16,0,0,0"
                        VerticalAlignment="Center">
-                <Image Source="/Assets/Starlight.png" Width="24" Height="24" Margin="0,4,0,0"/>
-                <TextBlock x:Name="ProcessName"
+                    <Image Source="/Assets/Starlight.png" Width="24" Height="24" Margin="0,4,0,0"/>
+                    <TextBlock x:Name="ProcessName"
                            Text="Info Window"
                            FontSize="14"
                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                            Margin="16,0,0,0"
                            VerticalAlignment="Center"/>
-            </StackPanel>
+                </StackPanel>
 
-            <!-- 标题栏拖拽区域 -->
-            <Grid Grid.Column="1" 
+                <!-- 标题栏拖拽区域 -->
+                <Grid Grid.Column="1" 
                   x:Name="DragRegion"
                   Background="Transparent"/>
 
-            <!-- 窗口控制按钮 -->
-            <essential:WindowCaptionButtonThemeWorkaround Window="{x:Bind}" Height="48"/>
-        </Grid>
+                <!-- 窗口控制按钮 -->
+                <essential:WindowCaptionButtonThemeWorkaround Window="{x:Bind}" Height="48"/>
+            </Grid>
 
-        <controls:NavigationView Grid.Row="1"
+            <controls:NavigationView Grid.Row="1"
                          x:Name="RootNavigation"
                          PaneDisplayMode="LeftCompact"
                          IsBackButtonVisible="Collapsed"
@@ -72,16 +69,20 @@
                          ItemInvoked="RootNavigation_ItemInvoked"
                          Background="{StaticResource WindowBackgroundBrush}">
 
-            <!-- 选项，从上到下 -->
-            <controls:NavigationView.MenuItems>
-                <controls:NavigationViewItem Content="线程" Icon="List"/>
-                <controls:NavigationViewItem Content="句柄" Icon="Tag"/>
-                <controls:NavigationViewItem Content="模块" Icon="AddFriend"/>
-                <controls:NavigationViewItem Content="内核回调表" Icon="NewWindow"/>
-            </controls:NavigationView.MenuItems>
+                <!-- 选项，从上到下 -->
+                <controls:NavigationView.MenuItems>
+                    <controls:NavigationViewItem Content="线程" Icon="List"/>
+                    <controls:NavigationViewItem Content="句柄" Icon="Tag"/>
+                    <controls:NavigationViewItem Content="模块" Icon="AddFriend"/>
+                    <controls:NavigationViewItem Content="内核回调表" Icon="NewWindow"/>
+                </controls:NavigationView.MenuItems>
 
-            <!-- 内容 -->
-            <Frame x:Name="MainFrame" Grid.Row="1"/>
-        </controls:NavigationView>
+                <!-- 内容 -->
+                <Frame x:Name="MainFrame" Grid.Row="1"/>
+            </controls:NavigationView>
+        </Grid>
+        <StackPanel HorizontalAlignment="Right"
+                    x:Name="InfoBarPanel" 
+                    Margin="0,58,10,0"/>
     </Grid>
 </Window>

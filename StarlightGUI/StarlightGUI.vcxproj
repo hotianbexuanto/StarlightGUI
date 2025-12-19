@@ -406,6 +406,7 @@
     <ClCompile Include="Utils\ProcessInfo.cpp" />
     <ClCompile Include="Utils\TaskUtils.cpp" />
     <ClCompile Include="Utils\ThreadInfo.cpp" />
+    <ClCompile Include="Utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="CopyFileDialog.idl">

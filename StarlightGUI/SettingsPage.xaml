@@ -11,7 +11,7 @@
         <StackPanel>
             <TextBlock Text="功能" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
             <essential:SettingsCard Header="遍历文件模式"
-                                    Description="在文件管理器里进行遍历文件使用的API"
+                                    Description="文件管理器中进行遍历文件使用的 API，NTFSPARSER 可能不会工作"
                                     IsClickEnabled="True"
                                     IsActionIconVisible="False"
                                     Margin="0,0,0,10">
@@ -25,6 +25,17 @@
                     <ComboBoxItem Content="ENUM_FILE_IRP" />
                     <ComboBoxItem Content="ENUM_FILE_NTFSPARSER" />
                 </ComboBox>
+            </essential:SettingsCard>
+
+            <essential:SettingsCard Header="进程枚举强化"
+                                    Description="强制使用 SKT64 作为任务管理器枚举进程的驱动，可能会导致效率变低"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xf272;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ToggleSwitch x:Name="EnumStrengthenButton" Toggled="EnumStrengthenButton_Toggled" Margin="0,0,-80,0" IsOn="False"/>
             </essential:SettingsCard>
 
             <TextBlock Text="外观" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
@@ -58,8 +69,8 @@
                         </ComboBox>
                     </essential:SettingsCard>
                     <!-- Mica类型 -->
-                    <essential:SettingsCard Header="Mica类型"
-                                    Description="背景的Mica效果模式"
+                    <essential:SettingsCard Header="Mica 类型"
+                                    Description="背景的 Mica 效果模式"
                                     IsClickEnabled="True"
                                     IsActionIconVisible="False">
                         <ComboBox x:Name="MicaTypeComboBox" 
@@ -150,7 +161,7 @@
             </essential:SettingsCard>
 
             <essential:SettingsCard Header="检查更新"
-                                    Description="每次启动时检查更新 (*保持从网盘获取更新可以为作者创造一些收益！)"
+                                    Description="每次启动时检查更新，保持从网盘获取更新可以为作者创造一些收益"
                                     IsClickEnabled="True"
                                     IsActionIconVisible="False"
                                     Margin="0,0,0,10">
