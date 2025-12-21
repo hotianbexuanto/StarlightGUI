@@ -250,6 +250,11 @@
     <ClInclude Include="Utils\TaskUtils.h" />
     <ClInclude Include="Utils\ThreadInfo.h" />
     <ClInclude Include="Utils\Utils.h" />
+    <ClInclude Include="Utils\WindowInfo.h" />
+    <ClInclude Include="WindowPage.xaml.h">
+      <DependentUpon>WindowPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
@@ -306,6 +311,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UtilityPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WindowPage.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
@@ -407,6 +415,11 @@
     <ClCompile Include="Utils\TaskUtils.cpp" />
     <ClCompile Include="Utils\ThreadInfo.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
+    <ClCompile Include="Utils\WindowInfo.cpp" />
+    <ClCompile Include="WindowPage.xaml.cpp">
+      <DependentUpon>WindowPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="CopyFileDialog.idl">
@@ -492,6 +505,11 @@
     <Midl Include="Utils\MokuaiInfo.idl" />
     <Midl Include="Utils\ProcessInfo.idl" />
     <Midl Include="Utils\ThreadInfo.idl" />
+    <Midl Include="Utils\WindowInfo.idl" />
+    <Midl Include="WindowPage.idl">
+      <DependentUpon>WindowPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\BadgeLogo.scale-100.png" />
@@ -568,6 +586,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AstralX.sys">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+    <None Include="Assets\AXBand.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>

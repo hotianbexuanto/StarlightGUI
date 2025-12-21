@@ -81,7 +81,7 @@
                             <FontIcon Glyph="&#xf120;" FontFamily="Segoe Fluent Icons"/>
                         </controls:NavigationViewItem.Icon>
                     </controls:NavigationViewItem>
-                    <controls:NavigationViewItem Content="内核模块">
+                    <controls:NavigationViewItem Content="模块管理">
                         <controls:NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xe8ce;" FontFamily="Segoe Fluent Icons"/>
                         </controls:NavigationViewItem.Icon>
@@ -89,6 +89,11 @@
                     <controls:NavigationViewItem Content="文件管理">
                         <controls:NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xec50;" FontFamily="Segoe Fluent Icons"/>
+                        </controls:NavigationViewItem.Icon>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="窗口管理">
+                        <controls:NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xe74c;" FontFamily="Segoe Fluent Icons"/>
                         </controls:NavigationViewItem.Icon>
                     </controls:NavigationViewItem>
                     <controls:NavigationViewItem Content="系统功能">

@@ -12,7 +12,6 @@ namespace winrt::StarlightGUI::implementation
         void SetGreetingText();
         winrt::fire_and_forget SetUserProfile();
         winrt::fire_and_forget FetchHitokoto();
-        winrt::fire_and_forget LoadDriverPath();
         void SetupClock();
         void OnClockTick(IInspectable const&, IInspectable const&);
         void UpdateClock();
@@ -23,8 +22,6 @@ namespace winrt::StarlightGUI::implementation
         inline static winrt::hstring username;
         inline static winrt::hstring hitokoto;
         inline static winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage avatar{ nullptr };
-
-        inline static bool loaded = false;
     };
 }
 namespace winrt::StarlightGUI::factory_implementation

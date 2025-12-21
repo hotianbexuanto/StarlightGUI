@@ -61,9 +61,8 @@ namespace winrt::StarlightGUI::implementation
         ProcessListView().ItemContainerTransitions().Append(EntranceThemeTransition());
         TaskUtils::EnsurePrivileges();
 
-        hdc = GetDC(NULL);
-
         this->Loaded([this](auto&&, auto&&) {
+            hdc = GetDC(NULL);
             LoadProcessList(true);
             loaded = true;
 			});
@@ -153,7 +152,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1.Text(L"设置进程状态");
         MenuFlyoutItem item2_1_sub1;
         item2_1_sub1.Icon(CreateFontIcon(L"\ue769"));
-        item2_1_sub1.Text(L"暂停进程");
+        item2_1_sub1.Text(L"暂停");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_SuspendProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功暂停进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
@@ -165,7 +164,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
         item2_1_sub2.Icon(CreateFontIcon(L"\ue768"));
-        item2_1_sub2.Text(L"恢复进程");
+        item2_1_sub2.Text(L"恢复");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ResumeProcess(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功恢复进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
@@ -201,10 +200,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub1.Text(L"None");
         item2_3_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_None)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 None (0x00).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 None (0x00).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub1);
@@ -212,10 +211,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub2.Text(L"Authenticode");
         item2_3_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Authenticode)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Authenticode (0x11).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 Authenticode (0x11).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub2);
@@ -223,10 +222,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub3.Text(L"Codegen");
         item2_3_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Codegen)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Codegen (0x21).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 Codegen (0x21).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub3);
@@ -234,10 +233,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub4.Text(L"Antimalware");
         item2_3_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Antimalware)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Antimalware (0x31).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 Antimalware (0x31).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub4);
@@ -245,10 +244,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub5.Text(L"Lsa");
         item2_3_sub5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Lsa)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Lsa (0x41).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 Lsa (0x41).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub5);
@@ -256,10 +255,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub6.Text(L"Windows");
         item2_3_sub6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Windows)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 Windows (0x51).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 Windows (0x51).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub6);
@@ -267,10 +266,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub7.Text(L"WinTcb");
         item2_3_sub7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_WinTcb)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinTcb (0x61).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 WinTcb (0x61).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub7);
@@ -278,10 +277,10 @@ namespace winrt::StarlightGUI::implementation
         item2_3_sub8.Text(L"WinSystem");
         item2_3_sub8.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_WinSystem)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置进程PPL等级为 WinSystem (0x71).", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"成功", L"成功设置进程 PPL 等级为 WinSystem (0x71).", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程PPL等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置进程 PPL 等级, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub8);
@@ -647,11 +646,15 @@ namespace winrt::StarlightGUI::implementation
     winrt::Windows::Foundation::IAsyncAction TaskPage::GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process) {
         if (iconCache.find(process.ExecutablePath()) == iconCache.end()) {
             SHFILEINFO shfi;
-            if (!SHGetFileInfoW(process.ExecutablePath().c_str(), 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON | SHGFI_SMALLICON)) {
-                SHGetFileInfoW(L"C:\\Windows\\System32\\ntoskrnl.exe", 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON);
+            HICON hIcon;
+            if (SHGetFileInfoW(process.ExecutablePath().c_str(), 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON | SHGFI_SMALLICON)) {
+				hIcon = shfi.hIcon;
+            }
+            else {
+                hIcon = (HICON)LoadImageW(NULL, MAKEINTRESOURCEW(32512), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
             }
             ICONINFO iconInfo;
-            if (GetIconInfo(shfi.hIcon, &iconInfo)) {
+            if (GetIconInfo(hIcon, &iconInfo)) {
                 BITMAP bmp;
                 GetObject(iconInfo.hbmColor, sizeof(bmp), &bmp);
                 BITMAPINFOHEADER bmiHeader = { 0 };
@@ -680,7 +683,7 @@ namespace winrt::StarlightGUI::implementation
 
                 DeleteObject(iconInfo.hbmColor);
                 DeleteObject(iconInfo.hbmMask);
-                DestroyIcon(shfi.hIcon);
+                DestroyIcon(hIcon);
 
                 // 将图标缓存到 map 中
                 iconCache[process.ExecutablePath()] = writeableBitmap.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>();

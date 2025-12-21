@@ -27,7 +27,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" 
-                       Text="内核模块 (驱动)" 
+                       Text="模块管理器" 
                        FontSize="18" 
                        FontWeight="Bold" 
                        VerticalAlignment="Center"/>

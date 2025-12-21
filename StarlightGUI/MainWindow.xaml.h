@@ -21,6 +21,9 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget LoadBackground();
         winrt::fire_and_forget LoadNavigation();
 
+        // 驱动和模块
+        winrt::fire_and_forget LoadModules();
+
         winrt::fire_and_forget CheckUpdate();
 
         std::vector<winrt::StarlightGUI::InfoWindow> m_openWindows;

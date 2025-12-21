@@ -1,0 +1,54 @@
+#pragma once
+
+#include "WindowPage.g.h"
+
+namespace winrt::StarlightGUI::implementation
+{
+    struct WindowPage : WindowPageT<WindowPage>
+    {
+        WindowPage();
+
+        winrt::fire_and_forget RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+
+        void WindowListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void ShowVisibleOnlyCheckBox_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+
+        void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
+
+        void SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        bool ApplyFilter(const winrt::StarlightGUI::WindowInfo& window, hstring& query);
+
+        winrt::Windows::Foundation::IAsyncAction LoadWindowList();
+        winrt::Windows::Foundation::IAsyncAction GetWindowInfoAsync(std::vector<winrt::StarlightGUI::WindowInfo>& windows);
+        winrt::Windows::Foundation::IAsyncAction GetWindowIconAsync(const winrt::StarlightGUI::WindowInfo& window);
+        winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);
+
+        bool SetWindowZBID(HWND hwnd, ZBID zbid);
+
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::WindowInfo> m_windowList{
+            winrt::multi_threaded_observable_vector<winrt::StarlightGUI::WindowInfo>()
+        };
+
+        bool m_isLoadingWindows = false;
+
+        winrt::Microsoft::UI::Xaml::DispatcherTimer reloadTimer;
+
+        inline static bool m_showVisibleOnly = false;
+        inline static bool m_isLoading = false;
+        inline static bool m_isNameAscending = true;
+        inline static bool m_isHwndAscending = true;
+        inline static bool currentSortingOption;
+        inline static std::string currentSortingType;
+
+        template <typename T>
+        T FindParent(winrt::Microsoft::UI::Xaml::DependencyObject const& child);
+    };
+}
+
+namespace winrt::StarlightGUI::factory_implementation
+{
+    struct WindowPage : WindowPageT<WindowPage, implementation::WindowPage>
+    {
+    };
+}

@@ -14,12 +14,9 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Foundation.h>
-#include <TlHelp32.h>
-#include <Psapi.h>
 #include <sstream>
 #include <iomanip>
 #include <mutex>
-#include <shellapi.h>
 #include <unordered_set>
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
@@ -51,7 +48,6 @@ namespace winrt::StarlightGUI::implementation
         KernelModuleListView().ItemsSource(m_kernelModuleList);
         KernelModuleListView().ItemContainerTransitions().Clear();
         KernelModuleListView().ItemContainerTransitions().Append(EntranceThemeTransition());
-        TaskUtils::EnsurePrivileges();
 
         if (!KernelInstance::IsRunningAsAdmin()) {
             RefreshKernelModuleListButton().IsEnabled(false);
@@ -198,22 +194,14 @@ namespace winrt::StarlightGUI::implementation
         co_await winrt::resume_background();
 
         std::vector<winrt::StarlightGUI::KernelModuleInfo> kernelModules;
+        kernelModules.reserve(200);
 
-        if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 1) {
-            LOG_INFO(__WFUNCTION__, L"Time has passed over 1 sec, so we will do a full refresh.");
-            kernelModules.reserve(200);
+        KernelInstance::EnumDrivers(kernelModules);
+        LOG_INFO(__WFUNCTION__, L"Enumerated kernel modules, %d entry(s).", kernelModules.size());
 
-            KernelInstance::EnumDrivers(kernelModules);
-            LOG_INFO(__WFUNCTION__, L"Enumerated kernel modules, %d entry(s).", kernelModules.size());
+        fullRecordedKernelModules = kernelModules;
 
-            fullRecordedKernelModules = kernelModules;
-
-            lastRefresh = std::chrono::steady_clock::now();
-        }
-        else {
-            LOG_INFO(__WFUNCTION__, L"Using cached list.");
-            kernelModules = fullRecordedKernelModules;
-        }
+        lastRefresh = std::chrono::steady_clock::now();
 
         co_await wil::resume_foreground(DispatcherQueue());
 

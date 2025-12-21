@@ -50,19 +50,6 @@ namespace winrt::StarlightGUI::implementation
         }
         SetupClock();
 
-        if (!loaded) {
-            this->Loaded([this](auto&&, auto&&) {
-                if (!KernelInstance::IsRunningAsAdmin()) {
-                    CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
-                }
-                else {
-                    CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, g_mainWindowInstance);
-                    LoadDriverPath();
-                }
-                loaded = true;
-                });
-        }
-
         LOG_INFO(L"HomePage", L"HomePage initialized.");
     }
 
@@ -222,46 +209,5 @@ namespace winrt::StarlightGUI::implementation
         auto secondDigits = splitDigits(second);
         Second1().Text(secondDigits.first);
         Second2().Text(secondDigits.second);
-    }
-
-    winrt::fire_and_forget HomePage::LoadDriverPath() {
-        auto strong = get_strong();
-
-        g_mainWindowInstance->RootNavigation().IsEnabled(false);
-        LOG_INFO(L"DriverUtils", L"Loading necessary drivers...");
-        if (kernelPath.empty() || astralPath.empty()) {
-            try {
-                co_await winrt::resume_background();
-
-                auto& appFolder = Package::Current().InstalledLocation();
-                auto& assetsFolder = co_await appFolder.GetFolderAsync(L"Assets");
-                auto& kernelFile = co_await assetsFolder.GetFileAsync(L"kernel.sys");
-                auto& astralFile = co_await assetsFolder.GetFileAsync(L"AstralX.sys");
-
-                if (kernelFile) {
-                    kernelPath = kernelFile.Path();
-
-                    LOG_INFO(L"DriverUtils", L"Kernel.sys path [%s], load it.", kernelPath.c_str());
-                    DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
-
-                    if (astralFile) {
-                        astralPath = astralFile.Path();
-
-                        LOG_INFO(L"DriverUtils", L"AstralX.sys path [%s], load it.", astralPath.c_str());
-                        DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
-                    }
-                }
-
-                LOG_SUCCESS(L"DriverUtils", L"Loaded successfully.", kernelPath.c_str());
-                co_await wil::resume_foreground(DispatcherQueue());
-                CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, g_mainWindowInstance);
-            }
-            catch (winrt::hresult_error e) {
-                LOG_ERROR(L"DriverUtils", L"Error while loading drivers!", kernelPath.c_str());
-                LOG_ERROR(L"DriverUtils", L"%s", e.message().c_str());
-                CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, g_mainWindowInstance);
-            }
-        }
-        g_mainWindowInstance->RootNavigation().IsEnabled(true);
     }
 }

@@ -47,6 +47,7 @@
 #include <Utils/KCTInfo.h>
 #include <Utils/KernelModuleInfo.h>
 #include <Utils/FileInfo.h>
+#include <Utils/WindowInfo.h>
 
 #include <Utils/TaskUtils.h>
 #include <Utils/Utils.h>
@@ -59,6 +60,7 @@
 
 extern winrt::hstring kernelPath;
 extern winrt::hstring astralPath;
+extern winrt::hstring axBandPath;
 extern std::wstring unused;
 
 #define __WFUNCTION__ ExtractFunctionName(__FUNCTION__)

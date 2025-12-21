@@ -145,4 +145,15 @@ namespace winrt::StarlightGUI::implementation {
 
         return pretty;
     }
+
+    std::wstring ExtractFileName(const std::wstring& path) {
+        try {
+            fs::path p(path);
+            std::wstring filename = p.filename().wstring();
+            return filename;
+        }
+        catch (const fs::filesystem_error& e) {
+			return L"(δ֪)";
+        }
+    }
 }

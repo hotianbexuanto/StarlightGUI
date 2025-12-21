@@ -24,4 +24,6 @@ namespace winrt::StarlightGUI::implementation {
     std::wstring FormatMemorySize(uint64_t bytes);
 
     std::wstring ExtractFunctionName(const std::string& old);
+
+    std::wstring ExtractFileName(const std::wstring& path);
 }

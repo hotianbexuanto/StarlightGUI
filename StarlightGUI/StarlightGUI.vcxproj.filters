@@ -57,6 +57,9 @@
     <Page Include="UtilityPage.xaml">
       <Filter>Pages</Filter>
     </Page>
+    <Page Include="WindowPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -88,6 +91,9 @@
       <Filter>Utils\Types</Filter>
     </Midl>
     <Midl Include="Utils\FileInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\WindowInfo.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
   </ItemGroup>
@@ -135,6 +141,9 @@
     </ClCompile>
     <ClCompile Include="Utils\Utils.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WindowInfo.cpp">
+      <Filter>Utils\Types</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +195,9 @@
     </ClInclude>
     <ClInclude Include="ConsoleLogger.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\WindowInfo.h">
+      <Filter>Utils\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -415,6 +427,9 @@
       <Filter>Assets</Filter>
     </None>
     <None Include="Assets\AstralX.sys">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\AXBand.dll">
       <Filter>Assets</Filter>
     </None>
   </ItemGroup>

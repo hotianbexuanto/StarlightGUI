@@ -134,7 +134,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1.Text(L"设置线程状态");
         MenuFlyoutItem item2_1_sub1;
         item2_1_sub1.Icon(CreateFontIcon(L"\ue769"));
-        item2_1_sub1.Text(L"暂停线程");
+        item2_1_sub1.Text(L"暂停");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_SuspendThread(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功暂停线程: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_infoWindowInstance);
@@ -146,7 +146,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
         item2_1_sub2.Icon(CreateFontIcon(L"\ue768"));
-        item2_1_sub2.Text(L"恢复线程");
+        item2_1_sub2.Text(L"恢复");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::_ResumeThread(item.Id())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功恢复进程: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_infoWindowInstance);
