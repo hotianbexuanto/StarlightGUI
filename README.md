@@ -16,7 +16,7 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
 **注意：本软件的大部分功能需要在管理员权限下才能正常运行！**
 **更新：软件现已兼容 Windows 10！**
 
-**开发者**: Stars(主开发), KALI_MC(驱动开发)  
+**开发者**: Stars
 **许可证**: Apache 2.0 License | OSI Certified  
 **Copyright © 2025 Starlight. Some Rights Reserved.**
 
