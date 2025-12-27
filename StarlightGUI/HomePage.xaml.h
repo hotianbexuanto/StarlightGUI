@@ -2,7 +2,7 @@
 
 #include "HomePage.g.h"
 #include <pdh.h>
-#include <nvml.h>
+#include <nvidia/nvml.h>
 
 namespace winrt::StarlightGUI::implementation
 {

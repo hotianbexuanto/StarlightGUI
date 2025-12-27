@@ -9,6 +9,7 @@
 #pragma comment(lib, "ntdll.lib")
 #pragma comment(lib, "pdh.lib")
 #pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "nvidia/nvml.lib")
 
 // Undefine GetCurrentTime macro to prevent
 // conflict with Storyboard::GetCurrentTime

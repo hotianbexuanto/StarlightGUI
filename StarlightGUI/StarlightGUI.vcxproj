@@ -110,7 +110,7 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Sync</ExceptionHandling>
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SDLCheck>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Windows Kits\nvidia\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">RequireAdministrator</UACExecutionLevel>
@@ -126,14 +126,14 @@
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">RequireAdministrator</UACExecutionLevel>
       <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</AllowIsolation>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Windows Kits\nvidia\lib\x64\nvml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</SDLCheck>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Windows Kits\nvidia\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -147,7 +147,7 @@
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</AllowIsolation>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</AllowIsolation>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</AllowIsolation>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Windows Kits\nvidia\lib\x64\nvml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup Condition="'$(WindowsPackageType)'!='None' and Exists('Package.appxmanifest')">
