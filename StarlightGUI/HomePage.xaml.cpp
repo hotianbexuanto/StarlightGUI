@@ -458,8 +458,12 @@ namespace winrt::StarlightGUI::implementation
         NetManufacture().Text(netadpt_manufacture);
         NetReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_receive)) + L"/s");
         NetSend().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_send)) + L"/s");
-        NetPacketReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_packet_receive)) + L"/s");
-        NetPacketSend().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_packet_send)) + L"/s");
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_packet_receive) << "/s";
+        NetPacketReceive().Text(ss.str());
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_packet_send) << "/s";
+        NetPacketSend().Text(ss.str());
     }
 
     void HomePage::UpdateClock()
