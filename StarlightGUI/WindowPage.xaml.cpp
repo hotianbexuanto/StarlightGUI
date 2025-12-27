@@ -184,25 +184,37 @@ namespace winrt::StarlightGUI::implementation
         // 选项2.4
         MenuFlyoutSubItem item2_4;
         item2_4.Icon(CreateFontIcon(L"\ue912"));
-        item2_4.Text(L"设置ZBID");
+        item2_4.Text(L"设置捕获");
         MenuFlyoutItem item2_4_sub1;
-        item2_4_sub1.Text(L"UIAccess");
+        item2_4_sub1.Text(L"开启捕获");
         item2_4_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (SetWindowZBID((HWND)item.Hwnd(), ZBID_UIACCESS)) {
-                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口 ZBID 为 UIAccess", InfoBarSeverity::Success, g_mainWindowInstance);
+            SetCapture((HWND)item.Hwnd());
+            if (GetLastError() == 0) {
+                CreateInfoBarAndDisplay(L"成功", L"成功开启捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口 ZBID 为 UIAccess, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法开启捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_4.Items().Append(item2_4_sub1);
+        MenuFlyoutItem item2_4_sub2;
+        item2_4_sub2.Text(L"释放捕获");
+        item2_4_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (ReleaseCapture()) {
+                CreateInfoBarAndDisplay(L"成功", L"成功释放捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法释放捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item2_4.Items().Append(item2_4_sub2);
 
 		menuFlyout.Items().Append(item1_1);
 		menuFlyout.Items().Append(separator1);
         menuFlyout.Items().Append(item2_1);
         menuFlyout.Items().Append(item2_2);
         menuFlyout.Items().Append(item2_3);
-        //menuFlyout.Items().Append(item2_4);
+        menuFlyout.Items().Append(item2_4);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
@@ -300,11 +312,23 @@ namespace winrt::StarlightGUI::implementation
             GetClassNameW(hwnd, &classNameTmp[0], MAX_PATH);
             className = classNameTmp;
 
+            DWORD windowStyle = 0;
+            DWORD windowStyleEx = 0;
+
+            WINDOWINFO pwndInfo = { 0 };
+            pwndInfo.cbSize = sizeof(WINDOWINFO);
+            if (GetWindowInfo(hwnd, &pwndInfo)) {
+                windowStyle = pwndInfo.dwStyle;
+                windowStyleEx = pwndInfo.dwExStyle;
+            }
+
             winrt::StarlightGUI::WindowInfo windowInfo = winrt::make<winrt::StarlightGUI::implementation::WindowInfo>();
             windowInfo.Name(windowTitle);
             windowInfo.Process(processName);
             windowInfo.ClassName(className);
             windowInfo.FromPID(processId);
+            windowInfo.WindowStyle(windowStyle);
+            windowInfo.WindowStyleEx(windowStyleEx);
             windowInfo.Hwnd((uint64_t)hwnd);
             windowInfo.Description(ExtractFileName(processName) + L" / " + className);
             windowsRef.push_back(windowInfo);
@@ -373,6 +397,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
+    // 暂时实现不了，不管他
     bool WindowPage::SetWindowZBID(HWND hwnd, ZBID zbid) {
         HMODULE hDll = LoadLibraryW(axBandPath.c_str());
         if (hDll)

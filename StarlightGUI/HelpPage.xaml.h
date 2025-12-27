@@ -17,7 +17,12 @@ namespace winrt::StarlightGUI::implementation
         void SponsorButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void WinUIButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
+        winrt::Windows::Foundation::IAsyncAction GetSponsorListFromCloud();
+        void SetSponsorList();
+
         winrt::fire_and_forget LaunchURI(hstring uri);
+
+        inline static hstring sponsorList = L"";
     };
 }
 

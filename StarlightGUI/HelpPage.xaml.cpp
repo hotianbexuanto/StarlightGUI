@@ -4,17 +4,29 @@
 #include "HelpPage.g.cpp"
 #endif
 
+#include <winrt/Windows.Web.Http.h>
+#include <winrt/Windows.Web.Http.Headers.h>
+#include <winrt/Windows.Data.Json.h>
 #include "MainWindow.xaml.h"
 
 using namespace winrt;
 using namespace Windows::System;
+using namespace Windows::Web::Http;
 using namespace Windows::Foundation;
+using namespace Windows::Data::Json;
 using namespace Microsoft::UI::Xaml;
 
 namespace winrt::StarlightGUI::implementation
 {
     HelpPage::HelpPage() {
         InitializeComponent();
+
+        this->Loaded([this](auto&&, auto&&) -> winrt::Windows::Foundation::IAsyncAction {
+            if (sponsorList.empty()) {
+                co_await GetSponsorListFromCloud();
+            }
+            SetSponsorList();
+            });
 
         LOG_INFO(L"HelpPage", L"HelpPage initialized.");
     }
@@ -74,6 +86,41 @@ namespace winrt::StarlightGUI::implementation
         }
         else {
             CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, g_mainWindowInstance);
+        }
+    }
+
+    winrt::Windows::Foundation::IAsyncAction HelpPage::GetSponsorListFromCloud() {
+        co_await winrt::resume_background();
+
+        try {
+            HttpClient client;
+            Uri uri(L"https://pastebin.com/raw/6MzyhUXg");
+
+            // 防止获取旧数据
+            client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");
+            client.DefaultRequestHeaders().Append(L"If-None-Match", L"");
+
+            LOG_INFO(L"Updater", L"Getting sponsor list...");
+            hstring result = co_await client.GetStringAsync(uri);
+
+            auto json = Windows::Data::Json::JsonObject::Parse(result);
+            hstring list = json.GetNamedString(L"sponsors");
+
+            sponsorList = list;
+        }
+        catch (...) {
+            LOG_ERROR(L"Updater", L"Error while getting sponsor list!");
+            sponsorList = L"获取失败... :(";
+        }
+        co_return;
+    }
+
+    void HelpPage::SetSponsorList() {
+        if (sponsorList.empty()) {
+            SponsorListText().Text(L"获取失败... :(");
+        }
+        else {
+            SponsorListText().Text(sponsorList);
         }
     }
 }

@@ -70,6 +70,26 @@ namespace winrt::StarlightGUI::implementation
         m_fromPID = value;
     }
 
+    int32_t WindowInfo::WindowStyle()
+    {
+        return m_windowStyle;
+    }
+
+    void WindowInfo::WindowStyle(int32_t value)
+    {
+        m_windowStyle = value;
+    }
+
+    int32_t WindowInfo::WindowStyleEx()
+    {
+        return m_windowStyleEx;
+    }
+
+    void WindowInfo::WindowStyleEx(int32_t value)
+    {
+        m_windowStyleEx = value;
+    }
+
     ImageSource WindowInfo::Icon()
     {
         return m_icon;

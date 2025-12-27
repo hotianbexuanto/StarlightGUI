@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pch.h"
+#include <pdh.h>
 
 namespace winrt::StarlightGUI::implementation {
     std::wstring GenerateRandomString(size_t length);
@@ -21,9 +22,13 @@ namespace winrt::StarlightGUI::implementation {
 
     std::wstring ULongToHexString(ULONG64 value, int w, bool uppercase, bool prefix);
 
-    std::wstring FormatMemorySize(uint64_t bytes);
+    std::wstring FormatMemorySize(double bytes);
 
     std::wstring ExtractFunctionName(const std::string& old);
 
     std::wstring ExtractFileName(const std::wstring& path);
+
+    double GetValueFromCounter(PDH_HCOUNTER& counter);
+
+    double GetValueFromCounterArray(PDH_HCOUNTER& counter);
 }

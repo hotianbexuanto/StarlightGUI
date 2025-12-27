@@ -105,19 +105,19 @@ namespace winrt::StarlightGUI::implementation {
         return ss.str();
     }
 
-    std::wstring FormatMemorySize(uint64_t bytes)
+    std::wstring FormatMemorySize(double bytes)
     {
         std::wstringstream ss;
         ss << std::fixed << std::setprecision(1);
 
         if (bytes >= GB) {
-            ss << (static_cast<double>(bytes) / GB) << " GB";
+            ss << bytes / GB << " GB";
         }
         else if (bytes >= MB) {
-            ss << (static_cast<double>(bytes) / MB) << " MB";
+            ss << bytes/ MB << " MB";
         }
         else if (bytes >= KB) {
-            ss << (static_cast<double>(bytes) / KB) << " KB";
+            ss << bytes / KB << " KB";
         }
         else {
             ss << bytes << " B";
@@ -155,5 +155,39 @@ namespace winrt::StarlightGUI::implementation {
         catch (const fs::filesystem_error& e) {
 			return L"(δ֪)";
         }
+    }
+
+    double GetValueFromCounter(PDH_HCOUNTER& counter) {
+        PDH_FMT_COUNTERVALUE value;
+
+        if (PdhGetFormattedCounterValue(counter, PDH_FMT_DOUBLE, nullptr, &value) == ERROR_SUCCESS) {
+            return value.doubleValue;
+        }
+
+        return 0.0;
+    }
+
+    double GetValueFromCounterArray(PDH_HCOUNTER& counter) {
+        double result = 0.0;
+        DWORD bufferSize = 0;
+        DWORD itemCount = 0;
+        PDH_STATUS status = PdhGetFormattedCounterArrayW(counter, PDH_FMT_DOUBLE, &bufferSize, &itemCount, NULL);
+
+        std::vector<BYTE> buffer(bufferSize);
+        PPDH_FMT_COUNTERVALUE_ITEM_W items =
+            reinterpret_cast<PPDH_FMT_COUNTERVALUE_ITEM_W>(buffer.data());
+
+        status = PdhGetFormattedCounterArrayW(counter, PDH_FMT_DOUBLE, &bufferSize, &itemCount, items);
+
+        if (status != ERROR_SUCCESS) {
+            return 0.0;
+        }
+
+        for (DWORD i = 0; i < itemCount; i++) {
+            double value = items[i].FmtValue.doubleValue;
+            result += value;
+        }
+
+        return result;
     }
 }

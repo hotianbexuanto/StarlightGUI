@@ -43,9 +43,6 @@ namespace winrt::StarlightGUI::implementation
 			LOG_INFO(L"", L"Opted to not show announcements again today.");
             SaveConfig("last_announcement_date", GetDateAsInt());
         }
-        else {
-			Channel(ChannelComboBox().SelectedIndex());
-        }
 
         deferral.Complete();
     }

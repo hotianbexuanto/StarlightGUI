@@ -199,6 +199,8 @@ namespace winrt::StarlightGUI::implementation
     {
         std::string background_image = ReadConfig("background_image", "");
 
+        if (background_image.empty()) co_return;
+
         HANDLE hFile = CreateFileA(background_image.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
         if (hFile != INVALID_HANDLE_VALUE) {
@@ -234,6 +236,7 @@ namespace winrt::StarlightGUI::implementation
             }
         }
         else {
+            SaveConfig("background_image", ""); // 保存一次空的，后面不再检查
             SolidColorBrush brush;
             brush.Color(Colors::Transparent());
 
@@ -321,19 +324,7 @@ namespace winrt::StarlightGUI::implementation
                 auto result = co_await dialog.ShowAsync();
 
                 if (result == ContentDialogResult::Primary) {
-                    hstring channel = L"";
-                    switch (dialog.Channel()) {
-                    case 0:
-                        channel = json.GetNamedString(L"download_link");
-                        break;
-                    case 1:
-                        channel = json.GetNamedString(L"download_link2");
-                        break;
-                    default:
-                        channel = json.GetNamedString(L"download_link");
-                        break;
-                    }
-                    Uri target(channel);
+                    Uri target(json.GetNamedString(L"download_link"));
                     auto result = co_await Launcher::LaunchUriAsync(target);
 
                     if (result) {
@@ -390,7 +381,8 @@ namespace winrt::StarlightGUI::implementation
                     LOG_INFO(L"DriverUtils", L"AxBand.dll path [%s].", axBandPath.c_str());
                 }
 
-                LOG_SUCCESS(L"DriverUtils", L"Loaded successfully.", kernelPath.c_str());
+                LOG_INFO(L"DriverUtils", L"Loaded successfully.", kernelPath.c_str());
+
                 co_await wil::resume_foreground(DispatcherQueue());
                 CreateInfoBarAndDisplay(L"成功", L"模块加载成功！", InfoBarSeverity::Success, g_mainWindowInstance);
             }

@@ -20,6 +20,8 @@
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <random>
 #include <chrono>
+#include <iomanip>
+#include <iphlpapi.h>
 #include "MainWindow.xaml.h"
 
 using namespace winrt;
@@ -49,6 +51,10 @@ namespace winrt::StarlightGUI::implementation
             hitokoto = L"无法加载内容... :(";
         }
         SetupClock();
+
+        this->Unloaded([this](auto&&, auto&&) {
+            clockTimer.Stop();
+            });
 
         LOG_INFO(L"HomePage", L"HomePage initialized.");
     }
@@ -145,14 +151,14 @@ namespace winrt::StarlightGUI::implementation
         if (hitokoto.empty()) {
             co_await winrt::resume_background();
 
-            // Async request to get hitokoto text
+            // 异步获取随机词条
             HttpClient client;
             Uri uri(L"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=i&c=k");
 
             LOG_INFO(__WFUNCTION__, L"Sending hitokoto request...");
             hstring result = co_await client.GetStringAsync(uri);
 
-            // Read json object
+            // 读取 json 内容
             auto json = Windows::Data::Json::JsonObject::Parse(result);
             hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
 
@@ -169,18 +175,291 @@ namespace winrt::StarlightGUI::implementation
 
     void HomePage::SetupClock()
     {
-        // Tick every sec
-        m_clockTimer = DispatcherQueue().CreateTimer();
-        m_clockTimer.Interval(std::chrono::seconds(1));
-        m_clockTimer.Tick({ this, &HomePage::OnClockTick });
-        m_clockTimer.Start();
+        // 每秒更新一次
+        clockTimer.Interval(std::chrono::seconds(1));
+        clockTimer.Tick({ this, &HomePage::OnClockTick });
+        clockTimer.Start();
 
         UpdateClock();
+        UpdateGauges();
     }
 
-    void HomePage::OnClockTick(IInspectable const& sender, IInspectable const&)
+    void HomePage::OnClockTick(IInspectable const&, IInspectable const&)
     {
         UpdateClock();
+        UpdateGauges();
+    }
+
+    /*
+    * ! 至尊答辩代码 !
+    * @Author Stars
+    */
+    winrt::fire_and_forget HomePage::UpdateGauges() {
+        co_await winrt::resume_background();
+
+        // 初始化性能计数器
+        if (!initialized) {
+            PdhOpenQueryW(NULL, 0, &query);
+            PdhAddCounterW(query, L"\\Processor(_Total)\\% Processor Time", 0, &counter_cpu_time);
+            PdhAddCounterW(query, L"\\Processor Information(_Total)\\Actual Frequency", 0, &counter_cpu_freq);
+            PdhAddCounterW(query, L"\\Processor Information(_Total)\\Actual Frequency", 0, &counter_cpu_freq);
+            PdhAddCounterW(query, L"\\System\\Processes", 0, &counter_cpu_process);
+            PdhAddCounterW(query, L"\\System\\Threads", 0, &counter_cpu_thread);
+            PdhAddCounterW(query, L"\\System\\System Calls/sec", 0, &counter_cpu_syscall);
+            PdhAddCounterW(query, L"\\Memory\\Cache Bytes", 0, &counter_mem_cached);
+            PdhAddCounterW(query, L"\\Memory\\Committed Bytes", 0, &counter_mem_committed);
+            PdhAddCounterW(query, L"\\Memory\\Page Reads/sec", 0, &counter_mem_read);
+            PdhAddCounterW(query, L"\\Memory\\Page Writes/sec", 0, &counter_mem_write);
+            PdhAddCounterW(query, L"\\Memory\\Pages Input/sec", 0, &counter_mem_input);
+            PdhAddCounterW(query, L"\\Memory\\Pages Output/sec", 0, &counter_mem_output);
+            PdhAddCounterW(query, L"\\LogicalDisk(_Total)\\% Disk Time", 0, &counter_disk_time);
+            PdhAddCounterW(query, L"\\LogicalDisk(_Total)\\Disk Transfers/sec", 0, &counter_disk_trans);
+            PdhAddCounterW(query, L"\\LogicalDisk(_Total)\\Disk Read Bytes/sec", 0, &counter_disk_read);
+            PdhAddCounterW(query, L"\\LogicalDisk(_Total)\\Disk Write Bytes/sec", 0, &counter_disk_write);
+            PdhAddCounterW(query, L"\\LogicalDisk(_Total)\\Split IO/Sec", 0, &counter_disk_io);
+            PdhAddCounterW(query, L"\\GPU Engine(*)\\Utilization Percentage", 0, &counter_gpu_time);
+            PdhAddCounterW(query, L"\\Network Interface(*)\\Bytes Received/sec", 0, &counter_net_receive);
+            PdhAddCounterW(query, L"\\Network Interface(*)\\Bytes Sent/sec", 0, &counter_net_send);
+            PdhAddCounterW(query, L"\\Network Interface(*)\\Packets Received/sec", 0, &counter_net_packet_receive);
+            PdhAddCounterW(query, L"\\Network Interface(*)\\Packets Sent/sec", 0, &counter_net_packet_send);
+
+            LOG_INFO(L"MonitorInstance", L"Initialized PDH counters.");
+
+            // 获取虚拟化
+            int cpuInfo[4] = { 0 };
+            __cpuid(cpuInfo, 1);
+            bool intelVT = (cpuInfo[2] & (1 << 5)) != 0; // VMX
+            __cpuid(cpuInfo, 0x80000001);
+            bool amdV = (cpuInfo[2] & (1 << 2)) != 0; // SVM
+            __cpuid(cpuInfo, 0x80000002);
+            virtualization = intelVT || amdV;
+
+            // 获取 CPU 型号
+            char cpu_name[49] = { 0 };
+            memcpy(cpu_name, cpuInfo, sizeof(cpuInfo));
+            __cpuid(cpuInfo, 0x80000003);
+            memcpy(cpu_name + 16, cpuInfo, sizeof(cpuInfo));
+            __cpuid(cpuInfo, 0x80000004);
+            memcpy(cpu_name + 32, cpuInfo, sizeof(cpuInfo));
+            cpu_manufacture = to_hstring(cpu_name);
+
+            // 获取 L1/L2/L3 缓存
+            DWORD bufferSize = 0;
+            GetLogicalProcessorInformation(NULL, &bufferSize);
+
+            std::vector<BYTE> buffer(bufferSize);
+            PSYSTEM_LOGICAL_PROCESSOR_INFORMATION slpi = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION>(buffer.data());
+            GetLogicalProcessorInformation(slpi, &bufferSize);
+            for (size_t i = 0; i < bufferSize / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION); ++i) {
+                if (slpi[i].Relationship == RelationCache) {
+                    if (slpi[i].Cache.Level == 1) cache_l1 += slpi[i].Cache.Size / 1024.0;
+                    else if (slpi[i].Cache.Level == 2) cache_l2 += slpi[i].Cache.Size / (1024.0 * 1024.0);
+                    else if (slpi[i].Cache.Level == 3) cache_l3 += slpi[i].Cache.Size / (1024.0 * 1024.0);
+                }
+            }
+
+            LOG_INFO(L"MonitorInstance", L"Initialized CPU information.");
+
+            // 获取硬盘型号
+            HANDLE hDevice = CreateFileW(L"\\\\.\\PhysicalDrive0", 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+
+            if (hDevice != INVALID_HANDLE_VALUE) {
+                STORAGE_PROPERTY_QUERY spq{};
+                spq.PropertyId = StorageDeviceProperty;
+                spq.QueryType = PropertyStandardQuery;
+
+                buffer = std::vector<BYTE>(1024);
+                if (DeviceIoControl(hDevice, IOCTL_STORAGE_QUERY_PROPERTY, &spq, sizeof(spq), buffer.data(), buffer.size(), NULL, NULL))
+                {
+                    PSTORAGE_DEVICE_DESCRIPTOR sdd = reinterpret_cast<PSTORAGE_DEVICE_DESCRIPTOR>(buffer.data());
+                    if (sdd->ProductIdOffset != 0) {
+                        LPCSTR productId = reinterpret_cast<LPCSTR>(buffer.data() + sdd->ProductIdOffset);
+                        disk_manufacture = to_hstring(productId);
+                    }
+                } else LOG_ERROR(L"MonitorInstance", L"Failed to complete I/O with PhysicalDrive0.");
+            } else LOG_ERROR(L"MonitorInstance", L"Failed to open PhysicalDrive0.");
+
+            // 获取 GPU 型号
+            if (nvmlInit_v2() == NVML_SUCCESS) {
+                UINT deviceCount = 0;
+                nvmlDeviceGetCount_v2(&deviceCount);
+                if (deviceCount > 0) {
+                    isNvidia = true;
+                    nvmlDeviceGetHandleByIndex_v2(0, &device);
+
+                    char name[NVML_DEVICE_NAME_BUFFER_SIZE];
+                    nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
+                    gpu_manufacture = to_hstring(name);
+
+                    LOG_INFO(L"MonitorInstance", L"Initialized NVML.");
+                }
+                else {
+                    LOG_ERROR(L"MonitorInstance", L"NVML return device count as 0!");
+                    nvmlShutdown();
+                }
+            }
+            
+            // 非 NVIDIA/不支持的设备，使用备用方案
+            if (!isNvidia) {
+                LOG_ERROR(L"MonitorInstance", L"Failed to initialize NVML. Probably unsupported firmware. Try fallback solution.");
+                isNvidia = false;
+                DISPLAY_DEVICEW dd{};
+                dd.cb = sizeof(dd);
+                for (DWORD i = 0; EnumDisplayDevicesW(nullptr, i, &dd, 0); i++) {
+                    if (dd.StateFlags & DISPLAY_DEVICE_ACTIVE) {
+                        gpu_manufacture = dd.DeviceString;
+                        break;
+                    }
+                }
+            }
+
+            // 获取网络适配器型号
+            bufferSize = 0;
+            if (GetAdaptersInfo(NULL, &bufferSize) == ERROR_BUFFER_OVERFLOW) {
+                buffer = std::vector<BYTE>(bufferSize);
+                PIP_ADAPTER_INFO iai = reinterpret_cast<PIP_ADAPTER_INFO>(buffer.data());
+                if (GetAdaptersInfo(iai, &bufferSize) == ERROR_SUCCESS) {
+                    int index = 0;
+                    while (iai) {
+                        adpt_name_map[index] = to_hstring(iai->Description);
+                        iai = iai->Next;
+                        index++;
+                    }
+                    netadpt_manufacture = adpt_name_map[0];
+                    adptIndex++;
+                }
+                else LOG_ERROR(L"MonitorInstance", L"Failed to get adapter info.");
+            }
+
+            initialized = true;
+        }
+
+        PdhCollectQueryData(query);
+
+        // CPU
+        ULONG64 seconds = GetTickCount64() / 1000;
+        ULONG64 days = seconds / (24 * 3600);
+        seconds %= (24 * 3600);
+        ULONG64 hours = seconds / 3600;
+        seconds %= 3600;
+        ULONG64 minutes = seconds / 60;
+        seconds %= 60;
+
+        wchar_t timebuffer[256];
+        swprintf_s(timebuffer, L"%llu:%02llu:%02llu:%02llu", days, hours, minutes, seconds);
+
+        // 内存
+        MEMORYSTATUSEX memInfo{};
+        memInfo.dwLength = sizeof(memInfo);
+        if (!GlobalMemoryStatusEx(&memInfo)) LOG_ERROR(L"MonitorInstance", L"Failed to get memory status.");
+
+        // GPU
+        nvmlUtilization_t gpu_utilization{};
+        nvmlMemory_t gpu_memory{};
+        UINT gpu_temp, gpu_clock_graphics, gpu_clock_mem;
+        if (isNvidia) {
+            nvmlDeviceGetUtilizationRates(device, &gpu_utilization);
+            nvmlDeviceGetMemoryInfo(device, &gpu_memory);
+            nvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &gpu_temp);
+            nvmlDeviceGetClockInfo(device, NVML_CLOCK_GRAPHICS, &gpu_clock_graphics);
+            nvmlDeviceGetClockInfo(device, NVML_CLOCK_MEM, &gpu_clock_mem);
+        }
+
+        co_await wil::resume_foreground(DispatcherQueue());
+
+        std::wstringstream ss;
+        CpuGauge().Value(GetValueFromCounter(counter_cpu_time));
+        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_time) << "%";
+        CpuPercent().Text(ss.str());
+        CpuManufacture().Text(to_hstring(cpu_manufacture));
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(2) << GetValueFromCounter(counter_cpu_freq) / 1024.0 << " GHz";
+        CpuFrequency().Text(ss.str());
+        CpuProcess().Text(to_hstring(GetValueFromCounter(counter_cpu_process)));
+        CpuThread().Text(to_hstring(GetValueFromCounter(counter_cpu_thread)));
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_syscall) << "/s";
+        CpuSyscall().Text(ss.str());
+        CpuRunTime().Text(timebuffer);
+        CpuCore().Text(to_hstring(std::thread::hardware_concurrency()));
+        CpuVirtualization().Text(virtualization ? L"支持" : L"不支持");
+        CpuCacheL1().Text(to_hstring(cache_l1) + L" KB");
+        CpuCacheL2().Text(to_hstring(cache_l2) + L" MB");
+        CpuCacheL3().Text(to_hstring(cache_l3) + L" MB");
+
+        MemGauge().Value(memInfo.dwMemoryLoad);
+        MemPercent().Text(to_hstring((int)memInfo.dwMemoryLoad) + L"%");
+        MemSize().Text(FormatMemorySize(memInfo.ullTotalPhys));
+        MemUsing().Text(FormatMemorySize(memInfo.ullTotalPhys - memInfo.ullAvailPhys));
+        MemUsable().Text(FormatMemorySize(memInfo.ullAvailPhys));
+        MemCached().Text(FormatMemorySize(GetValueFromCounter(counter_mem_cached)));
+        MemCommitted().Text(FormatMemorySize(GetValueFromCounter(counter_mem_committed)));
+        MemPageRead().Text(FormatMemorySize(GetValueFromCounter(counter_mem_read)) + L"/s");
+        MemPageWrite().Text(FormatMemorySize(GetValueFromCounter(counter_mem_write)) + L"/s");
+        MemPageInput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_input)) + L"/s");
+        MemPageOutput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_output)) + L"/s");
+
+        DiskGauge().Value(GetValueFromCounter(counter_disk_time));
+        DiskManufacture().Text(disk_manufacture);
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_time) << "%";
+        DiskPercent().Text(ss.str());
+        DiskRead().Text(FormatMemorySize(GetValueFromCounter(counter_disk_read)) + L"/s");
+        DiskWrite().Text(FormatMemorySize(GetValueFromCounter(counter_disk_write)) + L"/s");
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_trans) << "/s";
+        DiskTrans().Text(ss.str());
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_io) << "/s";
+        DiskIO().Text(ss.str());
+
+        if (isNvidia) {
+            if (ReadConfig("pdh_first", true)) {
+                GpuGauge().Value(GetValueFromCounterArray(counter_gpu_time));
+                ss = std::wstringstream{};
+                ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_gpu_time) << "%";
+                GpuPercent().Text(ss.str());
+            }
+            else {
+                GpuGauge().Value(gpu_utilization.gpu);
+                GpuPercent().Text(to_hstring(gpu_utilization.gpu) + L"%");
+            }
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(1) << FormatMemorySize(gpu_memory.used) << "/" << FormatMemorySize(gpu_memory.total);
+            GpuMem().Text(ss.str());
+            GpuTemp().Text(to_hstring(gpu_temp) + L" ℃");
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(2) << gpu_clock_graphics / 1024.0 << " GHz";
+            GpuClockGraphics().Text(ss.str());
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(2) << gpu_clock_mem / 1024.0 << " GHz";
+            GpuClockMem().Text(ss.str());
+        }
+        else {
+            GpuGauge().Value(GetValueFromCounterArray(counter_gpu_time));
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_gpu_time) << "%";
+            GpuPercent().Text(ss.str());
+            GpuMem().Text(L"NaN");
+            GpuTemp().Text(L"NaN");
+            GpuClockGraphics().Text(L"NaN");
+            GpuClockMem().Text(L"NaN");
+        }
+        GpuManufacture().Text(gpu_manufacture);
+        
+        if (isNetSend) {
+            NetGauge().Value(GetValueFromCounterArray(counter_net_send) / (1024 * 1024));
+            NetGauge().ValueStringFormat(L"↑ {0} MB/s");
+        }
+        else {
+            NetGauge().Value(GetValueFromCounterArray(counter_net_receive) / (1024 * 1024));
+            NetGauge().ValueStringFormat(L"↓ {0} MB/s");
+        }
+        NetManufacture().Text(netadpt_manufacture);
+        NetReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_receive)) + L"/s");
+        NetSend().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_send)) + L"/s");
+        NetPacketReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_packet_receive)) + L"/s");
+        NetPacketSend().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_packet_send)) + L"/s");
     }
 
     void HomePage::UpdateClock()
@@ -210,4 +489,24 @@ namespace winrt::StarlightGUI::implementation
         Second1().Text(secondDigits.first);
         Second2().Text(secondDigits.second);
     }
+
+    void HomePage::NextAdapterName_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        if (adptIndex >= adpt_name_map.size()) {
+            adptIndex = 0;
+            netadpt_manufacture = to_hstring(adpt_name_map[0]);
+        }
+        else {
+            netadpt_manufacture = to_hstring(adpt_name_map[adptIndex]);
+        }
+        NetManufacture().Text(netadpt_manufacture);
+        adptIndex++;
+    }
+
+    void HomePage::ChangeMode_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        isNetSend = !isNetSend;
+        UpdateGauges();
+    }
+
 }

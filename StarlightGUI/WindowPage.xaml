@@ -70,10 +70,14 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="90"/>
                     </Grid.ColumnDefinitions>
                     <Button x:Name="NameHeaderButton" Grid.Column="0" Height="32" CornerRadius="0" Content="窗口" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Name"/>
-                    <Button x:Name="HwndHeaderButton" Grid.Column="1" Height="32" CornerRadius="0" Content="HWND" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Hwnd" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button x:Name="WindowStyleHeaderButton" Grid.Column="1" Height="32" CornerRadius="0" Content="样式" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="WindowStyle" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button x:Name="WindowStyleExHeaderButton" Grid.Column="2" Height="32" CornerRadius="0" Content="拓展样式" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="WindowStyleEx" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+                    <Button x:Name="HwndHeaderButton" Grid.Column="3" Height="32" CornerRadius="0" Content="HWND" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Hwnd" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
                 </Grid>
             </Border>
 
@@ -96,7 +100,9 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="90"/>
                                     </Grid.ColumnDefinitions>
 
                                     <Image Grid.Column="0" 
@@ -112,7 +118,7 @@
                                                    FontSize="14" 
                                                    Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"/>
                                         <TextBlock Text="{Binding Description}" 
-                                                   FontSize="12" 
+                                                   FontSize="11" 
                                                    Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
                                     </StackPanel>
 
@@ -123,8 +129,40 @@
                                             BorderThickness="0,0,1,0" 
                                             Margin="12,0,0,0"/>
 
-                                    <!-- HWND -->
+                                    <!-- 样式 -->
                                     <TextBlock Grid.Column="2" 
+                                               Text="{Binding WindowStyle}" 
+                                               FontSize="12" 
+                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="24,0,0,0"/>
+
+                                    <Border Grid.Column="3"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" 
+                                            Margin="12,0,0,0"/>
+
+                                    <!-- 拓展样式 -->
+                                    <TextBlock Grid.Column="3" 
+                                               Text="{Binding WindowStyleEx}" 
+                                               FontSize="12" 
+                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="24,0,0,0"/>
+
+                                    <Border Grid.Column="4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" 
+                                            Margin="12,0,0,0"/>
+
+                                    <!-- HWND -->
+                                    <TextBlock Grid.Column="4" 
                                                Text="{Binding Hwnd}" 
                                                FontSize="12" 
                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"

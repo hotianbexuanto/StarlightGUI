@@ -26,6 +26,12 @@ namespace winrt::StarlightGUI::implementation
 		int32_t FromPID();
 		void FromPID(int32_t value);
 
+        int32_t WindowStyle();
+        void WindowStyle(int32_t value);
+
+        int32_t WindowStyleEx();
+        void WindowStyleEx(int32_t value);
+
         winrt::Microsoft::UI::Xaml::Media::ImageSource Icon();
         void Icon(winrt::Microsoft::UI::Xaml::Media::ImageSource const& value);
 
@@ -36,6 +42,8 @@ namespace winrt::StarlightGUI::implementation
         hstring m_className{ L"" };
         uint64_t m_hwnd{ 0 };
 		int32_t m_fromPID{ 0 };
+        int32_t m_windowStyle{ 0 };
+        int32_t m_windowStyleEx{ 0 };
         winrt::Microsoft::UI::Xaml::Media::ImageSource m_icon{ nullptr };
     };
 }

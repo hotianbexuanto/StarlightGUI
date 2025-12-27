@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Utils.h"
+#include <winrt/XamlToolkit.WinUI.Controls.h>
 
 namespace winrt::StarlightGUI::implementation {
     FontIcon CreateFontIcon(hstring glyph) {

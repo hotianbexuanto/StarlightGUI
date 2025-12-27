@@ -13,6 +13,8 @@ namespace StarlightGUI
 		String ClassName{ get; set; };
         UInt64 Hwnd{ get; set; };
 		Int32 FromPID{ get; set; };
+        Int32 WindowStyle{ get; set; };
+        Int32 WindowStyleEx{ get; set; };
         Microsoft.UI.Xaml.Media.ImageSource Icon{ get; set; };
     }
 }
