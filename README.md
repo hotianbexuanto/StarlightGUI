@@ -3,7 +3,6 @@
 <p>
   <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/OSI-Certified-brightgreen.svg" alt="OSI Certified">
-  <img src="https://img.shields.io/badge/Platform-Windows%2011-0078d7.svg" alt="Platform">
   <img src="https://img.shields.io/badge/Language-C++/WinRT-0078d7.svg" alt="Language">
 </p>
 
@@ -12,25 +11,27 @@
 
 ## 简介
 
-Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者的兴趣作品，致力于打造一个功能强大、界面美观、易于使用的开源 Windows 11 工具箱。项目采用原生的 WinUI3 设计，完美贴合 Windows 11 系统的操作习惯和视觉风格。拥有很多实用功能和自定义设置，改善日常电脑的使用体验。  
+Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者的兴趣作品，致力于打造一个功能强大、界面美观、易于使用的开源 Windows 11 内核级工具箱。项目采用原生的 WinUI3 设计，完美贴合 Windows 11 系统的操作习惯和视觉风格。拥有很多实用功能和自定义设置，增强电脑的使用体验。  
 **注意：本软件的大部分功能需要在管理员权限下才能正常运行！**
+**更新：软件现已兼容 Windows 10！**
 
-**开发者**: Stars(主开发), KALI_MC(驱动开发)  
+**开发者**: Stars  
 **许可证**: Apache 2.0 License | OSI Certified  
 **Copyright © 2025 Starlight. Some Rights Reserved.**
 
+*我们活跃接受社区建议，欢迎您向我们提出 Issues 或 Pull requests！开发人员会第一时间查看的！如果您想要加入开发组，可以联系我们！*
 ![Alt](https://repobeats.axiom.co/api/embed/33edd92df6ac6348e3eb2c6c1ba38046ca12e037.svg "Repobeats analytics image")
 
 ## 安装
 
-Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在微软商店里安装的软件类似。由于暂未申请签名，你需要手动导入证书。  
-在 Release 里下载最新版本的两个文件，你下载的文件应该是这样：
+Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在微软商店里安装的软件类似，但你需要手动导入证书。  
+在 Release 提示的链接里下载最新版本的两个文件，你下载的文件应该是这样：
 
 - StarlightGUI_x.x.x.x_x64.**cer**
 - StarlightGUI_x.x.x.x_x64.**msix**
 
-当你准备好后，双击后缀名为 `.cer` 的文件，点击安装证书，选择**当前用户**，然后选中将证书放入**受信任的根证书颁发机构**，完成向导。  
-接着，重复以上步骤，但是选择为**本地计算机**安装，完成向导。  
+当你准备好后，双击后缀名为 `.cer` 的文件，点击安装证书，选择**本地计算机**，然后选中将证书放入**受信任的根证书颁发机构**，完成向导。  
+接着，**重复以上步骤**，但是选择为**当前用户**安装，完成向导。  
 最后，双击后缀名为 `.msix` 的文件，完成安装后，你将可以在应用列表里看见本软件了。
 ## 主要功能
 
@@ -38,11 +39,10 @@ Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在�
 - 完全重构的任务管理器
 - 集成大部分系统任务管理器核心功能
 - 驱动级操控进程能力（终止、调节、权限等）
-- 系统资源监控
 - 以高权限启动进程
-- 读取、修改进程内存，注入DLL
+- 读取、修改进程内存，注入 DLL
 
-### 内核模块管理器
+### 模块管理器
 - 查看系统加载的所有模块
 - 轻松加载、卸载驱动
 - 加载无签名驱动
@@ -53,6 +53,10 @@ Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在�
 - 多种用户级、内核级遍历文件方式
 - 强制删除文件
 
+### 窗口管理器
+- 查看系统所有窗口（包括隐藏）
+- 窗口强制显示、隐藏操作
+
 ### 设置菜单
 - 功能模块配置
 - 界面个性化设置
@@ -60,7 +64,7 @@ Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在�
 ## 开发环境设置
 
 ### 环境
-- Windows 11 操作系统
+- Windows 10 / 11 操作系统
 - Visual Studio 2022 （推荐）
 - C++ 17 以上 / WinRT WinUI3 开发环境
 
@@ -96,8 +100,10 @@ Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在�
 
 **重要提示**: 本项目仅供学习和研究目的使用。使用者需对使用本软件所产生的任何后果承担全部责任。
 
+- 本软件没有病毒，由于为高权限操作，杀毒软件报毒是正常现象
 - 本软件涉及系统底层操作，不当使用可能导致系统不稳定
 - 通过本软件加载或创建的内容可能有潜在安全风险
+- 本软件的功能可能会使系统或文件数据意外损坏或丢失
 
 安装并运行本软件，即代表您已**阅读并同意**以下内容：
 
@@ -115,7 +121,7 @@ Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在�
 - **Copilot**
 
 ### 项目支持
-- **Kali_MC** - 驱动开发
+- **KALI_MC** - 驱动开发
 - **Wormwaker** - 技术思路启发和参考
 - **MuLin** - 程序测试
 
@@ -137,5 +143,5 @@ Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在�
 ---
 
 <p align="center">
-  <sub>使用 Starlight GUI，体验原生界面的 Windows 11 万能工具箱</sub>
+  <sub>使用 Starlight GUI，体验原生界面的 Windows 万能内核级工具箱</sub>
 </p>
