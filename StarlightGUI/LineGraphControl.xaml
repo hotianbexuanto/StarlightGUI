@@ -18,7 +18,6 @@
         <Style x:Key="GridLineStyle" TargetType="Line">
             <Setter Property="Stroke" Value="#20000000"/>
             <Setter Property="StrokeThickness" Value="1"/>
-            <Setter Property="StrokeDashArray" Value="2,2"/>
         </Style>
 
         <!-- 坐标轴标签 -->
