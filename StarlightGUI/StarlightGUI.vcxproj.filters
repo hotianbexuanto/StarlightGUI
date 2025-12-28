@@ -435,6 +435,9 @@
     <None Include="Assets\AXBand.dll">
       <Filter>Assets</Filter>
     </None>
+    <None Include="nvml.dll">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
