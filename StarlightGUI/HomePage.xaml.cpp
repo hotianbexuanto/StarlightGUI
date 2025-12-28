@@ -38,6 +38,8 @@ using namespace Microsoft::UI::Xaml::Media::Imaging;
 
 namespace winrt::StarlightGUI::implementation
 {
+    static double graphX = 1;
+
     HomePage::HomePage()
     {
         InitializeComponent();
@@ -55,6 +57,11 @@ namespace winrt::StarlightGUI::implementation
         this->Unloaded([this](auto&&, auto&&) {
             clockTimer.Stop();
             });
+
+        TotalLineGraph().AddSeries(L"CPU", Colors::LightSkyBlue());
+        TotalLineGraph().AddSeries(L"内存", Colors::DodgerBlue());
+        TotalLineGraph().AddSeries(L"磁盘", Colors::LimeGreen());
+        TotalLineGraph().AddSeries(L"GPU", Colors::MediumPurple());
 
         LOG_INFO(L"HomePage", L"HomePage initialized.");
     }
@@ -280,22 +287,26 @@ namespace winrt::StarlightGUI::implementation
             } else LOG_ERROR(L"MonitorInstance", L"Failed to open PhysicalDrive0.");
 
             // 获取 GPU 型号
-            if (nvmlInit_v2() == NVML_SUCCESS) {
-                UINT deviceCount = 0;
-                nvmlDeviceGetCount_v2(&deviceCount);
-                if (deviceCount > 0) {
-                    isNvidia = true;
-                    nvmlDeviceGetHandleByIndex_v2(0, &device);
+            HMODULE hNvml = LoadLibraryW(L"nvml.dll");
+            if (hNvml) {
+                FreeLibrary(hNvml);
+                if (nvmlInit_v2() == NVML_SUCCESS) {
+                    UINT deviceCount = 0;
+                    nvmlDeviceGetCount_v2(&deviceCount);
+                    if (deviceCount > 0) {
+                        isNvidia = true;
+                        nvmlDeviceGetHandleByIndex_v2(0, &device);
 
-                    char name[NVML_DEVICE_NAME_BUFFER_SIZE];
-                    nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
-                    gpu_manufacture = to_hstring(name);
+                        char name[NVML_DEVICE_NAME_BUFFER_SIZE];
+                        nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
+                        gpu_manufacture = to_hstring(name);
 
-                    LOG_INFO(L"MonitorInstance", L"Initialized NVML.");
-                }
-                else {
-                    LOG_ERROR(L"MonitorInstance", L"NVML return device count as 0!");
-                    nvmlShutdown();
+                        LOG_INFO(L"MonitorInstance", L"Initialized NVML.");
+                    }
+                    else {
+                        LOG_ERROR(L"MonitorInstance", L"NVML return device count as 0!");
+                        nvmlShutdown();
+                    }
                 }
             }
             
@@ -367,6 +378,8 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
+        graphX += 1;
+
         std::wstringstream ss;
         CpuGauge().Value(GetValueFromCounter(counter_cpu_time));
         ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_time) << "%";
@@ -386,6 +399,7 @@ namespace winrt::StarlightGUI::implementation
         CpuCacheL1().Text(to_hstring(cache_l1) + L" KB");
         CpuCacheL2().Text(to_hstring(cache_l2) + L" MB");
         CpuCacheL3().Text(to_hstring(cache_l3) + L" MB");
+        TotalLineGraph().AddDataPoint(L"CPU", graphX, GetValueFromCounter(counter_cpu_time));
 
         MemGauge().Value(memInfo.dwMemoryLoad);
         MemPercent().Text(to_hstring((int)memInfo.dwMemoryLoad) + L"%");
@@ -398,6 +412,7 @@ namespace winrt::StarlightGUI::implementation
         MemPageWrite().Text(FormatMemorySize(GetValueFromCounter(counter_mem_write)) + L"/s");
         MemPageInput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_input)) + L"/s");
         MemPageOutput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_output)) + L"/s");
+        TotalLineGraph().AddDataPoint(L"内存", graphX, memInfo.dwMemoryLoad);
 
         DiskGauge().Value(GetValueFromCounter(counter_disk_time));
         DiskManufacture().Text(disk_manufacture);
@@ -412,17 +427,15 @@ namespace winrt::StarlightGUI::implementation
         ss = std::wstringstream{};
         ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_io) << "/s";
         DiskIO().Text(ss.str());
+        TotalLineGraph().AddDataPoint(L"磁盘", graphX, GetValueFromCounter(counter_disk_time));
 
+        double gpu_time = 0.0;
         if (isNvidia) {
             if (ReadConfig("pdh_first", true)) {
-                GpuGauge().Value(GetValueFromCounterArray(counter_gpu_time));
-                ss = std::wstringstream{};
-                ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_gpu_time) << "%";
-                GpuPercent().Text(ss.str());
+                gpu_time = GetValueFromCounterArray(counter_gpu_time);
             }
             else {
-                GpuGauge().Value(gpu_utilization.gpu);
-                GpuPercent().Text(to_hstring(gpu_utilization.gpu) + L"%");
+                gpu_time = gpu_utilization.gpu;
             }
             ss = std::wstringstream{};
             ss << std::fixed << std::setprecision(1) << FormatMemorySize(gpu_memory.used) << "/" << FormatMemorySize(gpu_memory.total);
@@ -436,16 +449,18 @@ namespace winrt::StarlightGUI::implementation
             GpuClockMem().Text(ss.str());
         }
         else {
-            GpuGauge().Value(GetValueFromCounterArray(counter_gpu_time));
-            ss = std::wstringstream{};
-            ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_gpu_time) << "%";
-            GpuPercent().Text(ss.str());
+            gpu_time = GetValueFromCounterArray(counter_gpu_time);
             GpuMem().Text(L"NaN");
             GpuTemp().Text(L"NaN");
             GpuClockGraphics().Text(L"NaN");
             GpuClockMem().Text(L"NaN");
         }
+        GpuGauge().Value(gpu_time);
+        ss = std::wstringstream{};
+        ss << std::fixed << std::setprecision(1) << gpu_time << "%";
+        GpuPercent().Text(ss.str());
         GpuManufacture().Text(gpu_manufacture);
+        TotalLineGraph().AddDataPoint(L"GPU", graphX, gpu_time);
         
         if (isNetSend) {
             NetGauge().Value(GetValueFromCounterArray(counter_net_send) / (1024 * 1024));

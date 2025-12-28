@@ -199,7 +199,13 @@ namespace winrt::StarlightGUI::implementation
     {
         std::string background_image = ReadConfig("background_image", "");
 
-        if (background_image.empty()) co_return;
+        if (background_image.empty()) {
+            SolidColorBrush brush;
+            brush.Color(Colors::Transparent());
+
+            MainWindowGrid().Background(brush);
+            co_return;
+        }
 
         HANDLE hFile = CreateFileA(background_image.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 

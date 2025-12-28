@@ -60,6 +60,9 @@
     <Page Include="WindowPage.xaml">
       <Filter>Pages</Filter>
     </Page>
+    <Page Include="LineGraphControl.xaml">
+      <Filter>Utils\Elements</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />

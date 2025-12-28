@@ -137,6 +137,13 @@
                     </Grid>
                 </Button>
                 <TextBlock Text="系统概览" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
+                <Expander HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch" 
+                          Margin="0,0,0,10"
+                          BorderBrush="Transparent"
+                          Header="统计图">
+                    <local:LineGraphControl HorizontalAlignment="Stretch" Height="300" Margin="-20,0,0,0" EnableZoom="False" Title="占用率统计" x:Name="TotalLineGraph"/>
+                </Expander>
                 <!-- CPU -->
                 <Button HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"

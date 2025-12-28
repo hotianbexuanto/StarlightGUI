@@ -189,6 +189,10 @@
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="LineGraphControl.xaml.h">
+      <DependentUpon>LineGraphControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="LoadDriverDialog.xaml.h">
       <DependentUpon>LoadDriverDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -283,6 +287,9 @@
     <Page Include="KernelModulePage.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="LineGraphControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="LoadDriverDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -349,6 +356,10 @@
     </ClCompile>
     <ClCompile Include="KernelModulePage.xaml.cpp">
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="LineGraphControl.xaml.cpp">
+      <DependentUpon>LineGraphControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="LoadDriverDialog.xaml.cpp">
@@ -452,6 +463,10 @@
     </Midl>
     <Midl Include="KernelModulePage.idl">
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="LineGraphControl.idl">
+      <DependentUpon>LineGraphControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="LoadDriverDialog.idl">
