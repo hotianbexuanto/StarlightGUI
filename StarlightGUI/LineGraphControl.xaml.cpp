@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "LineGraphControl.xaml.h"
 #if __has_include("LineGraphControl.g.cpp")
 #include "LineGraphControl.g.cpp"
@@ -103,7 +103,7 @@ namespace winrt::StarlightGUI::implementation
         {
             it->second.Points.push_back(winrt::StarlightGUI::DataPoint{ x,y });
 
-            // ³¬¹ı×î´óÊıÁ¿¾ÍÇå¿Õ
+            // è¶…è¿‡æœ€å¤§æ•°é‡å°±æ¸…ç©º
             if (it->second.Points.size() > MAX_POINTS)
             {
                 it->second.Points.erase(it->second.Points.begin());
@@ -254,7 +254,7 @@ namespace winrt::StarlightGUI::implementation
         if (m_showLegend) DrawLegend();
     }
 
-    // ×ø±ê×ª»»
+    // åæ ‡è½¬æ¢
     double LineGraphControl::DataToScreenX(double dataX) const
     {
         double chartWidth = m_dataCanvas.ActualWidth();
@@ -302,7 +302,7 @@ namespace winrt::StarlightGUI::implementation
         if (chartWidth <= 0 || chartHeight <= 0)
             return;
 
-        // ´¹Ö±Íø¸ñÏß
+        // å‚ç›´ç½‘æ ¼çº¿
         int verticalLines = 10;
         for (int i = 0; i <= verticalLines; i++)
         {
@@ -318,7 +318,7 @@ namespace winrt::StarlightGUI::implementation
             m_gridCanvas.Children().Append(line);
         }
 
-        // Ë®Æ½Íø¸ñÏß
+        // æ°´å¹³ç½‘æ ¼çº¿
         int horizontalLines = 10;
         for (int i = 0; i <= horizontalLines; i++)
         {
@@ -347,7 +347,7 @@ namespace winrt::StarlightGUI::implementation
             double xValue = m_xMin + (m_xMax - m_xMin) * i / xTicks;
             double xPos = (chartWidth / xTicks) * i;
 
-            // ¿Ì¶ÈÏß
+            // åˆ»åº¦çº¿
             auto tick = Line();
             tick.X1(xPos);
             tick.Y1(0);
@@ -357,7 +357,7 @@ namespace winrt::StarlightGUI::implementation
             tick.StrokeThickness(1);
             m_xAxisCanvas.Children().Append(tick);
 
-            // ±êÇ©
+            // æ ‡ç­¾
             auto label = TextBlock();
             std::wstringstream ss;
             ss << std::fixed << std::setprecision(2) << xValue;
@@ -379,7 +379,7 @@ namespace winrt::StarlightGUI::implementation
             double yValue = m_yMin + (m_yMax - m_yMin) * i / yTicks;
             double yPos = chartHeight - (chartHeight / yTicks) * i;
 
-            // ¿Ì¶ÈÏß
+            // åˆ»åº¦çº¿
             auto tick = Line();
             tick.X1(m_yAxisCanvas.ActualWidth() - 5);
             tick.Y1(yPos);
@@ -389,7 +389,7 @@ namespace winrt::StarlightGUI::implementation
             tick.StrokeThickness(1);
             m_yAxisCanvas.Children().Append(tick);
 
-            // ±êÇ©
+            // æ ‡ç­¾
             auto label = TextBlock();
             std::wstringstream ss;
             ss << std::fixed << std::setprecision(2) << yValue;
@@ -423,7 +423,7 @@ namespace winrt::StarlightGUI::implementation
                 colorIndex++;
             }
 
-            // ÕÛÏß
+            // æŠ˜çº¿
             auto polyline = Microsoft::UI::Xaml::Shapes::Polyline();
             PointCollection points;
 
@@ -441,8 +441,8 @@ namespace winrt::StarlightGUI::implementation
 
             m_dataCanvas.Children().Append(polyline);
 
-            // Êı¾İµã±ê¼Ç
-            if (series.Points.size() <= 100) // µãÊı½ÏÉÙÊ±²ÅÏÔÊ¾µã£¬±£Ö¤ĞÔÄÜ
+            // æ•°æ®ç‚¹æ ‡è®°
+            if (series.Points.size() <= 100) // ç‚¹æ•°è¾ƒå°‘æ—¶æ‰æ˜¾ç¤ºç‚¹ï¼Œä¿è¯æ€§èƒ½
             {
                 for (const auto& point : series.Points)
                 {
@@ -548,7 +548,7 @@ namespace winrt::StarlightGUI::implementation
 
         m_tooltipYPanel.Children().Clear();
 
-        // ²éÕÒ×î½üµÄÊı¾İµã
+        // æŸ¥æ‰¾æœ€è¿‘çš„æ•°æ®ç‚¹
         for (const auto& [name, series] : m_series)
         {
             if (!series.Visible || series.Points.empty())
@@ -563,7 +563,7 @@ namespace winrt::StarlightGUI::implementation
             {
                 double xRange = m_xMax - m_xMin;
                 double yRange = m_yMax - m_yMin;
-                double tolerance = xRange * 0.1 + yRange * 0.1; // 10% ·¶Î§
+                double tolerance = xRange * 0.1 + yRange * 0.1; // 10% èŒƒå›´
 
                 if (std::abs(std::sqrt(std::pow(closest->X - dataPoint.X, 2) + std::pow(closest->Y - dataPoint.Y, 2))) <= tolerance)
                 {
@@ -597,7 +597,7 @@ namespace winrt::StarlightGUI::implementation
         {
             m_tooltip.Visibility(Visibility::Visible);
 
-            // ¶¨Î»
+            // å®šä½
             double tooltipWidth = m_tooltip.ActualWidth();
             double tooltipHeight = m_tooltip.ActualHeight();
             double left = position.X + 10;
@@ -666,7 +666,7 @@ namespace winrt::StarlightGUI::implementation
         auto point = e.GetCurrentPoint(*this);
         auto position = point.Position();
 
-        // ¼õÈ¥±ß¾àÆ«ÒÆ
+        // å‡å»è¾¹è·åç§»
         double xOffset = m_yAxisCanvas.ActualWidth() + 8;
         double yOffset = m_titleText.ActualHeight() + 8;
 
@@ -710,7 +710,7 @@ namespace winrt::StarlightGUI::implementation
 
         if (delta != 0)
         {
-            // ¼ÆËãÔÚÍ¼±íÇøÓòÄÚµÄÎ»ÖÃ
+            // è®¡ç®—åœ¨å›¾è¡¨åŒºåŸŸå†…çš„ä½ç½®
             double xOffset = m_yAxisCanvas.ActualWidth() + 8;
             double yOffset = m_titleText.ActualHeight() + 8;
 

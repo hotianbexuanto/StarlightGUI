@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "WindowPage.xaml.h"
 #if __has_include("WindowPage.g.cpp")
 #include "WindowPage.g.cpp"
@@ -86,125 +86,125 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue711"));
-        item1_1.Text(L"¹Ø±Õ´°¿Ú");
+        item1_1.Text(L"å…³é—­çª—å£");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             SendMessageW((HWND)item.Hwnd(), WM_CLOSE, 0, 0);
             if (GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦¹Ø±Õ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå…³é—­çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¹Ø±Õ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å…³é—­çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
-        // ·Ö¸îÏß1
+        // åˆ†å‰²çº¿1
         MenuFlyoutSeparator separator1;
 
-        // Ñ¡Ïî2.1
+        // é€‰é¡¹2.1
         MenuFlyoutSubItem item2_1;
         item2_1.Icon(CreateFontIcon(L"\ue912"));
-        item2_1.Text(L"ÉèÖÃ´°¿Ú×´Ì¬");
+        item2_1.Text(L"è®¾ç½®çª—å£çŠ¶æ€");
         MenuFlyoutItem item2_1_sub1;
         item2_1_sub1.Icon(CreateFontIcon(L"\ueb1d"));
-        item2_1_sub1.Text(L"ÏÔÊ¾");
+        item2_1_sub1.Text(L"æ˜¾ç¤º");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (ShowWindow((HWND)item.Hwnd(), SW_SHOW) || GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÏÔÊ¾´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸæ˜¾ç¤ºçª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÏÔÊ¾´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ˜¾ç¤ºçª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
         item2_1_sub2.Icon(CreateFontIcon(L"\ueb19"));
-        item2_1_sub2.Text(L"Òş²Ø");
+        item2_1_sub2.Text(L"éšè—");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (ShowWindow((HWND)item.Hwnd(), SW_HIDE) || GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Òş²Ø´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸéšè—çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Òş²Ø´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•éšè—çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
         MenuFlyoutItem item2_1_sub3;
         item2_1_sub3.Icon(CreateFontIcon(L"\ue740"));
-        item2_1_sub3.Text(L"×î´ó»¯");
+        item2_1_sub3.Text(L"æœ€å¤§åŒ–");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             SendMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MAXIMIZE, 0);
             if (GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦×î´ó»¯´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸæœ€å¤§åŒ–çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨×î´ó»¯´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æœ€å¤§åŒ–çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub3);
         MenuFlyoutItem item2_1_sub4;
         item2_1_sub4.Icon(CreateFontIcon(L"\ue73f"));
-        item2_1_sub4.Text(L"×îĞ¡»¯");
+        item2_1_sub4.Text(L"æœ€å°åŒ–");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             SendMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MINIMIZE, 0);
             if (GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦×îĞ¡»¯´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸæœ€å°åŒ–çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨×îĞ¡»¯´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æœ€å°åŒ–çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub4);
 
-        // Ñ¡Ïî2.2
+        // é€‰é¡¹2.2
         MenuFlyoutItem item2_2;
         item2_2.Icon(CreateFontIcon(L"\ue754"));
-        item2_2.Text(L"ÔÚÈÎÎñÀ¸ÉÁË¸");
+        item2_2.Text(L"åœ¨ä»»åŠ¡æ é—ªçƒ");
         item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (FlashWindow((HWND)item.Hwnd(), FALSE) || GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÔÚÈÎÎñÀ¸ÉÁË¸´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸåœ¨ä»»åŠ¡æ é—ªçƒçª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÔÚÈÎÎñÀ¸ÉÁË¸´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•åœ¨ä»»åŠ¡æ é—ªçƒçª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
-        // Ñ¡Ïî2.3
+        // é€‰é¡¹2.3
         MenuFlyoutItem item2_3;
         item2_3.Icon(CreateFontIcon(L"\ue75c"));
-        item2_3.Text(L"ÖØ»æ´°¿Ú");
+        item2_3.Text(L"é‡ç»˜çª—å£");
         item2_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (UpdateWindow((HWND)item.Hwnd()) || GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÖØ»æ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸé‡ç»˜çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÖØ»æ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•é‡ç»˜çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
-        // Ñ¡Ïî2.4
+        // é€‰é¡¹2.4
         MenuFlyoutSubItem item2_4;
         item2_4.Icon(CreateFontIcon(L"\ue912"));
-        item2_4.Text(L"ÉèÖÃ²¶»ñ");
+        item2_4.Text(L"è®¾ç½®æ•è·");
         MenuFlyoutItem item2_4_sub1;
-        item2_4_sub1.Text(L"¿ªÆô²¶»ñ");
+        item2_4_sub1.Text(L"å¼€å¯æ•è·");
         item2_4_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             SetCapture((HWND)item.Hwnd());
             if (GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦¿ªÆô²¶»ñ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå¼€å¯æ•è·çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¿ªÆô²¶»ñ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¼€å¯æ•è·çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_4.Items().Append(item2_4_sub1);
         MenuFlyoutItem item2_4_sub2;
-        item2_4_sub2.Text(L"ÊÍ·Å²¶»ñ");
+        item2_4_sub2.Text(L"é‡Šæ”¾æ•è·");
         item2_4_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (ReleaseCapture()) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦ÊÍ·Å²¶»ñ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸé‡Šæ”¾æ•è·çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨ÊÍ·Å²¶»ñ´°¿Ú: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•é‡Šæ”¾æ•è·çª—å£: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_4.Items().Append(item2_4_sub2);
@@ -257,22 +257,22 @@ namespace winrt::StarlightGUI::implementation
 
             co_await GetWindowIconAsync(window);
 
-            if (window.Name().empty()) window.Name(L"(Î´Öª)");
-            if (window.Process().empty()) window.Process(L"(Î´Öª)");
-            if (window.ClassName().empty()) window.ClassName(L"(Î´Öª)");
+            if (window.Name().empty()) window.Name(L"(æœªçŸ¥)");
+            if (window.Process().empty()) window.Process(L"(æœªçŸ¥)");
+            if (window.ClassName().empty()) window.ClassName(L"(æœªçŸ¥)");
 
             m_windowList.Append(window);
         }
 
-        // »Ö¸´ÅÅĞò
+        // æ¢å¤æ’åº
         ApplySort(currentSortingOption, currentSortingType);
 
         auto end = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-        // ¸üĞÂ´°¿ÚÊıÁ¿ÎÄ±¾
+        // æ›´æ–°çª—å£æ•°é‡æ–‡æœ¬
         std::wstringstream countText;
-        countText << L"¹² " << m_windowList.Size() << L" ¸ö´°¿Ú (" << duration << " ms)";
+        countText << L"å…± " << m_windowList.Size() << L" ä¸ªçª—å£ (" << duration << " ms)";
         WindowCountText().Text(countText.str());
 
         LoadingRing().IsActive(false);
@@ -341,7 +341,7 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::Windows::Foundation::IAsyncAction WindowPage::GetWindowIconAsync(const winrt::StarlightGUI::WindowInfo& window) {
         if (iconCache.find(window.Name()) == iconCache.end()) {
-			// »ñÈ¡´°¿ÚÍ¼±ê ICON
+			// è·å–çª—å£å›¾æ ‡ ICON
             HICON hIcon = (HICON)GetClassLongPtrW((HWND)window.Hwnd(), GCLP_HICON);
             if (!hIcon)
                 hIcon = (HICON)GetClassLongPtrW((HWND)window.Hwnd(), GCLP_HICONSM);
@@ -367,7 +367,7 @@ namespace winrt::StarlightGUI::implementation
 
                 winrt::Microsoft::UI::Xaml::Media::Imaging::WriteableBitmap writeableBitmap(bmp.bmWidth, bmp.bmHeight);
 
-                // ½«Êı¾İĞ´Èë WriteableBitmap
+                // å°†æ•°æ®å†™å…¥ WriteableBitmap
                 uint8_t* data = writeableBitmap.PixelBuffer().data();
                 int rowSize = bmp.bmWidth * 4;
                 for (int i = 0; i < bmp.bmHeight; ++i) {
@@ -380,7 +380,7 @@ namespace winrt::StarlightGUI::implementation
                 DeleteObject(iconInfo.hbmMask);
                 DestroyIcon(hIcon);
 
-                // ½«Í¼±ê»º´æµ½ map ÖĞ
+                // å°†å›¾æ ‡ç¼“å­˜åˆ° map ä¸­
                 iconCache[window.Name()] = writeableBitmap.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>();
                 window.Icon(writeableBitmap);
             }
@@ -397,7 +397,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    // ÔİÊ±ÊµÏÖ²»ÁË£¬²»¹ÜËû
+    // æš‚æ—¶å®ç°ä¸äº†ï¼Œä¸ç®¡ä»–
     bool WindowPage::SetWindowZBID(HWND hwnd, ZBID zbid) {
         HMODULE hDll = LoadLibraryW(axBandPath.c_str());
         if (hDll)
@@ -441,10 +441,10 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    // ÅÅĞòÇĞ»»
+    // æ’åºåˆ‡æ¢
     winrt::fire_and_forget WindowPage::ApplySort(bool& isAscending, const std::string& column)
     {
-        NameHeaderButton().Content(box_value(L"´°¿Ú"));
+        NameHeaderButton().Content(box_value(L"çª—å£"));
 
         std::vector<winrt::StarlightGUI::WindowInfo> sortedWindows;
 
@@ -454,7 +454,7 @@ namespace winrt::StarlightGUI::implementation
 
         if (column == "Name") {
             if (isAscending) {
-                NameHeaderButton().Content(box_value(L"´°¿Ú ¡ı"));
+                NameHeaderButton().Content(box_value(L"çª—å£ â†“"));
                 std::sort(sortedWindows.begin(), sortedWindows.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -466,7 +466,7 @@ namespace winrt::StarlightGUI::implementation
 
             }
             else {
-                NameHeaderButton().Content(box_value(L"´°¿Ú ¡ü"));
+                NameHeaderButton().Content(box_value(L"çª—å£ â†‘"));
                 std::sort(sortedWindows.begin(), sortedWindows.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -479,14 +479,14 @@ namespace winrt::StarlightGUI::implementation
         }
         else if (column == "Hwnd") {
             if (isAscending) {
-                HwndHeaderButton().Content(box_value(L"HWND ¡ı"));
+                HwndHeaderButton().Content(box_value(L"HWND â†“"));
                 std::sort(sortedWindows.begin(), sortedWindows.end(), [](auto a, auto b) {
                     return a.Hwnd() < b.Hwnd();
                     });
 
             }
             else {
-                HwndHeaderButton().Content(box_value(L"HWND ¡ü"));
+                HwndHeaderButton().Content(box_value(L"HWND â†‘"));
                 std::sort(sortedWindows.begin(), sortedWindows.end(), [](auto a, auto b) {
                     return a.Hwnd() > b.Hwnd();
                     });
@@ -529,7 +529,7 @@ namespace winrt::StarlightGUI::implementation
         std::wstring name = window.Name().c_str();
         std::wstring queryWStr = query.c_str();
 
-        // ²»±È½Ï´óĞ¡Ğ´
+        // ä¸æ¯”è¾ƒå¤§å°å†™
         std::transform(name.begin(), name.end(), name.begin(), ::towlower);
         std::transform(queryWStr.begin(), queryWStr.end(), queryWStr.begin(), ::towlower);
 

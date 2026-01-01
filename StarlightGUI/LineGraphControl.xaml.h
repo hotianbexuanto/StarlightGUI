@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "LineGraphControl.g.h"
 #include <vector>
@@ -9,7 +9,7 @@
 
 namespace winrt::StarlightGUI::implementation
 {
-    // Êı¾İÏµÁĞ
+    // æ•°æ®ç³»åˆ—
     struct DataSeries
     {
         std::wstring Name;
@@ -24,7 +24,7 @@ namespace winrt::StarlightGUI::implementation
         }
     };
 
-    // Ö÷¿Ø¼ş
+    // ä¸»æ§ä»¶
     struct LineGraphControl : LineGraphControlT<LineGraphControl>
     {
         LineGraphControl();
@@ -59,7 +59,7 @@ namespace winrt::StarlightGUI::implementation
         void OnPointerExited(winrt::Microsoft::UI::Xaml::Input::PointerRoutedEventArgs const& e);
         void OnPointerWheelChanged(winrt::Microsoft::UI::Xaml::Input::PointerRoutedEventArgs const&);
 
-        // ²»ÖªµÀÎªÊ²Ã´»¹ÒªÒ»¸ö²ÎÊıµÄ£¬Áô¿Õ¼´¿É
+        // ä¸çŸ¥é“ä¸ºä»€ä¹ˆè¿˜è¦ä¸€ä¸ªå‚æ•°çš„ï¼Œç•™ç©ºå³å¯
         void OnPointerMoved(winrt::Windows::Foundation::IInspectable const& sender,
             winrt::Microsoft::UI::Xaml::Input::PointerRoutedEventArgs const& e);
         void OnPointerExited(winrt::Windows::Foundation::IInspectable const& sender,

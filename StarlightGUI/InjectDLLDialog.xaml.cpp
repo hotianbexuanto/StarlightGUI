@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "InjectDLLDialog.xaml.h"
 #if __has_include("InjectDLLDialog.g.cpp")
 #include "InjectDLLDialog.g.cpp"
@@ -58,11 +58,11 @@ namespace winrt::StarlightGUI::implementation
                 DLLPathTextBox().Text(file.Path());
             }
             else {
-                ErrorText().Text(L"ÎÄ¼ş²»ÊÇDLLÀàĞÍ£¡");
+                ErrorText().Text(L"æ–‡ä»¶ä¸æ˜¯DLLç±»å‹ï¼");
             }
         }
         else {
-            ErrorText().Text(L"ÎÄ¼ş²»´æÔÚ£¡");
+            ErrorText().Text(L"æ–‡ä»¶ä¸å­˜åœ¨ï¼");
         }
     }
 }

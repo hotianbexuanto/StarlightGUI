@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ThreadInfo.h"
 #if __has_include("ThreadInfo.g.cpp")
 #include "ThreadInfo.g.cpp"

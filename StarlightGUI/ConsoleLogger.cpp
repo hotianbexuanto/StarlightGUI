@@ -1,4 +1,4 @@
-#include "pch.h"
+Ôªø#include "pch.h"
 #include "ConsoleLogger.h"
 #include <fstream>
 #include <codecvt>
@@ -27,12 +27,12 @@ void ConsoleLogger::Destroy() {
 }
 
 ConsoleLogger::ConsoleLogger() {
-    m_colorMap[LogLevel::DEBUG] = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY;     // «‡…´
-    m_colorMap[LogLevel::INFO] = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;            // ∞◊…´
-    m_colorMap[LogLevel::WARNING] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;    // ª∆…´
-    m_colorMap[LogLevel::ERROR] = FOREGROUND_RED | FOREGROUND_INTENSITY;                         // ¡¡∫Ï…´
-    m_colorMap[LogLevel::CRITICAL] = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;    // ∆∑∫Ï…´
-    m_colorMap[LogLevel::SUCCESS] = FOREGROUND_GREEN | FOREGROUND_INTENSITY;                     // ¡¡¬Ã…´
+    m_colorMap[LogLevel::DEBUG] = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY;     // ÈùíËâ≤
+    m_colorMap[LogLevel::INFO] = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;            // ÁôΩËâ≤
+    m_colorMap[LogLevel::WARNING] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;    // ÈªÑËâ≤
+    m_colorMap[LogLevel::ERROR] = FOREGROUND_RED | FOREGROUND_INTENSITY;                         // ‰∫ÆÁ∫¢Ëâ≤
+    m_colorMap[LogLevel::CRITICAL] = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;    // ÂìÅÁ∫¢Ëâ≤
+    m_colorMap[LogLevel::SUCCESS] = FOREGROUND_GREEN | FOREGROUND_INTENSITY;                     // ‰∫ÆÁªøËâ≤
 }
 
 ConsoleLogger::~ConsoleLogger() {
@@ -187,7 +187,7 @@ void ConsoleLogger::ProcessFileQueue() {
     while (!queueCopy.empty()) {
         auto& entry = queueCopy.front();
 
-        // –¥»ÎŒƒº˛
+        // ÂÜôÂÖ•Êñá‰ª∂
         if (m_fileWriteEnabled) {
             std::wstring formatted;
             try {

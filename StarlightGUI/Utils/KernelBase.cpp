@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Utils/Utils.h"
 #include "winternl.h"
 #include "Psapi.h"

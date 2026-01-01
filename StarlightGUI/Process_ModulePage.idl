@@ -1,4 +1,4 @@
-namespace StarlightGUI
+﻿namespace StarlightGUI
 {
     [default_interface]
     runtimeclass Process_ModulePage : Microsoft.UI.Xaml.Controls.Page

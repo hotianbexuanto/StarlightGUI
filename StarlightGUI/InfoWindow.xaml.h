@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "InfoWindow.g.h"
 #include <Utils/ProcessInfo.h>
@@ -13,7 +13,7 @@ namespace winrt::StarlightGUI::implementation
 
         void RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args);
 
-        // Íâ¹Û
+        // å¤–è§‚
         winrt::fire_and_forget LoadBackdrop();
         winrt::fire_and_forget LoadBackground();
         winrt::fire_and_forget LoadNavigation();

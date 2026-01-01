@@ -1,8 +1,8 @@
-#pragma once
+ï»¿#pragma once
 
 #include "MokuaiInfo.g.h"
 /*
-* ²¹Ò©ÎÊÎÒÎªÊ²Ã´ÊÇMokuai²»ÊÇModule£¬ModuleInfo»á±¨´í£¬ÎÒ²»ÖªµÀÎªÊ²Ã´
+* è¡¥è¯é—®æˆ‘ä¸ºä»€ä¹ˆæ˜¯Mokuaiä¸æ˜¯Moduleï¼ŒModuleInfoä¼šæŠ¥é”™ï¼Œæˆ‘ä¸çŸ¥é“ä¸ºä»€ä¹ˆ
 * @Author Stars
 */
 namespace winrt::StarlightGUI::implementation

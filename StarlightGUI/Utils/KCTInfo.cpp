@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "KCTInfo.h"
 #if __has_include("KCTInfo.g.cpp")
 #include "KCTInfo.g.cpp"

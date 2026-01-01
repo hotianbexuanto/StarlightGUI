@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ProcessInfo.h"
 #if __has_include("ProcessInfo.g.cpp")
 #include "ProcessInfo.g.cpp"

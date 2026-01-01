@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "UtilityPage.xaml.h"
 #if __has_include("UtilityPage.g.cpp")
 #include "UtilityPage.g.cpp"
@@ -16,7 +16,7 @@ namespace winrt::StarlightGUI::implementation{
 		InitializeComponent();
 		
 		if (!KernelInstance::IsRunningAsAdmin()) {
-			CreateInfoBarAndDisplay(L"¾¯¸æ", L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Warning, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Warning, g_mainWindowInstance);
 			this->Loaded([this](auto&&, auto&&) {
 				FindButtonsAndDisable(*this);
 				});
@@ -40,7 +40,7 @@ namespace winrt::StarlightGUI::implementation{
 	winrt::fire_and_forget UtilityPage::Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 	{
 		if (!KernelInstance::IsRunningAsAdmin()) {
-			CreateInfoBarAndDisplay(L"¾¯¸æ", L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Warning, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Warning, g_mainWindowInstance);
 			co_return;
 		}
 
@@ -49,8 +49,8 @@ namespace winrt::StarlightGUI::implementation{
 
 		if (safeAcceptedTag != tag) {
 			safeAcceptedTag = tag;
-			CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã²Ù×÷¿ÉÄÜµ¼ÖÂÏµÍ³²»ÎÈ¶¨»ò±ÀÀ££¡Èç¹ûÄãÖªµÀ×Ô¼ºÔÚ×öÊ²Ã´£¬ÇëÔÙ´Îµã»÷£¡", InfoBarSeverity::Warning, g_mainWindowInstance);
-			CreateInfoBarAndDisplay(L"¾¯¸æ", L"Èç¹û¶à´Î½øĞĞÁËÍ¬Ò»¸ö½ûÓÃ²Ù×÷£¬Ò²ĞèÒª¶à´Î½øĞĞÆôÓÃ²Å¿É»Ö¸´£¡", InfoBarSeverity::Warning, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥æ“ä½œå¯èƒ½å¯¼è‡´ç³»ç»Ÿä¸ç¨³å®šæˆ–å´©æºƒï¼å¦‚æœä½ çŸ¥é“è‡ªå·±åœ¨åšä»€ä¹ˆï¼Œè¯·å†æ¬¡ç‚¹å‡»ï¼", InfoBarSeverity::Warning, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"è­¦å‘Š", L"å¦‚æœå¤šæ¬¡è¿›è¡Œäº†åŒä¸€ä¸ªç¦ç”¨æ“ä½œï¼Œä¹Ÿéœ€è¦å¤šæ¬¡è¿›è¡Œå¯ç”¨æ‰å¯æ¢å¤ï¼", InfoBarSeverity::Warning, g_mainWindowInstance);
 			co_return;
 		}
 
@@ -131,21 +131,21 @@ namespace winrt::StarlightGUI::implementation{
 		}
 		else {
 			co_await wil::resume_foreground(DispatcherQueue());
-			CreateInfoBarAndDisplay(L"´íÎó", L"Î´Öª²Ù×÷£¡", InfoBarSeverity::Error, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"é”™è¯¯", L"æœªçŸ¥æ“ä½œï¼", InfoBarSeverity::Error, g_mainWindowInstance);
 			co_return;
 		}
 
 		co_await wil::resume_foreground(DispatcherQueue());
 
 		if (result) {
-			CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Íê³É²Ù×÷£¡", InfoBarSeverity::Success, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå®Œæˆæ“ä½œï¼", InfoBarSeverity::Success, g_mainWindowInstance);
 		}
 		else {
 			if (GetLastError() == 0) {
-				CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Íê³É²Ù×÷£¬¸Ã¹¦ÄÜ¿ÉÄÜÒÑ¾­ÊÇÔ¤ÆÚµÄ×´Ì¬ÁË£¡", InfoBarSeverity::Error, g_mainWindowInstance);
+				CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å®Œæˆæ“ä½œï¼Œè¯¥åŠŸèƒ½å¯èƒ½å·²ç»æ˜¯é¢„æœŸçš„çŠ¶æ€äº†ï¼", InfoBarSeverity::Error, g_mainWindowInstance);
 			}
 			else {
-				CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Íê³É²Ù×÷£¬´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+				CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å®Œæˆæ“ä½œï¼Œé”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
 			}
 		}
 
@@ -155,7 +155,7 @@ namespace winrt::StarlightGUI::implementation{
 	winrt::fire_and_forget UtilityPage::Button_Click2(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 	{
 		if (!KernelInstance::IsRunningAsAdmin()) {
-			CreateInfoBarAndDisplay(L"¾¯¸æ", L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Warning, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Warning, g_mainWindowInstance);
 			co_return;
 		}
 
@@ -178,17 +178,17 @@ namespace winrt::StarlightGUI::implementation{
 			result = KernelInstance::RebootForce();
 		}
 		else {
-			CreateInfoBarAndDisplay(L"´íÎó", L"Î´Öª²Ù×÷£¡", InfoBarSeverity::Error, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"é”™è¯¯", L"æœªçŸ¥æ“ä½œï¼", InfoBarSeverity::Error, g_mainWindowInstance);
 			co_return;
 		}
 
 		co_await wil::resume_foreground(DispatcherQueue());
 
 		if (result) {
-			CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Íê³É²Ù×÷£¡", InfoBarSeverity::Success, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå®Œæˆæ“ä½œï¼", InfoBarSeverity::Success, g_mainWindowInstance);
 		}
 		else {
-			CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Íê³É²Ù×÷£¬´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+			CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å®Œæˆæ“ä½œï¼Œé”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
 		}
 
 		co_return;

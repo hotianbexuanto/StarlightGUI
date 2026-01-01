@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "HomePage.g.h"
 #include <pdh.h>
@@ -26,7 +26,7 @@ namespace winrt::StarlightGUI::implementation
         inline static winrt::hstring hitokoto;
         inline static winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage avatar{ nullptr };
 
-        // ĞÔÄÜÏÔÊ¾
+        // æ€§èƒ½æ˜¾ç¤º
         inline static std::unordered_map<int, hstring> adpt_name_map;
         inline static hstring cpu_manufacture, disk_manufacture, gpu_manufacture, netadpt_manufacture;
         inline static bool initialized, isNvidia, virtualization, isNetSend = false;

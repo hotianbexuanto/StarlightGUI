@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "FilePage.xaml.h"
 #if __has_include("FilePage.g.cpp")
 #include "FilePage.g.cpp"
@@ -64,7 +64,7 @@ namespace winrt::StarlightGUI::implementation
         }
 
         if (!listView.SelectedItems() || listView.SelectedItems().Size() == 0 || 
-            // Ö»Ñ¡Ôñ"ÉÏ¸öÎÄ¼ş¼Ğ"Ê±²»ÏÔÊ¾£¬¶àÑ¡µÄ»°ÔÚÏÂÃæÌø¹ı´¦Àí£¬ÈÏÎªÊÇÎóÑ¡
+            // åªé€‰æ‹©"ä¸Šä¸ªæ–‡ä»¶å¤¹"æ—¶ä¸æ˜¾ç¤ºï¼Œå¤šé€‰çš„è¯åœ¨ä¸‹é¢è·³è¿‡å¤„ç†ï¼Œè®¤ä¸ºæ˜¯è¯¯é€‰
             (listView.SelectedItems().Size() == 1 && listView.SelectedItems().GetAt(0).as<winrt::StarlightGUI::FileInfo>().Flag() == 999)) 
             return;
 
@@ -74,7 +74,7 @@ namespace winrt::StarlightGUI::implementation
 
         for (const auto& file : list) {
             auto item = file.as<winrt::StarlightGUI::FileInfo>();
-            // Ìø¹ı"ÉÏ¸öÎÄ¼ş¼Ğ"Ñ¡Ïî
+            // è·³è¿‡"ä¸Šä¸ªæ–‡ä»¶å¤¹"é€‰é¡¹
             if (item.Flag() == 999) continue;
             selectedFiles.push_back(item);
         }
@@ -82,12 +82,12 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyout menuFlyout;
 
         /*
-        * ×¢Òâ£¬ÓÉÓÚÕâÀïÊÇ´ÅÅÌIO£¬ÎÒÃÇ²»ÒªÊ¹ÓÃÒì²½£¬·ñÔòË¢ĞÂÊ±¿ÉÄÜ»á³öÎÊÌâ
+        * æ³¨æ„ï¼Œç”±äºè¿™é‡Œæ˜¯ç£ç›˜IOï¼Œæˆ‘ä»¬ä¸è¦ä½¿ç”¨å¼‚æ­¥ï¼Œå¦åˆ™åˆ·æ–°æ—¶å¯èƒ½ä¼šå‡ºé—®é¢˜
         */
-        // Ñ¡Ïî1.1
+        // é€‰é¡¹1.1
         MenuFlyoutItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue8e5"));
-        item1_1.Text(L"´ò¿ª");
+        item1_1.Text(L"æ‰“å¼€");
         item1_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (item.Directory()) {
@@ -97,7 +97,7 @@ namespace winrt::StarlightGUI::implementation
                 else ShellExecuteW(nullptr, L"open", item.Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
             }
             });
-        // µ±Ñ¡ÖĞ¶à¸öÄÚÈİ²¢ÇÒÆäÖĞÒ»¸öÊÇÎÄ¼ş¼ĞÊ±½ûÓÃ´ò¿ª°´Å¥
+        // å½“é€‰ä¸­å¤šä¸ªå†…å®¹å¹¶ä¸”å…¶ä¸­ä¸€ä¸ªæ˜¯æ–‡ä»¶å¤¹æ—¶ç¦ç”¨æ‰“å¼€æŒ‰é’®
         if (selectedFiles.size() > 1) {
             for (const auto& item : selectedFiles) {
                 if (item.Directory()) {
@@ -109,69 +109,69 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutSeparator separator1;
 
-        // Ñ¡Ïî2.1
+        // é€‰é¡¹2.1
         MenuFlyoutItem item2_1;
         item2_1.Icon(CreateFontIcon(L"\ue74d"));
-        item2_1.Text(L"É¾³ı");
+        item2_1.Text(L"åˆ é™¤");
         item2_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::DeleteFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦É¾³ıÎÄ¼ş/ÎÄ¼ş¼Ğ: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸåˆ é™¤æ–‡ä»¶/æ–‡ä»¶å¤¹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨É¾³ıÎÄ¼ş/ÎÄ¼ş¼Ğ: " + item.Name() + L" (" + item.Path() + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•åˆ é™¤æ–‡ä»¶/æ–‡ä»¶å¤¹: " + item.Name() + L" (" + item.Path() + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
 
-        // Ñ¡Ïî2.2
+        // é€‰é¡¹2.2
         MenuFlyoutItem item2_2;
         item2_2.Icon(CreateFontIcon(L"\ue733"));
-        item2_2.Text(L"É¾³ı (ÄÚºË)");
+        item2_2.Text(L"åˆ é™¤ (å†…æ ¸)");
         item2_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::_DeleteFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦É¾³ıÎÄ¼ş/ÎÄ¼ş¼Ğ: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸåˆ é™¤æ–‡ä»¶/æ–‡ä»¶å¤¹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨É¾³ıÎÄ¼ş/ÎÄ¼ş¼Ğ: " + item.Name() + L" (" + item.Path() + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•åˆ é™¤æ–‡ä»¶/æ–‡ä»¶å¤¹: " + item.Name() + L" (" + item.Path() + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_2.IsEnabled(false);
 
-        // Ñ¡Ïî2.3
+        // é€‰é¡¹2.3
         MenuFlyoutItem item2_3;
         item2_3.Icon(CreateFontIcon(L"\uf5ab"));
-        item2_3.Text(L"Ç¿ÖÆÉ¾³ı");
+        item2_3.Text(L"å¼ºåˆ¶åˆ é™¤");
         item2_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::MurderFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Ç¿ÖÆÉ¾³ıÎÄ¼ş/ÎÄ¼ş¼Ğ: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå¼ºåˆ¶åˆ é™¤æ–‡ä»¶/æ–‡ä»¶å¤¹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Ç¿ÖÆÉ¾³ıÎÄ¼ş/ÎÄ¼ş¼Ğ: " + item.Name() + L" (" + item.Path() + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¼ºåˆ¶åˆ é™¤æ–‡ä»¶/æ–‡ä»¶å¤¹: " + item.Name() + L" (" + item.Path() + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);
 
-        // Ñ¡Ïî2.4
+        // é€‰é¡¹2.4
         MenuFlyoutItem item2_4;
         item2_4.Icon(CreateFontIcon(L"\ue72e"));
-        item2_4.Text(L"Ëø¶¨");
+        item2_4.Text(L"é”å®š");
         item2_4.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::LockFile(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Ëø¶¨ÎÄ¼ş: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸé”å®šæ–‡ä»¶: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Ëø¶¨ÎÄ¼ş: " + item.Name() + L" (" + item.Path() + L"), ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•é”å®šæ–‡ä»¶: " + item.Name() + L" (" + item.Path() + L"), é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_4.IsEnabled(false);
 
-        // Ñ¡Ïî2.5
+        // é€‰é¡¹2.5
         MenuFlyoutItem item2_5;
         item2_5.Icon(CreateFontIcon(L"\ue8c8"));
-        item2_5.Text(L"¸´ÖÆ");
+        item2_5.Text(L"å¤åˆ¶");
         item2_5.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             CopyFiles();
             });
@@ -179,70 +179,70 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutSeparator separator2;
 
-        // Ñ¡Ïî3.1
+        // é€‰é¡¹3.1
         MenuFlyoutSubItem item3_1;
         item3_1.Icon(CreateFontIcon(L"\ue8c8"));
-        item3_1.Text(L"¸´ÖÆĞÅÏ¢");
+        item3_1.Text(L"å¤åˆ¶ä¿¡æ¯");
         MenuFlyoutItem item3_1_sub1;
         item3_1_sub1.Icon(CreateFontIcon(L"\ue8ac"));
-        item3_1_sub1.Text(L"Ãû³Æ");
+        item3_1_sub1.Text(L"åç§°");
         item3_1_sub1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(selectedFiles[0].Name().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_1.Items().Append(item3_1_sub1);
         MenuFlyoutItem item3_1_sub2;
         item3_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
-        item3_1_sub2.Text(L"Â·¾¶");
+        item3_1_sub2.Text(L"è·¯å¾„");
         item3_1_sub2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(selectedFiles[0].Path().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_1.Items().Append(item3_1_sub2);
         MenuFlyoutItem item3_1_sub3;
         item3_1_sub3.Icon(CreateFontIcon(L"\uec92"));
-        item3_1_sub3.Text(L"ĞŞ¸ÄÈÕÆÚ");
+        item3_1_sub3.Text(L"ä¿®æ”¹æ—¥æœŸ");
         item3_1_sub3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(selectedFiles[0].ModifyTime().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item3_1.Items().Append(item3_1_sub3);
 
-        // Ñ¡Ïî3.2
+        // é€‰é¡¹3.2
         MenuFlyoutItem item3_2;
         item3_2.Icon(CreateFontIcon(L"\uec50"));
-        item3_2.Text(L"ÔÚÎÄ¼ş¹ÜÀíÆ÷ÄÚ´ò¿ª");
+        item3_2.Text(L"åœ¨æ–‡ä»¶ç®¡ç†å™¨å†…æ‰“å¼€");
         item3_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFolderAndSelectFile(selectedFiles[0].Path().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ´ò¿ªÎÄ¼ş¼Ğ", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²æ‰“å¼€æ–‡ä»¶å¤¹", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨´ò¿ªÎÄ¼ş¼Ğ, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ‰“å¼€æ–‡ä»¶å¤¹, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
 
-        // Ñ¡Ïî3.3
+        // é€‰é¡¹3.3
         MenuFlyoutItem item3_3;
         item3_3.Icon(CreateFontIcon(L"\ue8ec"));
-        item3_3.Text(L"ÊôĞÔ");
+        item3_3.Text(L"å±æ€§");
         item3_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::OpenFileProperties(selectedFiles[0].Path().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ´ò¿ªÎÄ¼şÊôĞÔ", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²æ‰“å¼€æ–‡ä»¶å±æ€§", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨´ò¿ªÎÄ¼şÊôĞÔ, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ‰“å¼€æ–‡ä»¶å±æ€§, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
-		// µ±Ñ¡ÖĞ¶à¸öÄÚÈİ²¢ÇÒÆäÖĞÒ»¸öÊÇÎÄ¼ş¼ĞÊ±½ûÓÃËø¶¨²¿·ÖÖ»ÄÜ²Ù×÷ÎÄ¼şµÄ°´Å¥
+		// å½“é€‰ä¸­å¤šä¸ªå†…å®¹å¹¶ä¸”å…¶ä¸­ä¸€ä¸ªæ˜¯æ–‡ä»¶å¤¹æ—¶ç¦ç”¨é”å®šéƒ¨åˆ†åªèƒ½æ“ä½œæ–‡ä»¶çš„æŒ‰é’®
         for (const auto& item : selectedFiles) {
             if (item.Directory()) {
                 item2_4.IsEnabled(false);
@@ -344,7 +344,7 @@ namespace winrt::StarlightGUI::implementation
         PathBox().Text(currentDirectory);
         LOG_INFO(__WFUNCTION__, L"Path = %s", path.c_str());
 
-        // ¼òµ¥ÅĞ¶Ï¸ùÄ¿Â¼
+        // ç®€å•åˆ¤æ–­æ ¹ç›®å½•
         PreviousButton().IsEnabled(path.length() > 3);
         ResetState();
         m_allFiles.clear();
@@ -370,7 +370,7 @@ namespace winrt::StarlightGUI::implementation
 
         ApplySort(currentSortingOption, currentSortingType);
 
-        // ½«ÎÄ¼ş¼Ğ·ÅÔÚÎÄ¼şÇ°Ãæ
+        // å°†æ–‡ä»¶å¤¹æ”¾åœ¨æ–‡ä»¶å‰é¢
         std::stable_sort(m_allFiles.begin(), m_allFiles.end(), [](const auto& a, const auto& b) {
             if (a.Directory() && !b.Directory()) {
                 return true;
@@ -384,13 +384,13 @@ namespace winrt::StarlightGUI::implementation
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
         std::wstringstream countText;
-        countText << L"¹² " << m_allFiles.size() << L" ¸öÎÄ¼ş (" << duration << " ms)";
+        countText << L"å…± " << m_allFiles.size() << L" ä¸ªæ–‡ä»¶ (" << duration << " ms)";
         FileCountText().Text(countText.str());
         LoadingRing().IsActive(false);
 
         LOG_INFO(__WFUNCTION__, L"Loaded file list, %d entry(s) in total.", m_allFiles.size());
 
-        // Á¢¿Ì¼ÓÔØÒ»´Î
+        // ç«‹åˆ»åŠ è½½ä¸€æ¬¡
         LoadMoreFiles();
 
         m_isLoadingFiles = false;
@@ -422,14 +422,14 @@ namespace winrt::StarlightGUI::implementation
             }
             else
             {
-                file.ModifyTime(L"(Î´Öª)");
+                file.ModifyTime(L"(æœªçŸ¥)");
             }
 
             FindClose(hFind);
         }
         else {
-            file.Size(L"-1 (Î´Öª)");
-            file.ModifyTime(L"(Î´Öª)");
+            file.Size(L"-1 (æœªçŸ¥)");
+            file.ModifyTime(L"(æœªçŸ¥)");
         }
 
         if (file.Directory()) file.Size(L"");
@@ -464,7 +464,7 @@ namespace winrt::StarlightGUI::implementation
 
                 winrt::Microsoft::UI::Xaml::Media::Imaging::WriteableBitmap writeableBitmap(bmp.bmWidth, bmp.bmHeight);
 
-                // ½«Êı¾İĞ´Èë WriteableBitmap
+                // å°†æ•°æ®å†™å…¥ WriteableBitmap
                 uint8_t* data = writeableBitmap.PixelBuffer().data();
                 int rowSize = bmp.bmWidth * 4;
                 for (int i = 0; i < bmp.bmHeight; ++i) {
@@ -477,7 +477,7 @@ namespace winrt::StarlightGUI::implementation
                 DeleteObject(iconInfo.hbmMask);
                 DestroyIcon(shfi.hIcon);
 
-                // ½«Í¼±ê»º´æµ½ map ÖĞ
+                // å°†å›¾æ ‡ç¼“å­˜åˆ° map ä¸­
                 iconCache[filePath] = writeableBitmap.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>();
             }
         }
@@ -513,7 +513,7 @@ namespace winrt::StarlightGUI::implementation
         std::wstring name = file.Name().c_str();
         std::wstring queryWStr = query.c_str();
 
-        // ²»±È½Ï´óĞ¡Ğ´
+        // ä¸æ¯”è¾ƒå¤§å°å†™
         std::transform(name.begin(), name.end(), name.begin(), ::towlower);
         std::transform(queryWStr.begin(), queryWStr.end(), queryWStr.begin(), ::towlower);
 
@@ -548,16 +548,16 @@ namespace winrt::StarlightGUI::implementation
         AddPreviousItem();
     }
 
-    // ÅÅĞòÇĞ»»
+    // æ’åºåˆ‡æ¢
     winrt::fire_and_forget FilePage::ApplySort(bool& isAscending, const std::string& column)
     {
-        NameHeaderButton().Content(box_value(L"ÎÄ¼ş"));
-        ModifyTimeHeaderButton().Content(box_value(L"ĞŞ¸ÄÊ±¼ä"));
-        SizeHeaderButton().Content(box_value(L"´óĞ¡"));
+        NameHeaderButton().Content(box_value(L"æ–‡ä»¶"));
+        ModifyTimeHeaderButton().Content(box_value(L"ä¿®æ”¹æ—¶é—´"));
+        SizeHeaderButton().Content(box_value(L"å¤§å°"));
 
         if (column == "Name") {
             if (isAscending) {
-                NameHeaderButton().Content(box_value(L"ÎÄ¼ş ¡ı"));
+                NameHeaderButton().Content(box_value(L"æ–‡ä»¶ â†“"));
                 std::sort(m_allFiles.begin(), m_allFiles.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -569,7 +569,7 @@ namespace winrt::StarlightGUI::implementation
 
             }
             else {
-                NameHeaderButton().Content(box_value(L"ÎÄ¼ş ¡ü"));
+                NameHeaderButton().Content(box_value(L"æ–‡ä»¶ â†‘"));
                 std::sort(m_allFiles.begin(), m_allFiles.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -581,28 +581,28 @@ namespace winrt::StarlightGUI::implementation
             }
         } else if (column == "ModifyTime") {
             if (isAscending) {
-                ModifyTimeHeaderButton().Content(box_value(L"ĞŞ¸ÄÊ±¼ä ¡ı"));
+                ModifyTimeHeaderButton().Content(box_value(L"ä¿®æ”¹æ—¶é—´ â†“"));
                 std::sort(m_allFiles.begin(), m_allFiles.end(), [](auto a, auto b) {
                     return a.ModifyTimeULong() < b.ModifyTimeULong();
                     });
 
             }
             else {
-                ModifyTimeHeaderButton().Content(box_value(L"ĞŞ¸ÄÊ±¼ä ¡ü"));
+                ModifyTimeHeaderButton().Content(box_value(L"ä¿®æ”¹æ—¶é—´ â†‘"));
                 std::sort(m_allFiles.begin(), m_allFiles.end(), [](auto a, auto b) {
                     return a.ModifyTimeULong() > b.ModifyTimeULong();
                     });
             }
         } else if (column == "Size") {
             if (isAscending) {
-                SizeHeaderButton().Content(box_value(L"´óĞ¡ ¡ı"));
+                SizeHeaderButton().Content(box_value(L"å¤§å° â†“"));
                 std::sort(m_allFiles.begin(), m_allFiles.end(), [](auto a, auto b) {
                     return a.SizeULong() < b.SizeULong();
                     });
 
             }
             else {
-                SizeHeaderButton().Content(box_value(L"´óĞ¡ ¡ü"));
+                SizeHeaderButton().Content(box_value(L"å¤§å° â†‘"));
                 std::sort(m_allFiles.begin(), m_allFiles.end(), [](auto a, auto b) {
                     return a.SizeULong() > b.SizeULong();
                     });
@@ -664,11 +664,11 @@ namespace winrt::StarlightGUI::implementation
     }
 
     void FilePage::AddPreviousItem() {
-        // ¼òµ¥ÅĞ¶Ï¸ùÄ¿Â¼
+        // ç®€å•åˆ¤æ–­æ ¹ç›®å½•
         if (currentDirectory.size() <= 3) return;
         if (m_fileList.Size() > 0 && m_fileList.GetAt(0).Flag() == 999) return;
         auto previousPage = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
-        previousPage.Name(L"ÉÏ¸öÎÄ¼ş¼Ğ");
+        previousPage.Name(L"ä¸Šä¸ªæ–‡ä»¶å¤¹");
         previousPage.Flag(999);
         GetFileIconAsync(previousPage);
         m_fileList.InsertAt(0, previousPage);
@@ -747,17 +747,17 @@ namespace winrt::StarlightGUI::implementation
 
             for (const auto& file : FileListView().SelectedItems()) {
                 auto item = file.as<winrt::StarlightGUI::FileInfo>();
-                // Ìø¹ıÉÏ¸öÎÄ¼ş¼ĞÑ¡Ïî
+                // è·³è¿‡ä¸Šä¸ªæ–‡ä»¶å¤¹é€‰é¡¹
                 if (item.Flag() == 999) continue;
                 selectedFiles.push_back(item);
             }
 
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::_CopyFile(std::wstring(item.Path().c_str()).substr(0, item.Path().size() - item.Name().size()), copyPath + L"\\" + item.Name().c_str(), item.Name().c_str())) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦¸´ÖÆÎÄ¼şÖÁ: " + dialog.CopyPath(), InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå¤åˆ¶æ–‡ä»¶è‡³: " + dialog.CopyPath(), InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÎÄ¼ş, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶æ–‡ä»¶, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
         }
     }

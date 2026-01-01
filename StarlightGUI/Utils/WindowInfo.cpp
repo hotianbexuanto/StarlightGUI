@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "WindowInfo.h"
 #if __has_include("WindowInfo.g.cpp")
 #include "WindowInfo.g.cpp"

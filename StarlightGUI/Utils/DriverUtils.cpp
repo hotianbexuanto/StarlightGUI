@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "KernelBase.h"
 
 namespace winrt::StarlightGUI::implementation {

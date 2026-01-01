@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "UpdateDialog.xaml.h"
 #if __has_include("UpdateDialog.g.cpp")
 #include "UpdateDialog.g.cpp"
@@ -14,20 +14,20 @@ namespace winrt::StarlightGUI::implementation
 
         this->Loaded([this](auto&&, auto&&) {
             if (IsUpdate()) {
-                Title(winrt::box_value(L"·¢ÏÖ¸üĞÂ"));
+                Title(winrt::box_value(L"å‘ç°æ›´æ–°"));
                 LatestVersionText().Text(LatestVersion());
-                PrimaryButtonText(L"ÏÂÔØ");
-                SecondaryButtonText(L"È¡Ïû");
+                PrimaryButtonText(L"ä¸‹è½½");
+                SecondaryButtonText(L"å–æ¶ˆ");
 				UpdateStackPanel().Visibility(Visibility::Visible);
 				AnnouncementStackPanel().Visibility(Visibility::Collapsed);
             }
             else {
-                Title(winrt::box_value(L"¹«¸æ"));
+                Title(winrt::box_value(L"å…¬å‘Š"));
                 UpdateTimeText().Text(LatestVersion());
                 AnnouncementLine1().Text(GetAnLine(1));
                 AnnouncementLine2().Text(GetAnLine(2));
                 AnnouncementLine3().Text(GetAnLine(3));
-                PrimaryButtonText(L"È·ÈÏ");
+                PrimaryButtonText(L"ç¡®è®¤");
                 UpdateStackPanel().Visibility(Visibility::Collapsed);
                 AnnouncementStackPanel().Visibility(Visibility::Visible);
             }

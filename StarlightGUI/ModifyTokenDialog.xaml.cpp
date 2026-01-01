@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ModifyTokenDialog.xaml.h"
 #if __has_include("ModifyTokenDialog.g.cpp")
 #include "ModifyTokenDialog.g.cpp"

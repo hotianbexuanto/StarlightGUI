@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "MokuaiInfo.h"
 #if __has_include("MokuaiInfo.g.cpp")
 #include "MokuaiInfo.g.cpp"
@@ -7,7 +7,7 @@
 using namespace winrt;
 using namespace Microsoft::UI::Xaml::Media;
 /*
-* ²¹Ò©ÎÊÎÒÎªÊ²Ã´ÊÇMokuai²»ÊÇModule£¬ModuleInfo»á±¨´í£¬ÎÒ²»ÖªµÀÎªÊ²Ã´
+* è¡¥è¯é—®æˆ‘ä¸ºä»€ä¹ˆæ˜¯Mokuaiä¸æ˜¯Moduleï¼ŒModuleInfoä¼šæŠ¥é”™ï¼Œæˆ‘ä¸çŸ¥é“ä¸ºä»€ä¹ˆ
 * @Author Stars
 */
 namespace winrt::StarlightGUI::implementation

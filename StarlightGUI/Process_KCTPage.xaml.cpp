@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Process_KCTPage.xaml.h"
 #if __has_include("Process_KCTPage.g.cpp")
 #include "Process_KCTPage.g.cpp"
@@ -70,7 +70,7 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutItem itemRefresh;
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
-        itemRefresh.Text(L"Ë¢ĞÂ");
+        itemRefresh.Text(L"åˆ·æ–°");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             LoadKCTList();
             co_return;
@@ -78,29 +78,29 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyoutSeparator separatorR;
 
-        // Ñ¡Ïî1.1
+        // é€‰é¡¹1.1
         MenuFlyoutSubItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue8c8"));
-        item1_1.Text(L"¸´ÖÆĞÅÏ¢");
+        item1_1.Text(L"å¤åˆ¶ä¿¡æ¯");
         MenuFlyoutItem item1_1_sub1;
         item1_1_sub1.Icon(CreateFontIcon(L"\ue943"));
-        item1_1_sub1.Text(L"Ãû³Æ");
+        item1_1_sub1.Text(L"åç§°");
         item1_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_infoWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_infoWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
             co_return;
             });
         item1_1.Items().Append(item1_1_sub1);
         MenuFlyoutItem item1_1_sub2;
         item1_1_sub2.Icon(CreateFontIcon(L"\ueb1d"));
-        item1_1_sub2.Text(L"µØÖ·");
+        item1_1_sub2.Text(L"åœ°å€");
         item1_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_infoWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_infoWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
             co_return;
             });
         item1_1.Items().Append(item1_1_sub2);
@@ -115,9 +115,9 @@ namespace winrt::StarlightGUI::implementation
     winrt::Windows::Foundation::IAsyncAction Process_KCTPage::LoadKCTList()
     {
         if (!processForInfoWindow) co_return;
-        // Ìø¹ıÄÚºË½ø³Ì£¬»ñÈ¡¿ÉÄÜµ¼ÖÂÒì³£»òÀ¶ÆÁ
+        // è·³è¿‡å†…æ ¸è¿›ç¨‹ï¼Œè·å–å¯èƒ½å¯¼è‡´å¼‚å¸¸æˆ–è“å±
         if (processForInfoWindow.Id() >= 0 && processForInfoWindow.Id() <= 272) {
-            CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã½ø³Ì²»°üº¬ÈÎºÎ´ËÀàĞÍµÄĞÅÏ¢£¡", InfoBarSeverity::Warning, g_infoWindowInstance);
+            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥è¿›ç¨‹ä¸åŒ…å«ä»»ä½•æ­¤ç±»å‹çš„ä¿¡æ¯ï¼", InfoBarSeverity::Warning, g_infoWindowInstance);
             co_return;
         }
 
@@ -134,20 +134,20 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::KCTInfo> kcts;
         kcts.reserve(500);
 
-        // »ñÈ¡»Øµ÷±í
+        // è·å–å›è°ƒè¡¨
         KernelInstance::EnumProcessKernelCallbackTable(processForInfoWindow.EProcessULong(), kcts);
         LOG_INFO(__WFUNCTION__, L"Enumerated kernel callback tables, %d entry(s).", kcts.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
 
         if (kcts.size() >= 1000) {
-            CreateInfoBarAndDisplay(L"¾¯¸æ", L"¸Ã½ø³Ì³ÖÓĞ¹ı¶àÄÚºË»Øµ÷±í¼ÇÂ¼£¬³ÌĞòÎŞ·¨ÍêÕûÏÔÊ¾£¬½«ÏÔÊ¾Ç°1000Ìõ£¡", InfoBarSeverity::Warning, g_infoWindowInstance);
+            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯¥è¿›ç¨‹æŒæœ‰è¿‡å¤šå†…æ ¸å›è°ƒè¡¨è®°å½•ï¼Œç¨‹åºæ— æ³•å®Œæ•´æ˜¾ç¤ºï¼Œå°†æ˜¾ç¤ºå‰1000æ¡ï¼", InfoBarSeverity::Warning, g_infoWindowInstance);
         }
 
         m_kctList.Clear();
         for (const auto& kct : kcts) {
-            if (kct.Name().empty()) kct.Name(L"(Î´Öª)");
-            if (kct.Address().empty()) kct.Address(L"(Î´Öª)");
+            if (kct.Name().empty()) kct.Name(L"(æœªçŸ¥)");
+            if (kct.Address().empty()) kct.Address(L"(æœªçŸ¥)");
 
             m_kctList.Append(kct);
         }
@@ -155,9 +155,9 @@ namespace winrt::StarlightGUI::implementation
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-        // ¸üĞÂÄ£¿éÊıÁ¿ÎÄ±¾
+        // æ›´æ–°æ¨¡å—æ•°é‡æ–‡æœ¬
         std::wstringstream countText;
-        countText << L"¹² " << m_kctList.Size() << L" ¸öÄÚºË»Øµ÷±í¼ÇÂ¼ (" << duration.count() << " ms)";
+        countText << L"å…± " << m_kctList.Size() << L" ä¸ªå†…æ ¸å›è°ƒè¡¨è®°å½• (" << duration.count() << " ms)";
         KCTCountText().Text(countText.str());
         LoadingRing().IsActive(false);
 

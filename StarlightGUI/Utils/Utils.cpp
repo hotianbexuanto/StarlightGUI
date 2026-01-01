@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Utils.h"
 #include <winrt/XamlToolkit.WinUI.Controls.h>
 
@@ -168,13 +168,13 @@ namespace winrt::StarlightGUI::implementation {
         int index = cb.SelectedIndex();
         int itemCount = cb.Items().Size();
 
-        // ·Ç·¨Ë÷Òı£¬·µ»Øtrue²¢ÖØÖÃË÷Òı
+        // éæ³•ç´¢å¼•ï¼Œè¿”å›trueå¹¶é‡ç½®ç´¢å¼•
         if (index < 0 || index >= itemCount) {
             cb.SelectedIndex(0);
             return true; 
         }
 
-        // Õı³£Ë÷Òı£¬·µ»Øfalse
+        // æ­£å¸¸ç´¢å¼•ï¼Œè¿”å›false
         return false;
     }
 }

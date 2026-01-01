@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <windows.h>
 #include <string>
 #include <vector>
@@ -69,7 +69,7 @@ public:
             m_logQueue.push(entry);
         }
 
-        // ½«ÈÕÖ¾Í¬Ê±·ÅÈëÎÄ¼şĞ´Èë¶ÓÁĞ
+        // å°†æ—¥å¿—åŒæ—¶æ”¾å…¥æ–‡ä»¶å†™å…¥é˜Ÿåˆ—
         {
             std::lock_guard<std::mutex> lock(m_fileQueueMutex);
             m_fileLogQueue.push(entry);

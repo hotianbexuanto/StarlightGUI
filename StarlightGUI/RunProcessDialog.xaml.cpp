@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "RunProcessDialog.xaml.h"
 #if __has_include("RunProcessDialog.g.cpp")
 #include "RunProcessDialog.g.cpp"

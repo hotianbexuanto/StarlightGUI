@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "HelpPage.xaml.h"
 #if __has_include("HelpPage.g.cpp")
 #include "HelpPage.g.cpp"
@@ -82,10 +82,10 @@ namespace winrt::StarlightGUI::implementation
         auto result = co_await Launcher::LaunchUriAsync(target);
 
         if (result) {
-            CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑÔÚä¯ÀÀÆ÷´ò¿ªÍøÒ³£¡", InfoBarSeverity::Success, g_mainWindowInstance);
+            CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²åœ¨æµè§ˆå™¨æ‰“å¼€ç½‘é¡µï¼", InfoBarSeverity::Success, g_mainWindowInstance);
         }
         else {
-            CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨´ò¿ªÍøÒ³£¡", InfoBarSeverity::Error, g_mainWindowInstance);
+            CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•æ‰“å¼€ç½‘é¡µï¼", InfoBarSeverity::Error, g_mainWindowInstance);
         }
     }
 
@@ -96,7 +96,7 @@ namespace winrt::StarlightGUI::implementation
             HttpClient client;
             Uri uri(L"https://pastebin.com/raw/6MzyhUXg");
 
-            // ·ÀÖ¹»ñÈ¡¾ÉÊı¾İ
+            // é˜²æ­¢è·å–æ—§æ•°æ®
             client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");
             client.DefaultRequestHeaders().Append(L"If-None-Match", L"");
 
@@ -110,14 +110,14 @@ namespace winrt::StarlightGUI::implementation
         }
         catch (...) {
             LOG_ERROR(L"Updater", L"Error while getting sponsor list!");
-            sponsorList = L"»ñÈ¡Ê§°Ü... :(";
+            sponsorList = L"è·å–å¤±è´¥... :(";
         }
         co_return;
     }
 
     void HelpPage::SetSponsorList() {
         if (sponsorList.empty()) {
-            SponsorListText().Text(L"»ñÈ¡Ê§°Ü... :(");
+            SponsorListText().Text(L"è·å–å¤±è´¥... :(");
         }
         else {
             SponsorListText().Text(sponsorList);

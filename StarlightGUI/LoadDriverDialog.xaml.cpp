@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "LoadDriverDialog.xaml.h"
 #if __has_include("LoadDriverDialog.g.cpp")
 #include "LoadDriverDialog.g.cpp"
@@ -57,11 +57,11 @@ namespace winrt::StarlightGUI::implementation
                 DriverPathTextBox().Text(file.Path());
             }
             else {
-                ErrorText().Text(L"ÎÄ¼ş²»ÊÇSYSÀàĞÍ£¡");
+                ErrorText().Text(L"æ–‡ä»¶ä¸æ˜¯SYSç±»å‹ï¼");
             }
         }
         else {
-            ErrorText().Text(L"ÎÄ¼ş²»´æÔÚ£¡");
+            ErrorText().Text(L"æ–‡ä»¶ä¸å­˜åœ¨ï¼");
         }
     }
 }

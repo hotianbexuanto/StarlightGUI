@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 
 winrt::hstring kernelPath = L"";
 winrt::hstring astralPath = L"";

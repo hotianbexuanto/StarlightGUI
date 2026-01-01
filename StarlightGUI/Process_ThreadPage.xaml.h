@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Process_ThreadPage.g.h"
 #include <map>

@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "KernelModulePage.xaml.h"
 #if __has_include("KernelModulePage.g.cpp")
 #include "KernelModulePage.g.cpp"
@@ -53,8 +53,8 @@ namespace winrt::StarlightGUI::implementation
             RefreshKernelModuleListButton().IsEnabled(false);
             LoadDriverButton().IsEnabled(false);
             UnloadModuleButton().IsEnabled(false);
-            KernelModuleCountText().Text(L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡");
-            CreateInfoBarAndDisplay(L"¾¯¸æ", L"ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ£¡", InfoBarSeverity::Warning, g_mainWindowInstance);
+            KernelModuleCountText().Text(L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼");
+            CreateInfoBarAndDisplay(L"è­¦å‘Š", L"è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œï¼", InfoBarSeverity::Warning, g_mainWindowInstance);
         }
         else {
             this->Loaded([this](auto&&, auto&&) {
@@ -85,80 +85,80 @@ namespace winrt::StarlightGUI::implementation
 
         MenuFlyout menuFlyout;
 
-        // Ñ¡Ïî1.1
+        // é€‰é¡¹1.1
         MenuFlyoutItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\uec91"));
-        item1_1.Text(L"Ğ¶ÔØÄ£¿é");
+        item1_1.Text(L"å¸è½½æ¨¡å—");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Ğ¶ÔØÄ£¿é: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå¸è½½æ¨¡å—: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Ğ¶ÔØÄ£¿é: " + item.Name() + L", ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¸è½½æ¨¡å—: " + item.Name() + L", é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
-        // Ñ¡Ïî1.2
+        // é€‰é¡¹1.2
         MenuFlyoutItem item1_2;
         item1_2.Icon(CreateFontIcon(L"\ued1a"));
-        item1_2.Text(L"Òş²ØÄ£¿é");
+        item1_2.Text(L"éšè—æ¨¡å—");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::HideDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Òş²ØÄ£¿é: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸéšè—æ¨¡å—: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Òş²ØÄ£¿é: " + item.Name() + L", ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•éšè—æ¨¡å—: " + item.Name() + L", é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
-        // ·Ö¸îÏß1
+        // åˆ†å‰²çº¿1
         MenuFlyoutSeparator separator1;
 
-        // Ñ¡Ïî2.1
+        // é€‰é¡¹2.1
         MenuFlyoutSubItem item2_1;
         item2_1.Icon(CreateFontIcon(L"\ue8c8"));
-        item2_1.Text(L"¸´ÖÆĞÅÏ¢");
+        item2_1.Text(L"å¤åˆ¶ä¿¡æ¯");
         MenuFlyoutItem item2_1_sub1;
         item2_1_sub1.Icon(CreateFontIcon(L"\ue943"));
-        item2_1_sub1.Text(L"Ãû³Æ");
+        item2_1_sub1.Text(L"åç§°");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
         item2_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
-        item2_1_sub2.Text(L"Â·¾¶");
+        item2_1_sub2.Text(L"è·¯å¾„");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
         MenuFlyoutItem item2_1_sub3;
         item2_1_sub3.Icon(CreateFontIcon(L"\ueb19"));
-        item2_1_sub3.Text(L"»ùÖ·");
+        item2_1_sub3.Text(L"åŸºå€");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.ImageBase().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub3);
         MenuFlyoutItem item2_1_sub4;
         item2_1_sub4.Icon(CreateFontIcon(L"\ueb1d"));
-        item2_1_sub4.Text(L"Çı¶¯¶ÔÏó");
+        item2_1_sub4.Text(L"é©±åŠ¨å¯¹è±¡");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.DriverObject().c_str())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"ÒÑ¸´ÖÆÄÚÈİÖÁ¼ôÌù°å", InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"å·²å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨¸´ÖÆÄÚÈİÖÁ¼ôÌù°å, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¤åˆ¶å†…å®¹è‡³å‰ªè´´æ¿, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub4);
@@ -210,24 +210,24 @@ namespace winrt::StarlightGUI::implementation
             bool shouldRemove = query.empty() ? false : ApplyFilter(kernelModule, query);
             if (shouldRemove) continue;
 
-            if (kernelModule.Name().empty()) kernelModule.Name(L"(Î´Öª)");
-            if (kernelModule.Path().empty()) kernelModule.Path(L"(Î´Öª)");
-            if (kernelModule.ImageBase().empty()) kernelModule.ImageBase(L"(Î´Öª)");
-            if (kernelModule.DriverObject().empty()) kernelModule.DriverObject(L"(Î´Öª)");
-            if (kernelModule.DriverObjectULong() == 0x0) kernelModule.DriverObject(L"(ÎŞ)");
+            if (kernelModule.Name().empty()) kernelModule.Name(L"(æœªçŸ¥)");
+            if (kernelModule.Path().empty()) kernelModule.Path(L"(æœªçŸ¥)");
+            if (kernelModule.ImageBase().empty()) kernelModule.ImageBase(L"(æœªçŸ¥)");
+            if (kernelModule.DriverObject().empty()) kernelModule.DriverObject(L"(æœªçŸ¥)");
+            if (kernelModule.DriverObjectULong() == 0x0) kernelModule.DriverObject(L"(æ— )");
 
             m_kernelModuleList.Append(kernelModule);
         }
 
-        // »Ö¸´ÅÅĞò
+        // æ¢å¤æ’åº
         ApplySort(currentSortingOption, currentSortingType);
 
         auto end = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-        // ¸üĞÂÄÚºËÄ£¿éÊıÁ¿ÎÄ±¾
+        // æ›´æ–°å†…æ ¸æ¨¡å—æ•°é‡æ–‡æœ¬
         std::wstringstream countText;
-        countText << L"¹² " << m_kernelModuleList.Size() << L" ¸öÄÚºËÄ£¿é (" << duration << " ms)";
+        countText << L"å…± " << m_kernelModuleList.Size() << L" ä¸ªå†…æ ¸æ¨¡å— (" << duration << " ms)";
         KernelModuleCountText().Text(countText.str());
 
         LoadingRing().IsActive(false);
@@ -255,12 +255,12 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    // ÅÅĞòÇĞ»»
+    // æ’åºåˆ‡æ¢
     winrt::fire_and_forget KernelModulePage::ApplySort(bool& isAscending, const std::string& column)
     {
-        NameHeaderButton().Content(box_value(L"Ä£¿é"));
-        SizeHeaderButton().Content(box_value(L"´óĞ¡"));
-        LoadOrderHeaderButton().Content(box_value(L"¼ÓÔØË³Ğò"));
+        NameHeaderButton().Content(box_value(L"æ¨¡å—"));
+        SizeHeaderButton().Content(box_value(L"å¤§å°"));
+        LoadOrderHeaderButton().Content(box_value(L"åŠ è½½é¡ºåº"));
 
         std::vector<winrt::StarlightGUI::KernelModuleInfo> sortedKernelModules;
 
@@ -270,7 +270,7 @@ namespace winrt::StarlightGUI::implementation
 
         if (column == "Name") {
             if (isAscending) {
-                NameHeaderButton().Content(box_value(L"Ä£¿é ¡ı"));
+                NameHeaderButton().Content(box_value(L"æ¨¡å— â†“"));
                 std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -282,7 +282,7 @@ namespace winrt::StarlightGUI::implementation
 
             }
             else {
-                NameHeaderButton().Content(box_value(L"Ä£¿é ¡ü"));
+                NameHeaderButton().Content(box_value(L"æ¨¡å— â†‘"));
                 std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
@@ -295,13 +295,13 @@ namespace winrt::StarlightGUI::implementation
         }
         else if (column == "Size") {
             if (isAscending) {
-                SizeHeaderButton().Content(box_value(L"´óĞ¡ ¡ı"));
+                SizeHeaderButton().Content(box_value(L"å¤§å° â†“"));
                 std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.SizeULong() < b.SizeULong();
                     });
             }
             else {
-                SizeHeaderButton().Content(box_value(L"´óĞ¡ ¡ü"));
+                SizeHeaderButton().Content(box_value(L"å¤§å° â†‘"));
                 std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.SizeULong() > b.SizeULong();
                     });
@@ -309,13 +309,13 @@ namespace winrt::StarlightGUI::implementation
         }
         else if (column == "LoadOrder") {
             if (isAscending) {
-                LoadOrderHeaderButton().Content(box_value(L"¼ÓÔØË³Ğò ¡ı"));
+                LoadOrderHeaderButton().Content(box_value(L"åŠ è½½é¡ºåº â†“"));
                 std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.LoadOrderULong() < b.LoadOrderULong();
                     });
             }
             else {
-                LoadOrderHeaderButton().Content(box_value(L"¼ÓÔØË³Ğò ¡ü"));
+                LoadOrderHeaderButton().Content(box_value(L"åŠ è½½é¡ºåº â†‘"));
                 std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.LoadOrderULong() > b.LoadOrderULong();
                     });
@@ -345,7 +345,7 @@ namespace winrt::StarlightGUI::implementation
         std::wstring name = kernelModule.Name().c_str();
         std::wstring queryWStr = query.c_str();
 
-        // ²»±È½Ï´óĞ¡Ğ´
+        // ä¸æ¯”è¾ƒå¤§å°å†™
         std::transform(name.begin(), name.end(), name.begin(), ::towlower);
         std::transform(queryWStr.begin(), queryWStr.end(), queryWStr.begin(), ::towlower);
 
@@ -388,17 +388,17 @@ namespace winrt::StarlightGUI::implementation
                 }
 
                 if (status) {
-                    CreateInfoBarAndDisplay(L"³É¹¦", L"Çı¶¯¼ÓÔØ³É¹¦£¡", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"æˆåŠŸ", L"é©±åŠ¨åŠ è½½æˆåŠŸï¼", InfoBarSeverity::Success, g_mainWindowInstance);
                 }
                 else {
-                    CreateInfoBarAndDisplay(L"Ê§°Ü", L"Çı¶¯¼ÓÔØÊ§°Ü, ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"å¤±è´¥", L"é©±åŠ¨åŠ è½½å¤±è´¥, é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
                 }
 
                 LoadKernelModuleList();
             }
         }
         catch (winrt::hresult_error const& ex) {
-            CreateInfoBarAndDisplay(L"´íÎó", L"ÏÔÊ¾¶Ô»°¿òÊ§°Ü: " + ex.message(),
+            CreateInfoBarAndDisplay(L"é”™è¯¯", L"æ˜¾ç¤ºå¯¹è¯æ¡†å¤±è´¥: " + ex.message(),
                 InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
@@ -409,11 +409,11 @@ namespace winrt::StarlightGUI::implementation
             auto item = KernelModuleListView().SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
 
             if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
-                CreateInfoBarAndDisplay(L"³É¹¦", L"³É¹¦Ğ¶ÔØÄ£¿é: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
+                CreateInfoBarAndDisplay(L"æˆåŠŸ", L"æˆåŠŸå¸è½½æ¨¡å—: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);
 
                 LoadKernelModuleList();
             }
-            else CreateInfoBarAndDisplay(L"Ê§°Ü", L"ÎŞ·¨Ğ¶ÔØÄ£¿é: " + item.Name() + L", ´íÎóÂë: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"å¤±è´¥", L"æ— æ³•å¸è½½æ¨¡å—: " + item.Name() + L", é”™è¯¯ç : " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }

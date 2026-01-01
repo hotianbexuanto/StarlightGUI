@@ -273,8 +273,6 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget MainWindow::CheckUpdate()
     {
-        if (!ReadConfig("check_update", true)) co_return;
-
         auto weak_this = get_weak();
 
         int currentBuildNumber = unbox_value<int>(Application::Current().Resources().TryLookup(box_value(L"BuildNumber")));
@@ -300,6 +298,19 @@ namespace winrt::StarlightGUI::implementation
 
             LOG_INFO(L"Updater", L"Current: %d, Latest: %d", currentBuildNumber, latestBuildNumber);
 
+            if (ReadConfig("last_announcement_date", 0) < GetDateAsInt()) {
+                auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
+                dialog.IsUpdate(false);
+                dialog.LatestVersion(json.GetNamedString(L"an_update_time"));
+                dialog.SetAnLine(1, json.GetNamedString(L"an_line1"));
+                dialog.SetAnLine(2, json.GetNamedString(L"an_line2"));
+                dialog.SetAnLine(3, json.GetNamedString(L"an_line3"));
+                dialog.XamlRoot(MainWindowGrid().XamlRoot());
+                co_await dialog.ShowAsync();
+            }
+
+            if (!ReadConfig("check_update", true)) co_return;
+
             if (latestBuildNumber == 0) {
                 LOG_WARNING(L"Updater", L"Latest = 0, check failed.");
                 CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, g_mainWindowInstance);
@@ -307,17 +318,6 @@ namespace winrt::StarlightGUI::implementation
             else if (latestBuildNumber == currentBuildNumber) {
                 LOG_INFO(L"Updater", L"Latest = current, we are on the latest version.");
                 CreateInfoBarAndDisplay(L"信息", L"你正在使用最新版本的 Starlight GUI！", InfoBarSeverity::Informational, g_mainWindowInstance);
-
-                if (ReadConfig("last_announcement_date", 0) < GetDateAsInt()) {
-                    auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
-                    dialog.IsUpdate(false);
-                    dialog.LatestVersion(json.GetNamedString(L"an_update_time"));
-                    dialog.SetAnLine(1, json.GetNamedString(L"an_line1"));
-                    dialog.SetAnLine(2, json.GetNamedString(L"an_line2"));
-                    dialog.SetAnLine(3, json.GetNamedString(L"an_line3"));
-                    dialog.XamlRoot(MainWindowGrid().XamlRoot());
-                    co_await dialog.ShowAsync();
-                }
             }
             else if (latestBuildNumber > currentBuildNumber) {
                 LOG_INFO(L"Updater", L"Latest > current, new version avaliable. Calling up update dialog.");

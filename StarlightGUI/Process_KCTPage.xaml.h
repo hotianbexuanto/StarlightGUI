@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Process_KCTPage.g.h"
 #include <map>

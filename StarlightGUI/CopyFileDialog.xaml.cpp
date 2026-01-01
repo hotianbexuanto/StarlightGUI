@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CopyFileDialog.xaml.h"
 #if __has_include("CopyFileDialog.g.cpp")
 #include "CopyFileDialog.g.cpp"
