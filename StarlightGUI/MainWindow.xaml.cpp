@@ -15,6 +15,7 @@
 #include <winrt/Windows.Web.Http.Headers.h>
 #include <winrt/Windows.Data.Json.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
+#include <commctrl.h>
 #include "UpdateDialog.xaml.h"
 
 using namespace winrt;
@@ -48,14 +49,14 @@ namespace winrt::StarlightGUI::implementation
         windowNative->get_WindowHandle(&hWnd);
         globalHWND = hWnd;
 
-        this->ExtendsContentIntoTitleBar(true);
-        this->SetTitleBar(AppTitleBar());
-        this->AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
+        ExtendsContentIntoTitleBar(true);
+        SetTitleBar(AppTitleBar());
+        AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
+        SetWindowSubclass(hWnd, &MainWindowProc, 1, reinterpret_cast<DWORD_PTR>(this));
 
         int32_t width = ReadConfig("window_width", 1200);
         int32_t height = ReadConfig("window_height", 800);
-
-        this->AppWindow().Resize(SizeInt32{ width, height });
+        AppWindow().Resize(SizeInt32{ width, height });
 
         // 外观
         LoadBackdrop();
@@ -397,5 +398,27 @@ namespace winrt::StarlightGUI::implementation
     HWND MainWindow::GetWindowHandle()
     {
         return globalHWND;
+    }
+
+    LRESULT CALLBACK MainWindow::MainWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+    {
+
+        switch (uMsg)
+        {
+        case WM_GETMINMAXINFO:
+        {
+            MINMAXINFO* pMinMaxInfo = reinterpret_cast<MINMAXINFO*>(lParam);
+            pMinMaxInfo->ptMinTrackSize.x = 800;
+            pMinMaxInfo->ptMinTrackSize.y = 600;
+            return 0;
+        }
+
+        case WM_NCDESTROY:
+        {
+            RemoveWindowSubclass(hWnd, &MainWindowProc, uIdSubclass);
+            break;
+        }
+        }
+        return DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 }

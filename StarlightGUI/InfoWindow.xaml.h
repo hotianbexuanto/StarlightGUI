@@ -17,6 +17,9 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget LoadBackdrop();
         winrt::fire_and_forget LoadBackground();
         winrt::fire_and_forget LoadNavigation();
+
+        // 窗口
+        static LRESULT CALLBACK InfoWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
     };
 
     extern winrt::StarlightGUI::ProcessInfo processForInfoWindow;

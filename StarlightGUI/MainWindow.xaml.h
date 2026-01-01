@@ -23,8 +23,10 @@ namespace winrt::StarlightGUI::implementation
 
         // 驱动和模块
         winrt::fire_and_forget LoadModules();
-
         winrt::fire_and_forget CheckUpdate();
+
+        // 窗口
+        static LRESULT CALLBACK MainWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
         std::vector<winrt::StarlightGUI::InfoWindow> m_openWindows;
 

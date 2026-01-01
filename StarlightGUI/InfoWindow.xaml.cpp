@@ -9,9 +9,9 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Composition.SystemBackdrops.h>
 #include <winrt/Windows.UI.h>
-#include <Windows.h>
 #include <winrt/Windows.UI.Xaml.Interop.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
+#include <commctrl.h>
 #include <MainWindow.xaml.h>
 #include <Utils/ProcessInfo.h>
 
@@ -19,6 +19,7 @@ using namespace winrt;
 using namespace WinUI3Package;
 using namespace Windows::UI;
 using namespace Windows::Storage;
+using namespace Windows::Graphics;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Media::Imaging;
@@ -41,9 +42,14 @@ namespace winrt::StarlightGUI::implementation
 
         SetWindowPos(hWnd, g_mainWindowInstance->GetWindowHandle(), 0, 0, 1200, 800, SWP_NOMOVE);
 
-        this->ExtendsContentIntoTitleBar(true);
-        this->SetTitleBar(AppTitleBar());
-        this->AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
+        ExtendsContentIntoTitleBar(true);
+        SetTitleBar(AppTitleBar());
+        AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
+        SetWindowSubclass(hWnd, &InfoWindowProc, 1, reinterpret_cast<DWORD_PTR>(this));
+
+        int32_t width = ReadConfig("window_width", 1200);
+        int32_t height = ReadConfig("window_height", 800);
+        AppWindow().Resize(SizeInt32{ width, height });
 
         // 外观
         LoadBackdrop();
@@ -205,8 +211,31 @@ namespace winrt::StarlightGUI::implementation
         LOG_INFO(L"InfoWindow", L"Loading navigation async with options: [%s]", to_hstring(navigation_style).c_str());
         co_return;
     }
+
     HWND InfoWindow::GetWindowHandle()
     {
         return globalHWND;
+    }
+
+    LRESULT CALLBACK InfoWindow::InfoWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+    {
+
+        switch (uMsg)
+        {
+        case WM_GETMINMAXINFO:
+        {
+            MINMAXINFO* pMinMaxInfo = reinterpret_cast<MINMAXINFO*>(lParam);
+            pMinMaxInfo->ptMinTrackSize.x = 800;
+            pMinMaxInfo->ptMinTrackSize.y = 600;
+            return 0;
+        }
+
+        case WM_NCDESTROY:
+        {
+            RemoveWindowSubclass(hWnd, &InfoWindowProc, uIdSubclass);
+            break;
+        }
+        }
+        return DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 }
