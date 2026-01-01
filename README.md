@@ -8,6 +8,7 @@
 
 **主页**: [![Bilibili](https://img.shields.io/badge/Bilibili-Stars_Azusa-white?style=flat-square&logo=bilibili&logoColor=white&labelColor=ff69b4)](https://space.bilibili.com/670866766)  
 **赞助**: <a href="https://afdian.com/a/StarsAzusa" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="40" width="130"></a>
+**常驻下载链接**: https://pan.quark.cn/s/ee7a29ca2a76  **提取码**: vVmj  
 
 ## 简介
 
