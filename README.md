@@ -7,8 +7,9 @@
 </p>
 
 **主页**: [![Bilibili](https://img.shields.io/badge/Bilibili-Stars_Azusa-white?style=flat-square&logo=bilibili&logoColor=white&labelColor=ff69b4)](https://space.bilibili.com/670866766)  
-**赞助**: <a href="https://afdian.com/a/StarsAzusa" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="40" width="130"></a>
+**赞助**: <a href="https://afdian.com/a/StarsAzusa" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="40" width="130"></a>  
 **常驻下载链接**: https://pan.quark.cn/s/ee7a29ca2a76  **提取码**: vVmj  
+*（使用网盘原因告知: 本软件为免费软件，作者为了维持生活所以与网盘合作，你使用手机在网盘内保存可以给我带来一些微小的收益，感谢理解！如果赞助多的话会考虑直接传 Github 或者蓝奏云的！）*
 
 ## 简介
 
