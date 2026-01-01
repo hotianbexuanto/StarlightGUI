@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "App.xaml.g.h"
 
@@ -9,6 +9,8 @@ namespace winrt::StarlightGUI::implementation
         App();
 
         void OnLaunched(Microsoft::UI::Xaml::LaunchActivatedEventArgs const&);
+
+        void InitializeLogger();
 
     private:
         winrt::Microsoft::UI::Xaml::Window window{ nullptr };

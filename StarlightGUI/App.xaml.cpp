@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Utils/Config.h"
 #include "App.xaml.h"
 #include "MainWindow.xaml.h"
@@ -28,9 +28,14 @@ namespace winrt::StarlightGUI::implementation
 
     void App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
     {
-        LOGGER_INIT();
-        LOG_INFO(L"App", L"Launching Starlight GUI App...");
+        InitializeLogger();
+        InitializeConfig();
         window = make<MainWindow>();
         window.Activate();
+    }
+
+    void App::InitializeLogger() {
+        LOGGER_INIT();
+        LOG_INFO(L"", L"Launching Starlight GUI...");
     }
 }

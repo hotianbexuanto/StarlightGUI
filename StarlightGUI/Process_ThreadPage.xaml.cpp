@@ -111,7 +111,7 @@ namespace winrt::StarlightGUI::implementation
         item1_3.Icon(CreateFontIcon(L"\ue945"));
         item1_3.Text(L"强制结束线程");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id() || !ReadConfig("dangerous_confirm", true)) {
+            if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
                 if (KernelInstance::MurderThread(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功强制结束线程: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_infoWindowInstance);
                     LoadThreadList();

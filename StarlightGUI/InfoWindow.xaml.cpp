@@ -98,7 +98,6 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget InfoWindow::LoadBackdrop()
     {
-        std::string background_type = ReadConfig("background_type", "Static");
         std::string option = "*";
 
         if (background_type == "Mica") {
@@ -106,7 +105,7 @@ namespace winrt::StarlightGUI::implementation
 
             this->SystemBackdrop(micaBackdrop);
 
-            option = ReadConfig("mica_type", "BaseAlt");
+            option = mica_type;
             if (option == "Base") {
                 micaBackdrop.Kind(MicaKind::Base);
             }
@@ -119,7 +118,7 @@ namespace winrt::StarlightGUI::implementation
 
             this->SystemBackdrop(acrylicBackdrop);
 
-            option = ReadConfig("acrylic_type", "Default");
+            option = acrylic_type;
             if (option == "Base") {
                 acrylicBackdrop.Kind(DesktopAcrylicKind::Base);
             }
@@ -141,7 +140,13 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget InfoWindow::LoadBackground()
     {
-        std::string background_image = ReadConfig("background_image", "");
+        if (background_image.empty()) {
+            SolidColorBrush brush;
+            brush.Color(Colors::Transparent());
+
+            InfoWindowGrid().Background(brush);
+            co_return;
+        }
 
         HANDLE hFile = CreateFileA(background_image.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -158,15 +163,12 @@ namespace winrt::StarlightGUI::implementation
                     bitmapImage.SetSource(stream);
                     brush.ImageSource(bitmapImage);
 
-                    int opacity = ReadConfig("image_opacity", 20);
-                    std::string stretch = ReadConfig("image_stretch", "UniformToFill");
-
-                    brush.Stretch(stretch == "None" ? Stretch::None : stretch == "Uniform" ? Stretch::Uniform : stretch == "Fill" ? Stretch::Fill : Stretch::UniformToFill);
-                    brush.Opacity(opacity / 100.0);
+                    brush.Stretch(image_stretch == "None" ? Stretch::None : image_stretch == "Uniform" ? Stretch::Uniform : image_stretch == "Fill" ? Stretch::Fill : Stretch::UniformToFill);
+                    brush.Opacity(image_opacity / 100.0);
 
                     InfoWindowGrid().Background(brush);
 
-                    LOG_INFO(L"InfoWindow", L"Loading background async with options: [%s, %d, %s]", to_hstring(background_image).c_str(), opacity, to_hstring(stretch).c_str());
+                    LOG_INFO(L"InfoWindow", L"Loading background async with options: [%s, %d, %s]", to_hstring(background_image).c_str(), image_opacity, to_hstring(image_stretch).c_str());
                 }
             }
             catch (hresult_error) {
@@ -189,8 +191,6 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget InfoWindow::LoadNavigation()
     {
-        std::string navigation_style = ReadConfig("navigation_style", "LeftCompact");
-
         if (navigation_style == "Left") {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);
         }

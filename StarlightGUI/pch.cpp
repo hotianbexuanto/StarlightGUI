@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 
-winrt::hstring kernelPath = L"";
-winrt::hstring astralPath = L"";
-winrt::hstring axBandPath = L"";
+winrt::hstring kernelPath = L"", astralPath = L"", axBandPath = L"";
 std::wstring unused = L"";
+std::string enum_file_mode, background_type, mica_type, acrylic_type, navigation_style, background_image, image_stretch;
+bool enum_strengthen, pdh_first, dangerous_confirm, check_update;
+double image_opacity;

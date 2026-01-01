@@ -58,23 +58,15 @@
 #include <Utils/Elevator.h>
 #include <Utils/Config.h>
 #include <Utils/CppUtils.h>
-
 #include <ConsoleLogger.h>
 
-extern winrt::hstring kernelPath;
-extern winrt::hstring astralPath;
-extern winrt::hstring axBandPath;
-extern std::wstring unused;
-
 #define __WFUNCTION__ ExtractFunctionName(__FUNCTION__)
-
 #define LOG_DEBUG(source, message, ...)    ConsoleLogger::GetInstance().Debug(source, message, __VA_ARGS__)
 #define LOG_INFO(source, message, ...)     ConsoleLogger::GetInstance().Info(source, message, __VA_ARGS__)
 #define LOG_WARNING(source, message, ...)  ConsoleLogger::GetInstance().Warning(source, message, __VA_ARGS__)
 #define LOG_ERROR(source, message, ...)    ConsoleLogger::GetInstance().Error(source, message, __VA_ARGS__)
 #define LOG_CRITICAL(source, message, ...) ConsoleLogger::GetInstance().Critical(source, message, __VA_ARGS__)
 #define LOG_SUCCESS(source, message, ...)  ConsoleLogger::GetInstance().Success(source, message, __VA_ARGS__)
-
 #define LOGGER_INIT()			ConsoleLogger::GetInstance().Initialize()
 #define LOGGER_TOGGLE()			ConsoleLogger::GetInstance().ToggleConsole()
 #define LOGGER_OPEN()			ConsoleLogger::GetInstance().OpenConsole()
@@ -83,3 +75,9 @@ extern std::wstring unused;
 #define LOGGER_CLEAR()			ConsoleLogger::GetInstance().ClearConsole()
 #define LOGGER_SET_TITLE(title) ConsoleLogger::GetInstance().SetTitle(title)
 #define LOGGER_SET_LEVEL(level) ConsoleLogger::GetInstance().SetMinLogLevel(level)
+
+extern winrt::hstring kernelPath, astralPath, axBandPath;
+extern std::wstring unused;
+extern std::string enum_file_mode, background_type, mica_type, acrylic_type, navigation_style, background_image, image_stretch;
+extern bool enum_strengthen, pdh_first, dangerous_confirm, check_update;
+extern double image_opacity;

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <MainWindow.g.h>
+#include <pch.h>
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <filesystem>
@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 namespace winrt::StarlightGUI::implementation {
     template<typename T>
-    static auto ReadConfig(std::string key, T defaultValue) {
+    auto ReadConfig(std::string key, T defaultValue) {
         try
         {
             // 获取用户文件夹路径
@@ -48,7 +48,7 @@ namespace winrt::StarlightGUI::implementation {
     }
 
     template<typename T>
-    static void SaveConfig(std::string key, T s_value) {
+    void SaveConfig(std::string key, T s_value) {
         try
         {
             // 获取用户文件夹路径
@@ -75,5 +75,8 @@ namespace winrt::StarlightGUI::implementation {
         catch (...)
         {
         }
+        InitializeConfig();
     }
+
+    void InitializeConfig();
 }

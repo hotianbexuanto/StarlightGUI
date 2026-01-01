@@ -431,7 +431,7 @@ namespace winrt::StarlightGUI::implementation
 
         double gpu_time = 0.0;
         if (isNvidia) {
-            if (ReadConfig("pdh_first", true)) {
+            if (pdh_first) {
                 gpu_time = GetValueFromCounterArray(counter_gpu_time);
             }
             else {

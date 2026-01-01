@@ -417,6 +417,7 @@
       <DependentUpon>UtilityPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="Utils\Config.cpp" />
     <ClCompile Include="Utils\CppUtils.cpp" />
     <ClCompile Include="Utils\DriverUtils.cpp" />
     <ClCompile Include="Utils\FileInfo.cpp" />

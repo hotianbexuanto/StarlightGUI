@@ -128,7 +128,7 @@ namespace winrt::StarlightGUI::implementation
         item1_3.Icon(CreateFontIcon(L"\ue945"));
         item1_3.Text(L"强制结束进程");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id() || !ReadConfig("dangerous_confirm", true)) {
+            if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
                 if (KernelInstance::MurderProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
@@ -291,7 +291,7 @@ namespace winrt::StarlightGUI::implementation
         item2_4.Icon(CreateFontIcon(L"\ue8c9"));
         item2_4.Text(L"设置为关键进程");
         item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id() || !ReadConfig("dangerous_confirm", true)) {
+            if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
                 if (KernelInstance::SetCriticalProcess(item.Id())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功设置为关键进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
@@ -503,7 +503,7 @@ namespace winrt::StarlightGUI::implementation
 
             // 对于 Windows 11，我们使用 AstralX 进行枚举
 			// 对于 Windows 10 及以下版本，我们使用 SKT64 进行枚举
-            if (TaskUtils::GetWindowsBuildNumber() >= 22000 && !ReadConfig("enum_strengthen", false)) {
+            if (TaskUtils::GetWindowsBuildNumber() >= 22000 && !enum_strengthen) {
                 KernelInstance::EnumProcess(processIndexMap, processes);
             }
             else {

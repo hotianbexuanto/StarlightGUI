@@ -35,7 +35,7 @@
                 <essential:SettingsCard.HeaderIcon>
                     <FontIcon Glyph="&#xf272;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
                 </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch x:Name="EnumStrengthenButton" Toggled="EnumStrengthenButton_Toggled" Margin="0,0,-80,0" IsOn="False"/>
+                <ToggleSwitch x:Name="EnumStrengthenButton" Toggled="EnumStrengthenButton_Toggled" Margin="0,0,-80,0"/>
             </essential:SettingsCard>
 
             <essential:SettingsCard Header="PDH 数据优先"
@@ -46,7 +46,7 @@
                 <essential:SettingsCard.HeaderIcon>
                     <FontIcon Glyph="&#xe7f1;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
                 </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch x:Name="PDHFirstButton" Toggled="PDHFirstButton_Toggled" Margin="0,0,-80,0" IsOn="True"/>
+                <ToggleSwitch x:Name="PDHFirstButton" Toggled="PDHFirstButton_Toggled" Margin="0,0,-80,0"/>
             </essential:SettingsCard>
 
             <TextBlock Text="外观" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
