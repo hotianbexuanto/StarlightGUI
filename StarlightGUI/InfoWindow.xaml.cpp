@@ -45,6 +45,7 @@ namespace winrt::StarlightGUI::implementation
         ExtendsContentIntoTitleBar(true);
         SetTitleBar(AppTitleBar());
         AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
+        AppWindow().SetIcon(GetInstalledLocationPath() + L"\\Assets\\Starlight.ico");
         SetWindowSubclass(hWnd, &InfoWindowProc, 1, reinterpret_cast<DWORD_PTR>(this));
 
         int32_t width = ReadConfig("window_width", 1200);

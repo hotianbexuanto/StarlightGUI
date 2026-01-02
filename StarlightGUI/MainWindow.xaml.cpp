@@ -52,6 +52,7 @@ namespace winrt::StarlightGUI::implementation
         ExtendsContentIntoTitleBar(true);
         SetTitleBar(AppTitleBar());
         AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
+        AppWindow().SetIcon(GetInstalledLocationPath() + L"\\Assets\\Starlight.ico");
         SetWindowSubclass(hWnd, &MainWindowProc, 1, reinterpret_cast<DWORD_PTR>(this));
 
         int32_t width = ReadConfig("window_width", 1200);
@@ -354,17 +355,16 @@ namespace winrt::StarlightGUI::implementation
             try {
                 co_await winrt::resume_background();
 
-                auto& appFolder = Package::Current().InstalledLocation();
-                auto& assetsFolder = co_await appFolder.GetFolderAsync(L"Assets");
-                auto& kernelFile = co_await assetsFolder.GetFileAsync(L"kernel.sys");
-                auto& astralFile = co_await assetsFolder.GetFileAsync(L"AstralX.sys");
-                auto& axBandFile = co_await assetsFolder.GetFileAsync(L"AxBand.dll");
+                auto& kernelFile = co_await StorageFile::GetFileFromPathAsync(GetInstalledLocationPath() + L"\\Assets\\kernel.sys");
+                auto& astralFile = co_await StorageFile::GetFileFromPathAsync(GetInstalledLocationPath() + L"\\Assets\\AstralX.sys");
+                auto& axBandFile = co_await StorageFile::GetFileFromPathAsync(GetInstalledLocationPath() + L"\\Assets\\AxBand.dll");
 
                 if (kernelFile && KernelInstance::IsRunningAsAdmin()) {
                     kernelPath = kernelFile.Path();
 
                     LOG_INFO(L"DriverUtils", L"Kernel.sys path [%s], load it.", kernelPath.c_str());
                     DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
+                    LOG_DEBUG(L"DriverUtils", L"%s, error code: %d", unused.c_str(), GetLastError());
                 }
 
                 if (astralFile && KernelInstance::IsRunningAsAdmin()) {
@@ -372,6 +372,7 @@ namespace winrt::StarlightGUI::implementation
 
                     LOG_INFO(L"DriverUtils", L"AstralX.sys path [%s], load it.", astralPath.c_str());
                     DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
+                    LOG_DEBUG(L"DriverUtils", L"%s, error code: %d", unused.c_str(), GetLastError());
                 }
 
                 if (axBandFile) {

@@ -1,17 +1,18 @@
 ﻿#include "pch.h"
 #include "KernelBase.h"
+#include <shellapi.h>
 
 namespace winrt::StarlightGUI::implementation {
 	bool DriverUtils::LoadKernelDriver(LPCWSTR kernelPath, std::wstring& dbgMsg) noexcept {
 		SC_HANDLE hSCM, hService;
 
-		hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+		hSCM = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 		if (!hSCM) {
 			dbgMsg = L"无法打开SCManager";
 			return false;
 		}
 
-		hService = OpenService(hSCM, L"StarlightGUI Kernel Driver", SERVICE_ALL_ACCESS);
+		hService = OpenServiceW(hSCM, L"StarlightGUI Kernel Driver", SERVICE_ALL_ACCESS);
 		if (hService) {
 			// Start the service if it"s not running
 			SERVICE_STATUS serviceStatus;
@@ -25,7 +26,7 @@ namespace winrt::StarlightGUI::implementation {
 
 			if (serviceStatus.dwCurrentState == SERVICE_STOPPED) {
 				LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
-				if (!StartService(hService, 0, nullptr)) {
+				if (!StartServiceW(hService, 0, nullptr)) {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
 					DeleteService(hService);
@@ -40,7 +41,7 @@ namespace winrt::StarlightGUI::implementation {
 		}
 		else {
 			// Create the service
-			hService = CreateService(hSCM, L"StarlightGUI Kernel Driver", L"StarlightGUI Kernel Driver", SERVICE_ALL_ACCESS,
+			hService = CreateServiceW(hSCM, L"StarlightGUI Kernel Driver", L"StarlightGUI Kernel Driver", SERVICE_ALL_ACCESS,
 				SERVICE_KERNEL_DRIVER, SERVICE_DEMAND_START,
 				SERVICE_ERROR_IGNORE, kernelPath, NULL, NULL, NULL,
 				NULL, NULL);
@@ -53,7 +54,7 @@ namespace winrt::StarlightGUI::implementation {
 
 			// Start the service
 			LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
-			if (!StartService(hService, 0, nullptr)) {
+			if (!StartServiceW(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
 				DeleteService(hService);
@@ -71,13 +72,13 @@ namespace winrt::StarlightGUI::implementation {
 	bool DriverUtils::LoadDriver(LPCWSTR kernelPath, LPCWSTR fileName, std::wstring& dbgMsg) noexcept {
 		SC_HANDLE hSCM, hService;
 
-		hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+		hSCM = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 		if (!hSCM) {
 			dbgMsg = L"无法打开SCManager";
 			return false;
 		}
 
-		hService = OpenService(hSCM, fileName, SERVICE_ALL_ACCESS);
+		hService = OpenServiceW(hSCM, fileName, SERVICE_ALL_ACCESS);
 		if (hService) {
 			// Start the service if it"s not running
 			SERVICE_STATUS serviceStatus;
@@ -91,7 +92,7 @@ namespace winrt::StarlightGUI::implementation {
 
 			if (serviceStatus.dwCurrentState == SERVICE_STOPPED) {
 				LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
-				if (!StartService(hService, 0, nullptr)) {
+				if (!StartServiceW(hService, 0, nullptr)) {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
 					DeleteService(hService);
@@ -106,7 +107,7 @@ namespace winrt::StarlightGUI::implementation {
 		}
 		else {
 			// Create the service
-			hService = CreateService(hSCM, fileName, fileName, SERVICE_ALL_ACCESS,
+			hService = CreateServiceW(hSCM, fileName, fileName, SERVICE_ALL_ACCESS,
 				SERVICE_KERNEL_DRIVER, SERVICE_DEMAND_START,
 				SERVICE_ERROR_IGNORE, kernelPath, NULL, NULL, NULL,
 				NULL, NULL);
@@ -119,7 +120,7 @@ namespace winrt::StarlightGUI::implementation {
 
 			// Start the service
 			LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
-			if (!StartService(hService, 0, nullptr)) {
+			if (!StartServiceW(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
 				DeleteService(hService);
@@ -132,5 +133,31 @@ namespace winrt::StarlightGUI::implementation {
 			return true;
 		}
 		return false;
+	}
+
+	void DriverUtils::FixServices() noexcept {
+		// 启动 fix_services.bat
+		std::wstring path = GetInstalledLocationPath() + L"\\Assets\\fix_services.bat";
+		SHELLEXECUTEINFOW sei = { sizeof(sei) };
+		sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+		sei.lpFile = path.c_str();
+		sei.nShow = SW_SHOWNORMAL;
+		sei.lpVerb = L"runas";
+
+		BOOL stauts = ShellExecuteExW(&sei);
+
+		if (stauts && sei.hProcess != NULL) {
+			DWORD processId = GetProcessId(sei.hProcess);
+			CloseHandle(sei.hProcess);
+			CloseHandle(sei.hIcon);
+			std::wstring content = L"启动脚本成功，PID: " + std::to_wstring(processId);
+			CreateInfoBarAndDisplay(L"成功", content.c_str(),
+				InfoBarSeverity::Success, g_mainWindowInstance);
+		}
+		else {
+			std::wstring content = L"启动脚本失败，错误码: " + std::to_wstring(GetLastError());
+			CreateInfoBarAndDisplay(L"失败", content.c_str(),
+				InfoBarSeverity::Error, g_mainWindowInstance);
+		}
 	}
 }

@@ -158,7 +158,7 @@
                 </ComboBox>
             </essential:SettingsCard>
 
-            <TextBlock Text="信息" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
+            <TextBlock Text="其他" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
 
             <essential:SettingsCard Header="危险提示"
                                     Description="在运行危险操作前先进行确认"
@@ -191,7 +191,18 @@
                 <essential:SettingsCard.HeaderIcon>
                     <FontIcon Glyph="&#xe70b;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
                 </essential:SettingsCard.HeaderIcon>
-                <Button x:Name="LogButton" Content="切换" Click="LogButton_Click"/>
+                <Button Content="切换" Click="LogButton_Click"/>
+            </essential:SettingsCard>
+
+            <essential:SettingsCard Header="服务修复"
+                                    Description="如果无法正确加载完整功能，请尝试运行这个修复"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xe90f;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <Button Content="修复" Click="FixButton_Click"/>
             </essential:SettingsCard>
         </StackPanel>
     </ScrollViewer>

@@ -157,10 +157,16 @@ namespace winrt::StarlightGUI::implementation {
         }
     }
 
+    std::wstring GetInstalledLocationPath() {
+        wchar_t exePath[MAX_PATH];
+        GetModuleFileNameW(NULL, exePath, MAX_PATH);
+        return fs::path(exePath).parent_path().wstring();
+    }
+
     double GetValueFromCounter(PDH_HCOUNTER& counter) {
         PDH_FMT_COUNTERVALUE value;
 
-        if (PdhGetFormattedCounterValue(counter, PDH_FMT_DOUBLE, nullptr, &value) == ERROR_SUCCESS) {
+        if (PdhGetFormattedCounterValue(counter, PDH_FMT_DOUBLE, NULL, &value) == ERROR_SUCCESS) {
             return value.doubleValue;
         }
 

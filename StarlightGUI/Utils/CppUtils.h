@@ -28,6 +28,8 @@ namespace winrt::StarlightGUI::implementation {
 
     std::wstring ExtractFileName(const std::wstring& path);
 
+    std::wstring GetInstalledLocationPath();
+
     double GetValueFromCounter(PDH_HCOUNTER& counter);
 
     double GetValueFromCounterArray(PDH_HCOUNTER& counter);

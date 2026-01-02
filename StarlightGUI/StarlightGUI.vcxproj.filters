@@ -205,6 +205,7 @@
     <ClInclude Include="Utils\WindowInfo.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -223,9 +224,6 @@
       <Filter>Assets</Filter>
     </Image>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\StarlightGUI.png">
       <Filter>Assets</Filter>
     </Image>
     <Image Include="Assets\SmallTile.scale-100.png">
@@ -378,9 +376,6 @@
     <Image Include="Assets\BadgeLogo.scale-400.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\Starlight.png">
-      <Filter>Assets</Filter>
-    </Image>
     <Image Include="Assets\github-mark.png">
       <Filter>Assets</Filter>
     </Image>
@@ -394,6 +389,13 @@
       <Filter>Assets</Filter>
     </Image>
     <Image Include="Assets\MuLin.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StarlightGUI.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Starlight.ico" />
+    <Image Include="Assets\Starlight.png">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
@@ -424,9 +426,6 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
     <None Include="StarlightGUI_TemporaryKey.pfx" />
     <None Include="Assets\kernel.sys">
@@ -445,5 +444,8 @@
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="StarlightGUI.rc" />
   </ItemGroup>
 </Project>

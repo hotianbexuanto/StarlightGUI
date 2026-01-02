@@ -295,10 +295,14 @@ namespace winrt::StarlightGUI::implementation
         g_mainWindowInstance->LoadBackground();
     }
 
-    winrt::Windows::Foundation::IAsyncAction SettingsPage::LogButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    void SettingsPage::LogButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         LOGGER_TOGGLE();
-        co_return;
+    }
+
+    void SettingsPage::FixButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        DriverUtils::FixServices();
     }
 
 }
