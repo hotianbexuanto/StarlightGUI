@@ -14,9 +14,9 @@
                 <ResourceDictionary Source="ms-appx:///WinUI3Package/ModernStandardWindowContextMenu_Resource.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <x:String x:Key="Version">v1.10.0</x:String>
-            <x:Int32 x:Key="BuildNumber">11000</x:Int32>
-            <x:String x:Key="ReleaseDate">2026/1/2</x:String>
+            <x:String x:Key="Version">v1.10.1</x:String>
+            <x:Int32 x:Key="BuildNumber">11010</x:Int32>
+            <x:String x:Key="ReleaseDate">2026/1/5</x:String>
             <x:String x:Key="Author">Stars</x:String>
 
             <!-- 透明 -->

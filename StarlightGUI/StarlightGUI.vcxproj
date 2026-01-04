@@ -30,6 +30,7 @@
     <AppContainerApplication>false</AppContainerApplication>
     <AppxPackage>false</AppxPackage>
     <WindowsPackageType>None</WindowsPackageType>
+	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <ApplicationType>Windows Store</ApplicationType>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
@@ -124,8 +125,8 @@
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</AllowIsolation>
     </Link>
     <Link>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">RequireAdministrator</UACExecutionLevel>
-      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EnableUAC>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AsInvoker</UACExecutionLevel>
+      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</AllowIsolation>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</LinkTimeCodeGeneration>
@@ -144,10 +145,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">RequireAdministrator</UACExecutionLevel>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">RequireAdministrator</UACExecutionLevel>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">RequireAdministrator</UACExecutionLevel>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AsInvoker</UACExecutionLevel>
       <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</EnableUAC>
       <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EnableUAC>
-      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EnableUAC>
+      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</AllowIsolation>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</AllowIsolation>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</AllowIsolation>

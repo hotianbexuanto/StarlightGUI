@@ -14,6 +14,7 @@
     <SplashScreenSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</SplashScreenSource>
     <PackageLogoSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</PackageLogoSource>
     <BadgeLogoSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</BadgeLogoSource>
+    <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerType>NativeOnly</DebuggerType>
