@@ -79,12 +79,7 @@ namespace winrt::StarlightGUI::implementation
                     CreateInfoBarAndDisplay(L"信息", L"正在加载模块，这可能需要一点时间...", InfoBarSeverity::Informational, g_mainWindowInstance);
                 }
                 LoadModules();
-                try {
-                    CheckUpdate();
-                }
-                catch (hresult_error) {
-                    CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, g_mainWindowInstance);
-                }
+                CheckUpdate();
 				loaded = true;
             }
             });
@@ -267,78 +262,83 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget MainWindow::CheckUpdate()
     {
-        auto weak_this = get_weak();
+        try {
+            auto weak_this = get_weak();
 
-        int currentBuildNumber = unbox_value<int>(Application::Current().Resources().TryLookup(box_value(L"BuildNumber")));
-        int latestBuildNumber = 0;
+            int currentBuildNumber = unbox_value<int>(Application::Current().Resources().TryLookup(box_value(L"BuildNumber")));
+            int latestBuildNumber = 0;
 
-        co_await winrt::resume_background();
+            if (auto strong_this = weak_this.get()) {
+                co_await winrt::resume_background();
 
-        HttpClient client;
-        Uri uri(L"https://pastebin.com/raw/kz5qViYF");
+                HttpClient client;
+                Uri uri(L"https://pastebin.com/raw/kz5qViYF");
 
-        // 防止获取旧数据
-        client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");
-        client.DefaultRequestHeaders().Append(L"If-None-Match", L"");
+                // 防止获取旧数据
+                client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");
+                client.DefaultRequestHeaders().Append(L"If-None-Match", L"");
 
-        LOG_INFO(L"Updater", L"Sending update check request...");
-        hstring result = co_await client.GetStringAsync(uri);
+                LOG_INFO(L"Updater", L"Sending update check request...");
+                auto& result = co_await client.GetStringAsync(uri);
 
-        auto json = Windows::Data::Json::JsonObject::Parse(result);
-        latestBuildNumber = json.GetNamedNumber(L"build_number");
+                auto json = Windows::Data::Json::JsonObject::Parse(result);
+                latestBuildNumber = json.GetNamedNumber(L"build_number");
 
-        if (auto strong_this = weak_this.get()) {
-            co_await wil::resume_foreground(DispatcherQueue());
+                co_await wil::resume_foreground(DispatcherQueue());
 
-            LOG_INFO(L"Updater", L"Current: %d, Latest: %d", currentBuildNumber, latestBuildNumber);
+                LOG_INFO(L"Updater", L"Current: %d, Latest: %d", currentBuildNumber, latestBuildNumber);
 
-            if (ReadConfig("last_announcement_date", 0) < GetDateAsInt()) {
-                auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
-                dialog.IsUpdate(false);
-                dialog.LatestVersion(json.GetNamedString(L"an_update_time"));
-                dialog.SetAnLine(1, json.GetNamedString(L"an_line1"));
-                dialog.SetAnLine(2, json.GetNamedString(L"an_line2"));
-                dialog.SetAnLine(3, json.GetNamedString(L"an_line3"));
-                dialog.XamlRoot(MainWindowGrid().XamlRoot());
-                co_await dialog.ShowAsync();
-            }
+                if (ReadConfig("last_announcement_date", 0) < GetDateAsInt()) {
+                    auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
+                    dialog.IsUpdate(false);
+                    dialog.LatestVersion(json.GetNamedString(L"an_update_time"));
+                    dialog.SetAnLine(1, json.GetNamedString(L"an_line1"));
+                    dialog.SetAnLine(2, json.GetNamedString(L"an_line2"));
+                    dialog.SetAnLine(3, json.GetNamedString(L"an_line3"));
+                    dialog.XamlRoot(MainWindowGrid().XamlRoot());
+                    co_await dialog.ShowAsync();
+                }
 
-            if (!ReadConfig("check_update", true)) co_return;
+                if (!ReadConfig("check_update", true)) co_return;
 
-            if (latestBuildNumber == 0) {
-                LOG_WARNING(L"Updater", L"Latest = 0, check failed.");
-                CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, g_mainWindowInstance);
-            }
-            else if (latestBuildNumber == currentBuildNumber) {
-                LOG_INFO(L"Updater", L"Latest = current, we are on the latest version.");
-                CreateInfoBarAndDisplay(L"信息", L"你正在使用最新版本的 Starlight GUI！", InfoBarSeverity::Informational, g_mainWindowInstance);
-            }
-            else if (latestBuildNumber > currentBuildNumber) {
-                LOG_INFO(L"Updater", L"Latest > current, new version avaliable. Calling up update dialog.");
-                CreateInfoBarAndDisplay(L"信息", L"检测到新版本的 Starlight GUI！", InfoBarSeverity::Informational, g_mainWindowInstance);
-                auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
-                dialog.IsUpdate(true);
-                dialog.LatestVersion(json.GetNamedString(L"version"));
-                dialog.XamlRoot(MainWindowGrid().XamlRoot());
+                if (latestBuildNumber == 0) {
+                    LOG_WARNING(L"Updater", L"Latest = 0, check failed.");
+                    CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, g_mainWindowInstance);
+                }
+                else if (latestBuildNumber == currentBuildNumber) {
+                    LOG_INFO(L"Updater", L"Latest = current, we are on the latest version.");
+                    CreateInfoBarAndDisplay(L"信息", L"你正在使用最新版本的 Starlight GUI！", InfoBarSeverity::Informational, g_mainWindowInstance);
+                }
+                else if (latestBuildNumber > currentBuildNumber) {
+                    LOG_INFO(L"Updater", L"Latest > current, new version avaliable. Calling up update dialog.");
+                    CreateInfoBarAndDisplay(L"信息", L"检测到新版本的 Starlight GUI！", InfoBarSeverity::Informational, g_mainWindowInstance);
+                    auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
+                    dialog.IsUpdate(true);
+                    dialog.LatestVersion(json.GetNamedString(L"version"));
+                    dialog.XamlRoot(MainWindowGrid().XamlRoot());
 
-                auto result = co_await dialog.ShowAsync();
+                    auto result = co_await dialog.ShowAsync();
 
-                if (result == ContentDialogResult::Primary) {
-                    Uri target(json.GetNamedString(L"download_link"));
-                    auto result = co_await Launcher::LaunchUriAsync(target);
+                    if (result == ContentDialogResult::Primary) {
+                        Uri target(json.GetNamedString(L"download_link"));
+                        auto result = co_await Launcher::LaunchUriAsync(target);
 
-                    if (result) {
-                        CreateInfoBarAndDisplay(L"成功", L"已在浏览器打开网页！", InfoBarSeverity::Success, g_mainWindowInstance);
-                    }
-                    else {
-                        CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, g_mainWindowInstance);
+                        if (result) {
+                            CreateInfoBarAndDisplay(L"成功", L"已在浏览器打开网页！", InfoBarSeverity::Success, g_mainWindowInstance);
+                        }
+                        else {
+                            CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, g_mainWindowInstance);
+                        }
                     }
                 }
+                else if (latestBuildNumber < currentBuildNumber) {
+                    LOG_INFO(L"Updater", L"Latest < current, maybe we are on a dev environment.", kernelPath.c_str());
+                    CreateInfoBarAndDisplay(L"信息", L"你正在使用 Starlight GUI 的开发版本！", InfoBarSeverity::Informational, g_mainWindowInstance);
+                }
             }
-            else if (latestBuildNumber < currentBuildNumber) {
-                LOG_INFO(L"Updater", L"Latest < current, maybe we are on a dev environment.", kernelPath.c_str());
-                CreateInfoBarAndDisplay(L"信息", L"你正在使用 Starlight GUI 的开发版本！", InfoBarSeverity::Informational, g_mainWindowInstance);
-            }
+        } 
+        catch (const hresult_error& e) {
+            LOG_ERROR(L"Updater", L"Failed to check update! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
         }
 
         co_return;
@@ -386,9 +386,8 @@ namespace winrt::StarlightGUI::implementation
                 co_await wil::resume_foreground(DispatcherQueue());
                 CreateInfoBarAndDisplay(L"成功", L"模块加载成功！", InfoBarSeverity::Success, g_mainWindowInstance);
             }
-            catch (winrt::hresult_error e) {
-                LOG_ERROR(L"DriverUtils", L"Error while loading modules!", kernelPath.c_str());
-                LOG_ERROR(L"DriverUtils", L"%s", e.message().c_str());
+            catch (const hresult_error& e) {
+                LOG_ERROR(L"DriverUtils", L"Failed to load modules! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
                 CreateInfoBarAndDisplay(L"警告", L"一个或多个模块文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, g_mainWindowInstance);
             }
         }

@@ -90,26 +90,30 @@ namespace winrt::StarlightGUI::implementation
     }
 
     winrt::Windows::Foundation::IAsyncAction HelpPage::GetSponsorListFromCloud() {
-        co_await winrt::resume_background();
-
         try {
-            HttpClient client;
-            Uri uri(L"https://pastebin.com/raw/6MzyhUXg");
+            auto weak_this = get_weak();
 
-            // 防止获取旧数据
-            client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");
-            client.DefaultRequestHeaders().Append(L"If-None-Match", L"");
+            if (auto strong_this = weak_this.get()) {
+                co_await winrt::resume_background();
 
-            LOG_INFO(L"Updater", L"Getting sponsor list...");
-            hstring result = co_await client.GetStringAsync(uri);
+                HttpClient client;
+                Uri uri(L"https://pastebin.com/raw/6MzyhUXg");
 
-            auto json = Windows::Data::Json::JsonObject::Parse(result);
-            hstring list = json.GetNamedString(L"sponsors");
+                // 防止获取旧数据
+                client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");
+                client.DefaultRequestHeaders().Append(L"If-None-Match", L"");
 
-            sponsorList = list;
+                LOG_INFO(L"Updater", L"Getting sponsor list...");
+                hstring result = co_await client.GetStringAsync(uri);
+
+                auto json = Windows::Data::Json::JsonObject::Parse(result);
+                hstring list = json.GetNamedString(L"sponsors");
+
+                sponsorList = list;
+            }
         }
-        catch (...) {
-            LOG_ERROR(L"Updater", L"Error while getting sponsor list!");
+        catch (const hresult_error& e) {
+            LOG_ERROR(__WFUNCTION__, L"Failed to get sponsor list! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
             sponsorList = L"获取失败... :(";
         }
         co_return;

@@ -30,6 +30,8 @@ namespace winrt::StarlightGUI::implementation {
 
     std::wstring GetInstalledLocationPath();
 
+    std::wstring GetStacktrace(UINT length);
+
     double GetValueFromCounter(PDH_HCOUNTER& counter);
 
     double GetValueFromCounterArray(PDH_HCOUNTER& counter);

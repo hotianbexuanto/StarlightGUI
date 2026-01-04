@@ -15,9 +15,11 @@ namespace winrt::StarlightGUI::implementation
         UnhandledException([](winrt::Windows::Foundation::IInspectable const&,
             winrt::Microsoft::UI::Xaml::UnhandledExceptionEventArgs const& e)
             {
-                winrt::hstring errorMessage = e.Message();
-                LOG_CRITICAL(L"App", L"Unhandled exception detected!");
-                LOG_CRITICAL(L"App", L"%s", errorMessage.c_str());
+                LOG_CRITICAL(L"App", L"===== Unhandled exception detected! =====");
+                LOG_CRITICAL(L"App", L"Code: %d", e.Exception().value);
+                LOG_CRITICAL(L"App", L"Message: %s", e.Message());
+                LOG_CRITICAL(L"App", L"Stacktrace: %s", GetStacktrace(2).c_str());
+                LOG_CRITICAL(L"App", L"=========================================");
                 e.Handled(true);
 
                 if (IsDebuggerPresent()) {

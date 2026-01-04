@@ -440,6 +440,9 @@
     <None Include="nvml.dll">
       <Filter>Assets</Filter>
     </None>
+    <None Include="Assets\fix_services.bat">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />

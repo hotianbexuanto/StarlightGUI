@@ -163,6 +163,17 @@ namespace winrt::StarlightGUI::implementation {
         return fs::path(exePath).parent_path().wstring();
     }
 
+    std::wstring GetStacktrace(UINT length)
+    {
+        std::vector<PVOID> stack(length);
+        WORD frames = RtlCaptureStackBackTrace(0, length, stack.data(), nullptr);
+        std::wstringstream ss;
+        for (WORD i = 0; i < frames; ++i) {
+            ss << stack[i] << L" ";
+        }
+        return ss.str();
+    }
+
     double GetValueFromCounter(PDH_HCOUNTER& counter) {
         PDH_FMT_COUNTERVALUE value;
 

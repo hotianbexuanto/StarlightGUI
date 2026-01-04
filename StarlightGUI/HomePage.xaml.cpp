@@ -153,31 +153,35 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget HomePage::FetchHitokoto()
     {
-        auto weak_this = get_weak();
+        try {
+            auto weak_this = get_weak();
 
-        if (hitokoto.empty()) {
-            co_await winrt::resume_background();
+            if (hitokoto.empty()) {
+                if (auto strong_this = weak_this.get()) {
+                    co_await winrt::resume_background();
 
-            // 异步获取随机词条
-            HttpClient client;
-            Uri uri(L"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=i&c=k");
+                    // 异步获取随机词条
+                    HttpClient client;
+                    Uri uri(L"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=i&c=k");
 
-            LOG_INFO(__WFUNCTION__, L"Sending hitokoto request...");
-            hstring result = co_await client.GetStringAsync(uri);
+                    LOG_INFO(__WFUNCTION__, L"Sending hitokoto request...");
+                    auto& result = co_await client.GetStringAsync(uri);
 
-            // 读取 json 内容
-            auto json = Windows::Data::Json::JsonObject::Parse(result);
-            hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
+                    // 读取 json 内容
+                    auto json = Windows::Data::Json::JsonObject::Parse(result);
+                    hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
 
-            LOG_INFO(__WFUNCTION__, L"Hitokoto result: %s", hitokoto.c_str());
+                    LOG_INFO(__WFUNCTION__, L"Hitokoto result: %s", hitokoto.c_str());
+                }
+            }
+        }
+        catch (const hresult_error& e) {
+            LOG_ERROR(__WFUNCTION__, L"Failed to fetch hitokoto! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
+            hitokoto = L"获取失败... :(";
         }
 
-        if (auto strong_this = weak_this.get()) {
-            co_await wil::resume_foreground(DispatcherQueue());
-            HitokotoText().Text(hitokoto);
-        }
-
-        co_return;
+        co_await wil::resume_foreground(DispatcherQueue());
+        HitokotoText().Text(hitokoto);
     }
 
     void HomePage::SetupClock()
