@@ -19,22 +19,11 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
 
 **开发者**: Stars  
 **许可证**: Apache 2.0 License | OSI Certified  
-**Copyright © 2025 Starlight. Some Rights Reserved.**
+**Copyright © 2026 Starlight. Some Rights Reserved.**
 
 *我们活跃接受社区建议，欢迎您向我们提出 Issues 或 Pull requests！开发人员会第一时间查看的！如果您想要加入开发组，可以联系我们！*
 ![Alt](https://repobeats.axiom.co/api/embed/33edd92df6ac6348e3eb2c6c1ba38046ca12e037.svg "Repobeats analytics image")
 
-## 安装
-
-Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在微软商店里安装的软件类似，但你需要手动导入证书。  
-在 Release 提示的链接里下载最新版本的两个文件，你下载的文件应该是这样：
-
-- StarlightGUI_x.x.x.x_x64.**cer**
-- StarlightGUI_x.x.x.x_x64.**msix**
-
-当你准备好后，双击后缀名为 `.cer` 的文件，点击安装证书，选择**本地计算机**，然后选中将证书放入**受信任的根证书颁发机构**，完成向导。  
-接着，**重复以上步骤**，但是选择为**当前用户**安装，完成向导。  
-最后，双击后缀名为 `.msix` 的文件，完成安装后，你将可以在应用列表里看见本软件了。
 ## 主要功能
 
 ### 任务管理器
