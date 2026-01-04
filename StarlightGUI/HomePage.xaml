@@ -131,7 +131,7 @@
                                 <FontIcon Glyph="&#xe71b;" FontSize="14" Foreground="Gray"/>
                                 <TextBlock Text="  开源仓库：https://github.com/RinoRika/StarlightGUI" FontSize="14" Foreground="LightGray"/>
                             </StackPanel>
-                            <TextBlock Text="Apache 2.0 License | OSI Certified | Copyright © 2025 Starlight. Some Rights Reserved."
+                            <TextBlock Text="Apache 2.0 License | OSI Certified | Copyright © 2026 Starlight. Some Rights Reserved."
                                FontSize="14" Foreground="LightGray" VerticalAlignment="Bottom" HorizontalAlignment="Center" Padding="0,10,0,0"/>
                         </StackPanel>
                     </Grid>
