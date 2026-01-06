@@ -84,8 +84,9 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
    - 使用菜单中的 "生成" → "生成解决方案"
 
 6. **生成安装包**
-   - 在项目文件夹的 "x64/Release(Debug)" 中将所有文件提取即可， StarlightGUI.exe 即为可执行文件
+   - 在项目文件夹的 "x64/Release(Debug)" 中将所有文件提取即可， "StarlightGUI.exe" 即为可执行文件
    - 可将上述文件自行创建压缩包或创建安装程序
+   - 可使用本仓库根目录的 "Starlight GUI Installer.nsi" 作为示范脚本使用 NSIS 创建安装包
 
 ## 免责声明
 
