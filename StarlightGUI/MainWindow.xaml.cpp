@@ -364,7 +364,6 @@ namespace winrt::StarlightGUI::implementation
 
                     LOG_INFO(L"DriverUtils", L"Kernel.sys path [%s], load it.", kernelPath.c_str());
                     DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
-                    LOG_DEBUG(L"DriverUtils", L"%s, error code: %d", unused.c_str(), GetLastError());
                 }
 
                 if (astralFile && KernelInstance::IsRunningAsAdmin()) {
@@ -372,7 +371,6 @@ namespace winrt::StarlightGUI::implementation
 
                     LOG_INFO(L"DriverUtils", L"AstralX.sys path [%s], load it.", astralPath.c_str());
                     DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
-                    LOG_DEBUG(L"DriverUtils", L"%s, error code: %d", unused.c_str(), GetLastError());
                 }
 
                 if (axBandFile) {
@@ -392,6 +390,7 @@ namespace winrt::StarlightGUI::implementation
             }
         }
 
+        co_await wil::resume_foreground(DispatcherQueue());
         RootNavigation().IsEnabled(true);
     }
 

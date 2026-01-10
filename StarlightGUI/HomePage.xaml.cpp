@@ -291,27 +291,33 @@ namespace winrt::StarlightGUI::implementation
             } else LOG_ERROR(L"MonitorInstance", L"Failed to open PhysicalDrive0.");
 
             // 获取 GPU 型号
-            HMODULE hNvml = LoadLibraryW(L"nvml.dll");
-            if (hNvml) {
-                FreeLibrary(hNvml);
-                if (nvmlInit_v2() == NVML_SUCCESS) {
-                    UINT deviceCount = 0;
-                    nvmlDeviceGetCount_v2(&deviceCount);
-                    if (deviceCount > 0) {
-                        isNvidia = true;
-                        nvmlDeviceGetHandleByIndex_v2(0, &device);
+            try {
+                HMODULE hNvml = LoadLibraryW(L"nvml.dll");
+                if (hNvml) {
+                    FreeLibrary(hNvml);
+                    if (nvmlInit_v2() == NVML_SUCCESS) {
+                        UINT deviceCount = 0;
+                        nvmlDeviceGetCount_v2(&deviceCount);
+                        if (deviceCount > 0) {
+                            isNvidia = true;
+                            nvmlDeviceGetHandleByIndex_v2(0, &device);
 
-                        char name[NVML_DEVICE_NAME_BUFFER_SIZE];
-                        nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
-                        gpu_manufacture = to_hstring(name);
+                            char name[NVML_DEVICE_NAME_BUFFER_SIZE];
+                            nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
+                            gpu_manufacture = to_hstring(name);
 
-                        LOG_INFO(L"MonitorInstance", L"Initialized NVML.");
-                    }
-                    else {
-                        LOG_ERROR(L"MonitorInstance", L"NVML return device count as 0!");
-                        nvmlShutdown();
+                            LOG_INFO(L"MonitorInstance", L"Initialized NVML.");
+                        }
+                        else {
+                            LOG_ERROR(L"MonitorInstance", L"NVML return device count as 0!");
+                            nvmlShutdown();
+                        }
                     }
                 }
+            }
+            catch (...) {
+                isNvidia = false;
+                LOG_ERROR(L"MonitorInstance", L"Failed to initialize NVML. Probably unsupported firmware. Try fallback solution.");
             }
             
             // 非 NVIDIA/不支持的设备，使用备用方案

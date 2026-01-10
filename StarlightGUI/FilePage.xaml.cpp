@@ -371,7 +371,7 @@ namespace winrt::StarlightGUI::implementation
         ApplySort(currentSortingOption, currentSortingType);
 
         // 将文件夹放在文件前面
-        std::stable_sort(m_allFiles.begin(), m_allFiles.end(), [](const auto& a, const auto& b) {
+        std::sort(m_allFiles.begin(), m_allFiles.end(), [](const auto& a, const auto& b) {
             if (a.Directory() && !b.Directory()) {
                 return true;
             }
