@@ -39,8 +39,7 @@ namespace winrt::StarlightGUI::implementation
         InitializeComponent();
 
         KCTListView().ItemsSource(m_kctList);
-        KCTListView().ItemContainerTransitions().Clear();
-        KCTListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        if (!list_animation) KCTListView().ItemContainerTransitions().Clear();
 
         this->Loaded([this](auto&&, auto&&) {
             LoadKCTList();

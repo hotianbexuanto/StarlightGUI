@@ -45,8 +45,7 @@ namespace winrt::StarlightGUI::implementation
         loaded = false;
 
         KernelModuleListView().ItemsSource(m_kernelModuleList);
-        KernelModuleListView().ItemContainerTransitions().Clear();
-        KernelModuleListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        if (!list_animation) KernelModuleListView().ItemContainerTransitions().Clear();
 
         if (!KernelInstance::IsRunningAsAdmin()) {
             RefreshKernelModuleListButton().IsEnabled(false);

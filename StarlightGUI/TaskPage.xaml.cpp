@@ -56,8 +56,8 @@ namespace winrt::StarlightGUI::implementation
         loaded = false;
 
         ProcessListView().ItemsSource(m_processList);
-        ProcessListView().ItemContainerTransitions().Clear();
-        ProcessListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        if (!list_animation) ProcessListView().ItemContainerTransitions().Clear();
+
         TaskUtils::EnsurePrivileges();
 
         this->Loaded([this](auto&&, auto&&) {

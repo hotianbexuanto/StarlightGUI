@@ -158,6 +158,17 @@
                 </ComboBox>
             </essential:SettingsCard>
 
+            <essential:SettingsCard Header="列表动画"
+                                    Description="列表的渐入动画效果"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xeb9d;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ToggleSwitch x:Name="ListAnimationButton" Toggled="ListAnimationButton_Toggled" Margin="0,0,-80,0"/>
+            </essential:SettingsCard>
+
             <TextBlock Text="其他" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
 
             <essential:SettingsCard Header="危险提示"

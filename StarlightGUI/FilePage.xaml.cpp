@@ -27,6 +27,7 @@ namespace winrt::StarlightGUI::implementation
 
         hdc = GetDC(NULL);
         FileListView().ItemsSource(m_fileList);
+        if (!list_animation) FileListView().ItemContainerTransitions().Clear();
 
         m_scrollCheckTimer = winrt::Microsoft::UI::Xaml::DispatcherTimer();
         m_scrollCheckTimer.Interval(std::chrono::milliseconds(100));

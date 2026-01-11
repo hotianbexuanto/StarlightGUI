@@ -40,8 +40,7 @@ namespace winrt::StarlightGUI::implementation
         InitializeComponent();
 
         ModuleListView().ItemsSource(m_moduleList);
-        ModuleListView().ItemContainerTransitions().Clear();
-        ModuleListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        if (!list_animation) ModuleListView().ItemContainerTransitions().Clear();
 
         this->Loaded([this](auto&&, auto&&) {
             LoadModuleList();

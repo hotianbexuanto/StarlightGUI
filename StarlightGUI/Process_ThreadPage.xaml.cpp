@@ -41,8 +41,7 @@ namespace winrt::StarlightGUI::implementation
         InitializeComponent();
 
         ThreadListView().ItemsSource(m_threadList);
-        ThreadListView().ItemContainerTransitions().Clear();
-        ThreadListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        if (!list_animation) ThreadListView().ItemContainerTransitions().Clear();
 
         this->Loaded([this](auto&&, auto&&) {
             LoadThreadList();

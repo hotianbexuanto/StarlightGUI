@@ -21,8 +21,11 @@ namespace winrt::StarlightGUI::implementation
 
         ObjectListView().ItemsSource(m_objectList);
         CallbackListView().ItemsSource(m_callbackList);
-        ObjectListView().ItemContainerTransitions().Clear();
-        ObjectListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        
+        if (!list_animation) {
+            ObjectListView().ItemContainerTransitions().Clear();
+			CallbackListView().ItemContainerTransitions().Clear();
+        }
 
         ObjectTreeView().ItemsSource(m_itemList);
 

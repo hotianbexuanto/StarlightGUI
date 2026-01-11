@@ -90,6 +90,7 @@ namespace winrt::StarlightGUI::implementation
 
         EnumStrengthenButton().IsOn(enum_strengthen);
         PDHFirstButton().IsOn(pdh_first);
+		ListAnimationButton().IsOn(list_animation);
         DangerousConfirmButton().IsOn(dangerous_confirm);
         CheckUpdateButton().IsOn(check_update);
 
@@ -211,6 +212,12 @@ namespace winrt::StarlightGUI::implementation
         SaveConfig("navigation_style", navigation_style);
 
         g_mainWindowInstance->LoadNavigation();
+    }
+
+    void SettingsPage::ListAnimationButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        list_animation = ListAnimationButton().IsOn();
+        SaveConfig("list_animation", list_animation);
     }
 
     void SettingsPage::DangerousConfirmButton_Toggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)

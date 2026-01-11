@@ -39,8 +39,7 @@ namespace winrt::StarlightGUI::implementation
         InitializeComponent();
 
         HandleListView().ItemsSource(m_handleList);
-        HandleListView().ItemContainerTransitions().Clear();
-        HandleListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        if (!list_animation) HandleListView().ItemContainerTransitions().Clear();
 
         this->Loaded([this](auto&&, auto&&) {
             LoadHandleList();
