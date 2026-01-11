@@ -54,6 +54,7 @@
 #include <Utils/WindowInfo.h>
 
 #include <Utils/ObjectEntry.h>
+#include <Utils/CallbackEntry.h>
 
 #include <Utils/TaskUtils.h>
 #include <Utils/Utils.h>

@@ -105,6 +105,9 @@
     <Midl Include="Utils\ObjectEntry.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
+    <Midl Include="Utils\CallbackEntry.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -158,6 +161,9 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Utils\ObjectEntry.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\CallbackEntry.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
   </ItemGroup>
@@ -220,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="Utils\NTBase.h">
       <Filter>Utils\Advanced</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\CallbackEntry.h">
+      <Filter>Utils\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

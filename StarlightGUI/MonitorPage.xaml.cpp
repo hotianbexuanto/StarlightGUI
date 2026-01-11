@@ -14,36 +14,34 @@ namespace winrt::StarlightGUI::implementation
     static std::vector<SegmentedItem> items;
     static std::vector<winrt::StarlightGUI::ObjectEntry> partitions;
 	static std::vector<winrt::StarlightGUI::ObjectEntry> fullRecordedObjects;
+    static std::vector<winrt::StarlightGUI::CallbackEntry> fullRecordedCallbacks;
 
     MonitorPage::MonitorPage() {
         InitializeComponent();
 
         ObjectListView().ItemsSource(m_objectList);
+        CallbackListView().ItemsSource(m_callbackList);
         ObjectListView().ItemContainerTransitions().Clear();
         ObjectListView().ItemContainerTransitions().Append(EntranceThemeTransition());
 
         ObjectTreeView().ItemsSource(m_itemList);
 
+        if (!KernelInstance::IsRunningAsAdmin()) {
+			CallbackSegmentedItem().IsEnabled(false);
+        }
+
         // SelectionChanged 会在进入时触发一次，特么的不知道为啥，不管他
-        Loaded([this](auto&&, auto&&) -> IAsyncAction {
-            partitions.clear();
-            items.clear();
-            winrt::StarlightGUI::ObjectEntry root = winrt::make<winrt::StarlightGUI::implementation::ObjectEntry>();
-            root.Name(L"\\");
-            root.Type(L"Directory");
-            root.Path(L"\\");
-            partitions.push_back(root);
-            co_await LoadPartitionList(L"\\");
-            co_await LoadItemList();
-            co_await LoadObjectList();
-            m_isLoadingObjects = false; // 为啥啊
+        Loaded([this](auto&&, auto&&) {
+			HandleSegmentedChange(0);
             });
     }
 
     winrt::Windows::Foundation::IAsyncAction MonitorPage::LoadPartitionList(std::wstring path) {
+        if (segmentedIndex != 0) co_return;
+
         std::vector<winrt::StarlightGUI::ObjectEntry> partitionsInPath;
 
-        KernelInstance::EnumObjectByDirectory(path, partitionsInPath);
+        KernelInstance::EnumObjectsByDirectory(path, partitionsInPath);
         for (const auto& object : partitionsInPath) {
             if (object.Type() == L"Directory") {
                 partitions.push_back(object);
@@ -55,14 +53,12 @@ namespace winrt::StarlightGUI::implementation
     }
 
     winrt::Windows::Foundation::IAsyncAction MonitorPage::LoadObjectList() {
-        if (m_isLoadingObjects) {
+        if (m_isLoading || segmentedIndex != 0 || !ObjectTreeView().SelectedItem() || partitions.size() == 0) {
             co_return;
         }
-        m_isLoadingObjects = true;
+        m_isLoading = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading object list...");
-
-        if (!ObjectTreeView().SelectedItem() || partitions.size() == 0) co_return;
 
         auto lifetime = get_strong();
         int32_t index = ObjectTreeView().SelectedIndex();
@@ -74,7 +70,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 获取对象逻辑
         winrt::StarlightGUI::ObjectEntry& selectedPartition = partitions[index];
-        KernelInstance::EnumObjectByDirectory(selectedPartition.Path().c_str(), objects);
+        KernelInstance::EnumObjectsByDirectory(selectedPartition.Path().c_str(), objects);
 
 		fullRecordedObjects = objects;
 
@@ -82,7 +78,7 @@ namespace winrt::StarlightGUI::implementation
 
         m_objectList.Clear();
         for (const auto& object : objects) {
-            bool shouldRemove = query.empty() ? false : ObjectApplyFilter(object, query);
+            bool shouldRemove = query.empty() ? false : ApplyFilter(object.Name(), query);
             if (shouldRemove) continue;
 
             if (object.Name().empty()) object.Name(L"(未知)");
@@ -94,12 +90,48 @@ namespace winrt::StarlightGUI::implementation
         }
 
         LOG_INFO(__WFUNCTION__, L"Loaded object list, %d entry(s) in total.", m_objectList.Size());
-        m_isLoadingObjects = false;
+        m_isLoading = false;
+    }
+
+    winrt::Windows::Foundation::IAsyncAction MonitorPage::LoadCallbackList() {
+        if (m_isLoading || segmentedIndex != 1 || !KernelInstance::IsRunningAsAdmin()) {
+            co_return;
+        }
+        m_isLoading = true;
+
+        LOG_INFO(__WFUNCTION__, L"Loading callback list...");
+
+        auto lifetime = get_strong();
+        hstring query = SearchBox().Text();
+
+        co_await winrt::resume_background();
+
+        std::vector<winrt::StarlightGUI::CallbackEntry> callbacks;
+
+		KernelInstance::EnumCallbacks(callbacks);
+
+        fullRecordedCallbacks = callbacks;
+
+        co_await wil::resume_foreground(DispatcherQueue());
+
+        m_callbackList.Clear();
+        for (const auto& callback : callbacks) {
+            bool shouldRemove = query.empty() ? false : ApplyFilter(callback.Type(), query);
+            if (shouldRemove) continue;
+
+            if (callback.Type().empty()) callback.Type(L"(未知)");
+            if (callback.Module().empty()) callback.Module(L"(未知)");
+
+            m_callbackList.Append(callback);
+        }
+
+        LOG_INFO(__WFUNCTION__, L"Loaded callback list, %d entry(s) in total.", m_callbackList.Size());
+        m_isLoading = false;
     }
 
     void MonitorPage::ObjectListView_Tapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const& e)
     {
-        if (!ObjectListView().SelectedItem()) return;
+        if (!ObjectListView().SelectedItem() || segmentedIndex != 0) return;
         auto item = ObjectListView().SelectedItem().as<winrt::StarlightGUI::ObjectEntry>();
 
         // 获取信息
@@ -258,10 +290,12 @@ namespace winrt::StarlightGUI::implementation
 
     void MonitorPage::ObjectTreeView_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
     {
+        if (!IsLoaded() || segmentedIndex != 0) return;
         LoadObjectList();
     }
 
     winrt::Windows::Foundation::IAsyncAction MonitorPage::LoadItemList() {
+        if (segmentedIndex != 0) co_return;
         m_itemList.Clear();
 
         std::sort(partitions.begin(), partitions.end(), [](auto a, auto b) {
@@ -295,21 +329,36 @@ namespace winrt::StarlightGUI::implementation
 
         if (columnName == L"Object_Name")
         {
-            ObjectApplySort(m_object_isNameAscending, "Name");
+            ApplySort(m_object_isNameAscending, "Object_Name");
         }
         else if (columnName == L"Object_Type")
         {
-            ObjectApplySort(m_object_isTypeAscending, "Type");
+            ApplySort(m_object_isTypeAscending, "Object_Type");
         }
+        else if (columnName == L"Callback_Type")
+        {
+			ApplySort(m_callback_isTypeAscending, "Callback_Type");
+        }
+        else if (columnName == L"Callback_Entry")
+        {
+            ApplySort(m_callback_isEntryAscending, "Callback_Entry");
+        }
+        else if (columnName == L"Callback_Handle")
+        {
+            ApplySort(m_callback_isHandleAscending, "Callback_Handle");
+		}
     }
 
     // 排序切换
-    winrt::fire_and_forget MonitorPage::ObjectApplySort(bool& isAscending, const std::string& column)
+    winrt::fire_and_forget MonitorPage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"名称"));
         TypeHeaderButton().Content(box_value(L"类型"));
+		TypeHeaderButton2().Content(box_value(L"类型"));
+		EntryHeaderButton().Content(box_value(L"入口"));
+		HandleHeaderButton().Content(box_value(L"句柄"));
 
-        if (column == "Name") {
+        if (column == "Object_Name") {
             if (isAscending) {
                 NameHeaderButton().Content(box_value(L"名称 ↓"));
                 std::sort(fullRecordedObjects.begin(), fullRecordedObjects.end(), [](auto a, auto b) {
@@ -334,7 +383,7 @@ namespace winrt::StarlightGUI::implementation
                     });
             }
         }
-        else if (column == "Type") {
+        else if (column == "Object_Type") {
             if (isAscending) {
                 TypeHeaderButton().Content(box_value(L"类型 ↓"));
                 std::sort(fullRecordedObjects.begin(), fullRecordedObjects.end(), [](auto a, auto b) {
@@ -359,10 +408,72 @@ namespace winrt::StarlightGUI::implementation
                     });
             }
         }
+        else if (column == "Callback_Type") {
+            if (isAscending) {
+                TypeHeaderButton2().Content(box_value(L"类型 ↓"));
+                std::sort(fullRecordedCallbacks.begin(), fullRecordedCallbacks.end(), [](auto a, auto b) {
+                    std::wstring aType = a.Type().c_str();
+                    std::wstring bType = b.Type().c_str();
+                    std::transform(aType.begin(), aType.end(), aType.begin(), ::towlower);
+                    std::transform(bType.begin(), bType.end(), bType.begin(), ::towlower);
+                    return aType < bType;
+                    });
+            }
+            else {
+                TypeHeaderButton2().Content(box_value(L"类型 ↑"));
+                std::sort(fullRecordedCallbacks.begin(), fullRecordedCallbacks.end(), [](auto a, auto b) {
+                    std::wstring aType = a.Type().c_str();
+                    std::wstring bType = b.Type().c_str();
+                    std::transform(aType.begin(), aType.end(), aType.begin(), ::towlower);
+                    std::transform(bType.begin(), bType.end(), bType.begin(), ::towlower);
+                    return aType > bType;
+                    });
+            }
+		}
+        else if (column == "Callback_Entry") {
+            if (isAscending) {
+                EntryHeaderButton().Content(box_value(L"入口 ↓"));
+                std::sort(fullRecordedCallbacks.begin(), fullRecordedCallbacks.end(), [](auto a, auto b) {
+                    return a.EntryULong() < b.EntryULong();
+                    });
+            }
+            else {
+                EntryHeaderButton().Content(box_value(L"入口 ↑"));
+                std::sort(fullRecordedCallbacks.begin(), fullRecordedCallbacks.end(), [](auto a, auto b) {
+                    return a.EntryULong() > b.EntryULong();
+                    });
+            }
+        }
+        else if (column == "Callback_Handle") {
+            if (isAscending) {
+                HandleHeaderButton().Content(box_value(L"句柄 ↓"));
+                std::sort(fullRecordedCallbacks.begin(), fullRecordedCallbacks.end(), [](auto a, auto b) {
+                    return a.HandleULong() < b.HandleULong();
+                    });
+            }
+            else {
+                HandleHeaderButton().Content(box_value(L"句柄 ↑"));
+                std::sort(fullRecordedCallbacks.begin(), fullRecordedCallbacks.end(), [](auto a, auto b) {
+                    return a.HandleULong() > b.HandleULong();
+                    });
+            }
+		}
 
-        m_objectList.Clear();
-        for (auto& object : fullRecordedObjects) {
-            m_objectList.Append(object);
+        switch (segmentedIndex) {
+        case 0: {
+            m_objectList.Clear();
+            for (auto& object : fullRecordedObjects) {
+                m_objectList.Append(object);
+            }
+            break;
+        }
+        case 1: {
+            m_callbackList.Clear();
+            for (auto& callback : fullRecordedCallbacks) {
+                m_callbackList.Append(callback);
+            }
+            break;
+        }
         }
 
         isAscending = !isAscending;
@@ -377,8 +488,8 @@ namespace winrt::StarlightGUI::implementation
         WaitAndReloadAsync(200);
     }
 
-    bool MonitorPage::ObjectApplyFilter(const winrt::StarlightGUI::ObjectEntry& object, hstring& query) {
-        std::wstring name = object.Name().c_str();
+    bool MonitorPage::ApplyFilter(const hstring& target, const hstring& query) {
+        std::wstring name = target.c_str();
         std::wstring queryWStr = query.c_str();
 
         // 不比较大小写
@@ -393,7 +504,18 @@ namespace winrt::StarlightGUI::implementation
     winrt::fire_and_forget MonitorPage::RefreshButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
         RefreshButton().IsEnabled(false);
-        co_await LoadObjectList();
+
+        switch (segmentedIndex) {
+        case 0: {
+            co_await LoadObjectList();
+            break;
+        }
+        case 1: {
+            co_await LoadCallbackList();
+			break;
+        }
+        }
+
         RefreshButton().IsEnabled(true);
         co_return;
     }
@@ -404,10 +526,58 @@ namespace winrt::StarlightGUI::implementation
         reloadTimer.Stop();
         reloadTimer.Interval(std::chrono::milliseconds(interval));
         reloadTimer.Tick([this](auto&&, auto&&) {
-            LoadObjectList();
+			RefreshButton_Click(nullptr, nullptr);
             reloadTimer.Stop();
             });
         reloadTimer.Start();
+
+        co_return;
+    }
+
+    void MonitorPage::MainSegmented_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
+    {
+        if (!IsLoaded()) return;
+		if (!MainSegmented().SelectedItem()) return;
+		HandleSegmentedChange(MainSegmented().SelectedIndex());
+    }
+
+    winrt::fire_and_forget MonitorPage::HandleSegmentedChange(int index) {
+		if (!IsLoaded()) co_return;
+		segmentedIndex = index;
+        m_isLoading = false;
+
+        // 清除列表以防止潜在的内存占用
+        items.clear();
+        partitions.clear();
+		fullRecordedObjects.clear();
+		fullRecordedCallbacks.clear();
+        m_objectList.Clear();
+		m_callbackList.Clear();
+
+		Grid& visibleGrid = ObjectGrid();
+        ObjectGrid().Visibility(Visibility::Collapsed);
+        CallbackGrid().Visibility(Visibility::Collapsed);
+        switch (index) {
+        case 0: {
+            visibleGrid = ObjectGrid();
+            winrt::StarlightGUI::ObjectEntry root = winrt::make<winrt::StarlightGUI::implementation::ObjectEntry>();
+            root.Name(L"\\");
+            root.Type(L"Directory");
+            root.Path(L"\\");
+            partitions.push_back(root);
+            co_await LoadPartitionList(L"\\");
+            co_await LoadItemList();
+            co_await LoadObjectList();
+            ObjectTreeView().SelectedIndex(0);
+            break;
+        }
+        case 1: {
+            visibleGrid = CallbackGrid();
+			co_await LoadCallbackList();
+            break;
+        }
+        }
+		visibleGrid.Visibility(Visibility::Visible);
 
         co_return;
     }

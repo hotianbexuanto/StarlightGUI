@@ -183,7 +183,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_HIDE_DRIVER, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept {
+	BOOL KernelInstance::EnumProcesses(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept {
 		if (!GetDriverDevice2() || !IsRunningAsAdmin()) return FALSE;
 
 		BOOL bRet = FALSE;
@@ -245,7 +245,7 @@ namespace winrt::StarlightGUI::implementation {
 		return status && bRet;
 	}
 
-	BOOL KernelInstance::EnumProcess2(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept {
+	BOOL KernelInstance::EnumProcesses2(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		struct INPUT
 		{
@@ -307,7 +307,7 @@ namespace winrt::StarlightGUI::implementation {
 		return status;
 	}
 
-	BOOL KernelInstance::EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads) noexcept
+	BOOL KernelInstance::EnumProcessThreads(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads) noexcept
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL status = FALSE;
@@ -392,7 +392,7 @@ namespace winrt::StarlightGUI::implementation {
 		return status;
 	}
 
-	BOOL KernelInstance::EnumProcessHandle(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles) noexcept
+	BOOL KernelInstance::EnumProcessHandles(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles) noexcept
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
@@ -437,7 +437,7 @@ namespace winrt::StarlightGUI::implementation {
 		return bRet;
 	}
 
-	BOOL KernelInstance::EnumProcessModule(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& modules) noexcept
+	BOOL KernelInstance::EnumProcessModules(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& modules) noexcept
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
@@ -1027,7 +1027,7 @@ namespace winrt::StarlightGUI::implementation {
 	static NtOpenIoCompletion_t NtOpenIoCompletion = nullptr;
 	static NtOpenPartition_t NtOpenPartition = nullptr;
 
-	BOOL KernelInstance::EnumObjectByDirectory(std::wstring objectPath, std::vector<winrt::StarlightGUI::ObjectEntry>& objectList) noexcept {
+	BOOL KernelInstance::EnumObjectsByDirectory(std::wstring objectPath, std::vector<winrt::StarlightGUI::ObjectEntry>& objectList) noexcept {
 		if (!NtQueryDirectoryObject || !NtQuerySymbolicLinkObject || !NtQueryEvent || !NtQueryMutant || !NtQuerySemaphore || !NtQuerySection || !NtQueryTimer || !NtQueryIoCompletion
 			|| !NtOpenDirectoryObject || !NtOpenSymbolicLinkObject || !NtOpenEvent || !NtOpenMutant || !NtOpenSemaphore || !NtOpenSection || !NtOpenTimer || !NtOpenFile 
 			|| !NtOpenSession || !NtOpenCpuPartition || !NtOpenJobObject || !NtOpenIoCompletion || !NtOpenPartition) {
@@ -1274,6 +1274,165 @@ namespace winrt::StarlightGUI::implementation {
 
 		CloseHandle(hObject);
 		return NT_SUCCESS(status);
+	}
+
+	BOOL KernelInstance::EnumCallbacks(std::vector<winrt::StarlightGUI::CallbackEntry>& callbackList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID pBuffer;
+		};
+
+		BOOL bRet = FALSE;
+		ULONG nRet = 0;
+		PDATA_INFO pProcessInfo = NULL;
+
+		// 定义所有回调类型
+		const struct {
+			DWORD ioctl;
+			const wchar_t* type;
+		} callbackTypes[] = {
+			{ IOCTL_ENUM_CREATE_PROCESS_NOTIFY, L"CreateProcess" },
+			{ IOCTL_ENUM_CREATE_THREAD_NOTIFY, L"CreateThread" },
+			{ IOCTL_ENUM_LOADIMAGE_NOTIFY, L"LoadImage" },
+			{ IOCTL_ENUM_REGISTRY_CALLBACK, L"Registry" },
+			{ IOCTL_ENUM_BUGCHECK_CALLBACK, L"BugCheck" },
+			{ IOCTL_ENUM_BUGCHECKREASON_CALLBACK, L"BugCheckReason" },
+			{ IOCTL_ENUM_SHUTDOWN_NOTIFY, L"Shutdown" },
+			{ IOCTL_ENUM_LASTSHUTDOWN_NOTIFY, L"LastChanceShutdown" },
+			{ IOCTL_ENUM_FS_NOTIFY, L"FileSystemNotify" },
+			{ IOCTL_ENUM_PRIORIRY_NOTIFY, L"PriorityCallback" },
+			{ IOCTL_ENUM_PLUGPLAY_NOTIFY, L"PlugPlay" },
+			{ IOCTL_ENUM_COALESCING_NOTIFY, L"CoalescingCallback" },
+			{ IOCTL_ENUM_DBGPRINT_CALLBACK, L"DbgPrint" },
+			{ IOCTL_ENUM_EMP_CALLBACK, L"EmpCallback" },
+			{ IOCTL_ENUM_NMI_CALLBACK, L"NmiCallback" }
+		};
+
+		// 处理常规回调
+		for (const auto& cbType : callbackTypes) {
+			INPUT inputs = { 0 };
+			inputs.nSize = sizeof(DATA_INFO) * 1000;
+			inputs.pBuffer = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", cbType.ioctl, __WFUNCTION__.c_str());
+			BOOL status = DeviceIoControl(driverDevice, cbType.ioctl, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+			if (nRet > 1000) nRet = 1000;
+
+			if (status && nRet > 0 && inputs.pBuffer) {
+				pProcessInfo = (PDATA_INFO)inputs.pBuffer;
+				for (ULONG i = 0; i < nRet; i++) {
+					DATA_INFO data = pProcessInfo[i];
+					auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
+					callback.Module(to_hstring(data.Module));
+					callback.Type(cbType.type);
+					callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+					callback.EntryULong((ULONG64)data.pvoidaddressdata1);
+					callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+					callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+					callbackList.push_back(callback);
+				}
+			}
+
+			bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		}
+
+		// 处理 ObCallback - PsProcessType
+		{
+			INPUT inputs = { 0 };
+			inputs.nSize = sizeof(DATA_INFO) * 1000;
+			inputs.pBuffer = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_OB_PROCESS_CALLBACK, __WFUNCTION__.c_str());
+			BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_OB_PROCESS_CALLBACK, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+			if (nRet > 1000) nRet = 1000;
+
+			if (status && nRet > 0 && inputs.pBuffer) {
+				pProcessInfo = (PDATA_INFO)inputs.pBuffer;
+				for (ULONG i = 0; i < nRet; i++) {
+					DATA_INFO data = pProcessInfo[i];
+					if (data.pvoidaddressdata1 != NULL) {
+						auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
+						callback.Module(to_hstring(data.Module));
+						callback.Type(L"ObCallback-PsProcessType");
+						callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+						callback.EntryULong((ULONG64)data.pvoidaddressdata1);
+						callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+						callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+						callbackList.push_back(callback);
+					}
+				}
+			}
+
+			bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		}
+
+		// 处理 ObCallback - PsThreadType
+		{
+			INPUT inputs = { 0 };
+			inputs.nSize = sizeof(DATA_INFO) * 1000;
+			inputs.pBuffer = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_OB_THREAD_CALLBACK, __WFUNCTION__.c_str());
+			BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_OB_THREAD_CALLBACK, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+			if (nRet > 1000) nRet = 1000;
+
+			if (status && nRet > 0 && inputs.pBuffer) {
+				pProcessInfo = (PDATA_INFO)inputs.pBuffer;
+				for (ULONG i = 0; i < nRet; i++) {
+					DATA_INFO data = pProcessInfo[i];
+					if (data.pvoidaddressdata1 != NULL) {
+						auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
+						callback.Module(to_hstring(data.Module));
+						callback.Type(L"ObCallback-PsThreadType");
+						callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+						callback.EntryULong((ULONG64)data.pvoidaddressdata1);
+						callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+						callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+						callbackList.push_back(callback);
+					}
+				}
+			}
+
+			bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		}
+
+		// 处理 ObCallback - Desktop
+		{
+			INPUT inputs = { 0 };
+			inputs.nSize = sizeof(DATA_INFO) * 1000;
+			inputs.pBuffer = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_OB_THREAD_CALLBACK, __WFUNCTION__.c_str());
+			BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_OB_THREAD_CALLBACK, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+			if (nRet > 1000) nRet = 1000;
+
+			if (status && nRet > 0 && inputs.pBuffer) {
+				pProcessInfo = (PDATA_INFO)inputs.pBuffer;
+				for (ULONG i = 0; i < nRet; i++) {
+					DATA_INFO data = pProcessInfo[i];
+					if (data.pvoidaddressdata1 != NULL) {
+						auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
+						callback.Module(to_hstring(data.Module));
+						callback.Type(L"ObCallback-Desktop");
+						callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+						callback.EntryULong((ULONG64)data.pvoidaddressdata1);
+						callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+						callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+						callbackList.push_back(callback);
+					}
+				}
+			}
+
+			bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		}
+
+		return TRUE;
 	}
 
 

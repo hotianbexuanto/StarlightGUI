@@ -4,7 +4,6 @@
 #include "TaskPage.g.cpp"
 #endif
 
-
 #include <winrt/Microsoft.UI.Composition.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
@@ -25,6 +24,7 @@
 #include <RunProcessDialog.xaml.h>
 #include <InjectDLLDialog.xaml.h>
 #include <ModifyTokenDialog.xaml.h>
+#undef EnumProcesses
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -501,10 +501,10 @@ namespace winrt::StarlightGUI::implementation
         // 对于 Windows 11，我们使用 AstralX 进行枚举
         // 对于 Windows 10 及以下版本，我们使用 SKT64 进行枚举
         if (TaskUtils::GetWindowsBuildNumber() >= 22000 && !enum_strengthen) {
-            KernelInstance::EnumProcess(processIndexMap, processes);
+            KernelInstance::EnumProcesses(processIndexMap, processes);
         }
         else {
-            KernelInstance::EnumProcess2(processIndexMap, processes);
+            KernelInstance::EnumProcesses2(processIndexMap, processes);
         }
 
         LOG_INFO(__WFUNCTION__, L"Enumerated processes (kernel mode), %d entry(s).", processes.size());

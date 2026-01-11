@@ -22,6 +22,7 @@
 #include <Utils/KernelBase.h>
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
+#undef EnumProcessModules
 
 using namespace winrt;
 using namespace Microsoft::UI::Text;
@@ -146,7 +147,7 @@ namespace winrt::StarlightGUI::implementation
         modules.reserve(500);
 
         // 获取句柄列表
-        KernelInstance::EnumProcessModule(processForInfoWindow.EProcessULong(), modules);
+        KernelInstance::EnumProcessModules(processForInfoWindow.EProcessULong(), modules);
         LOG_INFO(__WFUNCTION__, L"Enumerated modules, %d entry(s).", modules.size());
 
         co_await wil::resume_foreground(DispatcherQueue());

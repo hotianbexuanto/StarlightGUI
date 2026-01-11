@@ -124,7 +124,7 @@ namespace winrt::StarlightGUI::implementation
         handles.reserve(500);
 
         // 获取句柄列表
-        KernelInstance::EnumProcessHandle(processForInfoWindow.Id(), handles);
+        KernelInstance::EnumProcessHandles(processForInfoWindow.Id(), handles);
         LOG_INFO(__WFUNCTION__, L"Enumerated handles, %d entry(s).", handles.size());
 
         co_await wil::resume_foreground(DispatcherQueue());

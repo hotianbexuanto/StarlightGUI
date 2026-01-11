@@ -1,0 +1,16 @@
+﻿namespace StarlightGUI
+{
+    [bindable]
+    [default_interface]
+    runtimeclass CallbackEntry
+    {
+        CallbackEntry();
+
+        String Type{ get; set; };
+        String Entry{ get; set; };
+        UInt64 EntryULong{ get; set; };
+        String Handle{ get; set; };
+		UInt64 HandleULong{ get; set; };
+		String Module{ get; set; };
+    }
+}

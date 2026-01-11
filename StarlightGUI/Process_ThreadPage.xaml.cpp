@@ -229,7 +229,7 @@ namespace winrt::StarlightGUI::implementation
         threads.reserve(100);
 
         // 获取线程列表
-        KernelInstance::EnumProcessThread(processForInfoWindow.EProcessULong(), threads);
+        KernelInstance::EnumProcessThreads(processForInfoWindow.EProcessULong(), threads);
         LOG_INFO(__WFUNCTION__, L"Enumerated threads, %d entry(s).", threads.size());
 
         co_await wil::resume_foreground(DispatcherQueue());

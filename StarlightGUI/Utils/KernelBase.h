@@ -6,6 +6,10 @@
 #include "AstralIO.h"
 #include "unordered_set"
 
+// Avoid macro conflicts
+#undef EnumProcesses
+#undef EnumProcessModules
+
 namespace winrt::StarlightGUI::implementation {
 	class KernelInstance {
 	public:
@@ -35,13 +39,15 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL HideDriver(ULONG64 driverObj) noexcept;
 
 		// Enum
-		static BOOL EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept;
-		static BOOL EnumProcess2(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept;
-		static BOOL EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads) noexcept;
-		static BOOL EnumProcessHandle(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles) noexcept;
-		static BOOL EnumProcessModule(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& threads) noexcept;
+		static BOOL EnumProcesses(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept;
+		static BOOL EnumProcesses2(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept;
+		static BOOL EnumProcessThreads(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads) noexcept;
+		static BOOL EnumProcessHandles(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles) noexcept;
+		static BOOL EnumProcessModules(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& threads) noexcept;
 		static BOOL EnumProcessKernelCallbackTable(ULONG64 eprocess, std::vector<winrt::StarlightGUI::KCTInfo>& threads) noexcept;
 		static BOOL EnumDrivers(std::vector<winrt::StarlightGUI::KernelModuleInfo>& kernelModules) noexcept;
+		static BOOL EnumObjectsByDirectory(std::wstring objectPath, std::vector<winrt::StarlightGUI::ObjectEntry>& objectList) noexcept;
+		static BOOL EnumCallbacks(std::vector<winrt::StarlightGUI::CallbackEntry>& callbacks) noexcept;
 
 		// File
 		static BOOL QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files) noexcept;
@@ -79,7 +85,6 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL BlueScreen(int color);
 
 		// Object
-		static BOOL EnumObjectByDirectory(std::wstring objectPath, std::vector<winrt::StarlightGUI::ObjectEntry>& objectList) noexcept;
 		static BOOL GetObjectDetails(std::wstring fullPath, std::wstring type, winrt::StarlightGUI::ObjectEntry& object) noexcept;
 
 	private:
