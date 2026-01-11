@@ -47,7 +47,6 @@ namespace winrt::StarlightGUI::implementation
     static std::vector<winrt::StarlightGUI::ProcessInfo> fullRecordedProcesses;
     static std::mutex safelock;
     static int safeAcceptedPID = -1;
-    static std::chrono::steady_clock::time_point lastRefresh;
     static bool infoWindowOpen = false;
     static bool loaded;
 
@@ -63,7 +62,7 @@ namespace winrt::StarlightGUI::implementation
 
         this->Loaded([this](auto&&, auto&&) {
             hdc = GetDC(NULL);
-            LoadProcessList(true);
+            LoadProcessList();
             loaded = true;
 			});
 
@@ -448,7 +447,7 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
 
-    winrt::Windows::Foundation::IAsyncAction TaskPage::LoadProcessList(bool force)
+    winrt::Windows::Foundation::IAsyncAction TaskPage::LoadProcessList()
     {
         if (m_isLoadingProcesses) {
             co_return;
@@ -471,55 +470,46 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::ProcessInfo> processes;
         std::map<DWORD, hstring> processCpuTable;
 
-        if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 1 || force) {
-            LOG_INFO(__WFUNCTION__, L"Time has passed over 1 sec, so we will do a full refresh.");
-            processes.reserve(200);
+        processes.reserve(200);
 
-            HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-            if (hSnapshot == INVALID_HANDLE_VALUE) {
-                co_await wil::resume_foreground(DispatcherQueue());
-                CreateInfoBarAndDisplay(L"错误", L"无法获取进程快照", InfoBarSeverity::Error, g_mainWindowInstance);
-                co_return;
-            }
+        HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (hSnapshot == INVALID_HANDLE_VALUE) {
+            co_await wil::resume_foreground(DispatcherQueue());
+            CreateInfoBarAndDisplay(L"错误", L"无法获取进程快照", InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+        }
 
-            PROCESSENTRY32W pe32{};
-            pe32.dwSize = sizeof(PROCESSENTRY32W);
+        PROCESSENTRY32W pe32{};
+        pe32.dwSize = sizeof(PROCESSENTRY32W);
 
-            if (Process32FirstW(hSnapshot, &pe32)) {
-                do {
-                    co_await GetProcessInfoAsync(pe32, processes);
-                } while (Process32NextW(hSnapshot, &pe32));
-            }
+        if (Process32FirstW(hSnapshot, &pe32)) {
+            do {
+                co_await GetProcessInfoAsync(pe32, processes);
+            } while (Process32NextW(hSnapshot, &pe32));
+        }
 
-            CloseHandle(hSnapshot);
+        CloseHandle(hSnapshot);
 
-            LOG_INFO(__WFUNCTION__, L"Enumerated processes (user mode), %d entry(s).", processes.size());
+        LOG_INFO(__WFUNCTION__, L"Enumerated processes (user mode), %d entry(s).", processes.size());
 
-            processIndexMap.clear();
-            for (int i = 0; i < processes.size(); i++) {
-                auto& process = processes.at(i);
-                processIndexMap[process.Id()] = i;
-            }
+        processIndexMap.clear();
+        for (int i = 0; i < processes.size(); i++) {
+            auto& process = processes.at(i);
+            processIndexMap[process.Id()] = i;
+        }
 
-            // 对于 Windows 11，我们使用 AstralX 进行枚举
-			// 对于 Windows 10 及以下版本，我们使用 SKT64 进行枚举
-            if (TaskUtils::GetWindowsBuildNumber() >= 22000 && !enum_strengthen) {
-                KernelInstance::EnumProcess(processIndexMap, processes);
-            }
-            else {
-                KernelInstance::EnumProcess2(processIndexMap, processes);
-            }
-
-            LOG_INFO(__WFUNCTION__, L"Enumerated processes (kernel mode), %d entry(s).", processes.size());
-
-            fullRecordedProcesses = processes;
-
-            lastRefresh = std::chrono::steady_clock::now();
+        // 对于 Windows 11，我们使用 AstralX 进行枚举
+        // 对于 Windows 10 及以下版本，我们使用 SKT64 进行枚举
+        if (TaskUtils::GetWindowsBuildNumber() >= 22000 && !enum_strengthen) {
+            KernelInstance::EnumProcess(processIndexMap, processes);
         }
         else {
-            LOG_INFO(__WFUNCTION__, L"Using cached list.");
-            processes = fullRecordedProcesses;
+            KernelInstance::EnumProcess2(processIndexMap, processes);
         }
+
+        LOG_INFO(__WFUNCTION__, L"Enumerated processes (kernel mode), %d entry(s).", processes.size());
+
+        fullRecordedProcesses = processes;
 
         // 异步加载CPU使用率
         co_await TaskUtils::FetchProcessCpuUsage(processCpuTable);
@@ -532,7 +522,7 @@ namespace winrt::StarlightGUI::implementation
             bool shouldRemove = query.empty() ? false : ApplyFilter(process, query);
             if (shouldRemove) continue;
 
-			// 从缓存加载图标，没有则获取
+            // 从缓存加载图标，没有则获取
             co_await GetProcessIconAsync(process);
 
             // 加载CPU占用
@@ -558,13 +548,13 @@ namespace winrt::StarlightGUI::implementation
         auto end = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-		// 更新进程数量文本
+        // 更新进程数量文本
         std::wstringstream countText;
         countText << L"共 " << m_processList.Size() << L" 个进程 (" << duration << " ms)";
         ProcessCountText().Text(countText.str());
         LoadingRing().IsActive(false);
 
-		// 恢复选中项
+        // 恢复选中项
         uint32_t selectedIndex;
         if (m_processList.IndexOf(selectedTarget, selectedIndex)) {
             ProcessListView().SelectedIndex(selectedIndex);
@@ -733,16 +723,10 @@ namespace winrt::StarlightGUI::implementation
         MemoryHeaderButton().Content(box_value(L"内存"));
         IdHeaderButton().Content(box_value(L"PID"));
 
-        std::vector<winrt::StarlightGUI::ProcessInfo> sortedProcesses;
-
-        for (auto& process : m_processList) {
-            sortedProcesses.push_back(process);
-        }
-
         if (column == "Name") {
             if (isAscending) {
                 NameHeaderButton().Content(box_value(L"进程 ↓"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -754,7 +738,7 @@ namespace winrt::StarlightGUI::implementation
             }
             else {
                 NameHeaderButton().Content(box_value(L"进程 ↑"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -767,13 +751,13 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "CpuUsage") {
             if (isAscending) {
                 CpuHeaderButton().Content(box_value(L"CPU ↓"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     return std::stod(a.CpuUsage().c_str()) < std::stod(b.CpuUsage().c_str());
                     });
             }
             else {
                 CpuHeaderButton().Content(box_value(L"CPU ↑"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     return std::stod(a.CpuUsage().c_str()) > std::stod(b.CpuUsage().c_str());
                     });
             }
@@ -781,13 +765,13 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "MemoryUsage") {
             if (isAscending) {
                 MemoryHeaderButton().Content(box_value(L"内存 ↓"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() < b.MemoryUsageByte();
                     });
             }
             else {
                 MemoryHeaderButton().Content(box_value(L"内存 ↑"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() > b.MemoryUsageByte();
                     });
             }
@@ -795,20 +779,20 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "Id") {
             if (isAscending) {
                 IdHeaderButton().Content(box_value(L"PID ↓"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     return a.Id() < b.Id();
                     });
             }
             else {
                 IdHeaderButton().Content(box_value(L"PID ↑"));
-                std::sort(sortedProcesses.begin(), sortedProcesses.end(), [](auto a, auto b) {
+                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
                     return a.Id() > b.Id();
                     });
             }
         }
 
         m_processList.Clear();
-        for (auto& process : sortedProcesses) {
+        for (auto& process : fullRecordedProcesses) {
             m_processList.Append(process);
         }
 
@@ -871,7 +855,7 @@ namespace winrt::StarlightGUI::implementation
 
         filteredPids.clear();
 
-        co_await LoadProcessList(true);
+        co_await LoadProcessList();
 
         RefreshProcessListButton().IsEnabled(true);
         co_return;
@@ -1072,7 +1056,7 @@ namespace winrt::StarlightGUI::implementation
         reloadTimer.Stop();
         reloadTimer.Interval(std::chrono::milliseconds(interval));
         reloadTimer.Tick([this](auto&&, auto&&) {
-            if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
+            if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList();
             reloadTimer.Stop();
             });
         reloadTimer.Start();

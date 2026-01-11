@@ -63,6 +63,9 @@
     <Page Include="LineGraphControl.xaml">
       <Filter>Utils\Elements</Filter>
     </Page>
+    <Page Include="MonitorPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -97,6 +100,9 @@
       <Filter>Utils\Types</Filter>
     </Midl>
     <Midl Include="Utils\WindowInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\ObjectEntry.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
   </ItemGroup>
@@ -150,6 +156,9 @@
     </ClCompile>
     <ClCompile Include="Utils\Config.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\ObjectEntry.cpp">
+      <Filter>Utils\Types</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +215,12 @@
       <Filter>Utils\Types</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Utils\ObjectEntry.h">
+      <Filter>Utils\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\NTBase.h">
+      <Filter>Utils\Advanced</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">

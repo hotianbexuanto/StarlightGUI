@@ -25,7 +25,7 @@ namespace winrt::StarlightGUI::implementation
         void ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         bool ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query);
 
-        winrt::Windows::Foundation::IAsyncAction LoadProcessList(bool force = false);
+        winrt::Windows::Foundation::IAsyncAction LoadProcessList();
         winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);
         winrt::Windows::Foundation::IAsyncAction GetProcessInfoAsync(const PROCESSENTRY32W& pe32, std::vector<winrt::StarlightGUI::ProcessInfo>& processes);
         winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process);

@@ -101,6 +101,11 @@
                             <FontIcon Glyph="&#xec7a;" FontFamily="Segoe Fluent Icons"/>
                         </controls:NavigationViewItem.Icon>
                     </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="监视器">
+                        <controls:NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xea8f;" FontFamily="Segoe Fluent Icons"/>
+                        </controls:NavigationViewItem.Icon>
+                    </controls:NavigationViewItem>
                 </controls:NavigationView.MenuItems>
 
                 <!-- 从下到上 -->

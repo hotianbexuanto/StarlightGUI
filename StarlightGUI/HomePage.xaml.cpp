@@ -153,8 +153,8 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget HomePage::FetchHitokoto()
     {
+        auto weak_this = get_weak();
         try {
-            auto weak_this = get_weak();
 
             if (hitokoto.empty()) {
                 if (auto strong_this = weak_this.get()) {
@@ -180,8 +180,10 @@ namespace winrt::StarlightGUI::implementation
             hitokoto = L"获取失败... :(";
         }
 
-        co_await wil::resume_foreground(DispatcherQueue());
-        HitokotoText().Text(hitokoto);
+        if (auto strong_this = weak_this.get()) {
+            co_await wil::resume_foreground(DispatcherQueue());
+            HitokotoText().Text(hitokoto);
+        }
     }
 
     void HomePage::SetupClock()
@@ -206,6 +208,7 @@ namespace winrt::StarlightGUI::implementation
     * @Author Stars
     */
     winrt::fire_and_forget HomePage::UpdateGauges() {
+        auto weak_this = get_weak();
         co_await winrt::resume_background();
 
         // 初始化性能计数器
@@ -386,109 +389,111 @@ namespace winrt::StarlightGUI::implementation
             nvmlDeviceGetClockInfo(device, NVML_CLOCK_MEM, &gpu_clock_mem);
         }
 
-        co_await wil::resume_foreground(DispatcherQueue());
+        if (auto strong_this = weak_this.get()) {
+            co_await wil::resume_foreground(DispatcherQueue());
 
-        graphX += 1;
+            graphX += 1;
 
-        std::wstringstream ss;
-        CpuGauge().Value(GetValueFromCounter(counter_cpu_time));
-        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_time) << "%";
-        CpuPercent().Text(ss.str());
-        CpuManufacture().Text(to_hstring(cpu_manufacture));
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(2) << GetValueFromCounter(counter_cpu_freq) / 1024.0 << " GHz";
-        CpuFrequency().Text(ss.str());
-        CpuProcess().Text(to_hstring(GetValueFromCounter(counter_cpu_process)));
-        CpuThread().Text(to_hstring(GetValueFromCounter(counter_cpu_thread)));
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_syscall) << "/s";
-        CpuSyscall().Text(ss.str());
-        CpuRunTime().Text(timebuffer);
-        CpuCore().Text(to_hstring(std::thread::hardware_concurrency()));
-        CpuVirtualization().Text(virtualization ? L"支持" : L"不支持");
-        CpuCacheL1().Text(to_hstring(cache_l1) + L" KB");
-        CpuCacheL2().Text(to_hstring(cache_l2) + L" MB");
-        CpuCacheL3().Text(to_hstring(cache_l3) + L" MB");
-        TotalLineGraph().AddDataPoint(L"CPU", graphX, GetValueFromCounter(counter_cpu_time));
+            std::wstringstream ss;
+            CpuGauge().Value(GetValueFromCounter(counter_cpu_time));
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_time) << "%";
+            CpuPercent().Text(ss.str());
+            CpuManufacture().Text(to_hstring(cpu_manufacture));
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(2) << GetValueFromCounter(counter_cpu_freq) / 1024.0 << " GHz";
+            CpuFrequency().Text(ss.str());
+            CpuProcess().Text(to_hstring(GetValueFromCounter(counter_cpu_process)));
+            CpuThread().Text(to_hstring(GetValueFromCounter(counter_cpu_thread)));
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_syscall) << "/s";
+            CpuSyscall().Text(ss.str());
+            CpuRunTime().Text(timebuffer);
+            CpuCore().Text(to_hstring(std::thread::hardware_concurrency()));
+            CpuVirtualization().Text(virtualization ? L"支持" : L"不支持");
+            CpuCacheL1().Text(to_hstring(cache_l1) + L" KB");
+            CpuCacheL2().Text(to_hstring(cache_l2) + L" MB");
+            CpuCacheL3().Text(to_hstring(cache_l3) + L" MB");
+            TotalLineGraph().AddDataPoint(L"CPU", graphX, GetValueFromCounter(counter_cpu_time));
 
-        MemGauge().Value(memInfo.dwMemoryLoad);
-        MemPercent().Text(to_hstring((int)memInfo.dwMemoryLoad) + L"%");
-        MemSize().Text(FormatMemorySize(memInfo.ullTotalPhys));
-        MemUsing().Text(FormatMemorySize(memInfo.ullTotalPhys - memInfo.ullAvailPhys));
-        MemUsable().Text(FormatMemorySize(memInfo.ullAvailPhys));
-        MemCached().Text(FormatMemorySize(GetValueFromCounter(counter_mem_cached)));
-        MemCommitted().Text(FormatMemorySize(GetValueFromCounter(counter_mem_committed)));
-        MemPageRead().Text(FormatMemorySize(GetValueFromCounter(counter_mem_read)) + L"/s");
-        MemPageWrite().Text(FormatMemorySize(GetValueFromCounter(counter_mem_write)) + L"/s");
-        MemPageInput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_input)) + L"/s");
-        MemPageOutput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_output)) + L"/s");
-        TotalLineGraph().AddDataPoint(L"内存", graphX, memInfo.dwMemoryLoad);
+            MemGauge().Value(memInfo.dwMemoryLoad);
+            MemPercent().Text(to_hstring((int)memInfo.dwMemoryLoad) + L"%");
+            MemSize().Text(FormatMemorySize(memInfo.ullTotalPhys));
+            MemUsing().Text(FormatMemorySize(memInfo.ullTotalPhys - memInfo.ullAvailPhys));
+            MemUsable().Text(FormatMemorySize(memInfo.ullAvailPhys));
+            MemCached().Text(FormatMemorySize(GetValueFromCounter(counter_mem_cached)));
+            MemCommitted().Text(FormatMemorySize(GetValueFromCounter(counter_mem_committed)));
+            MemPageRead().Text(FormatMemorySize(GetValueFromCounter(counter_mem_read)) + L"/s");
+            MemPageWrite().Text(FormatMemorySize(GetValueFromCounter(counter_mem_write)) + L"/s");
+            MemPageInput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_input)) + L"/s");
+            MemPageOutput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_output)) + L"/s");
+            TotalLineGraph().AddDataPoint(L"内存", graphX, memInfo.dwMemoryLoad);
 
-        DiskGauge().Value(GetValueFromCounter(counter_disk_time));
-        DiskManufacture().Text(disk_manufacture);
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_time) << "%";
-        DiskPercent().Text(ss.str());
-        DiskRead().Text(FormatMemorySize(GetValueFromCounter(counter_disk_read)) + L"/s");
-        DiskWrite().Text(FormatMemorySize(GetValueFromCounter(counter_disk_write)) + L"/s");
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_trans) << "/s";
-        DiskTrans().Text(ss.str());
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_io) << "/s";
-        DiskIO().Text(ss.str());
-        TotalLineGraph().AddDataPoint(L"磁盘", graphX, GetValueFromCounter(counter_disk_time));
+            DiskGauge().Value(GetValueFromCounter(counter_disk_time));
+            DiskManufacture().Text(disk_manufacture);
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_time) << "%";
+            DiskPercent().Text(ss.str());
+            DiskRead().Text(FormatMemorySize(GetValueFromCounter(counter_disk_read)) + L"/s");
+            DiskWrite().Text(FormatMemorySize(GetValueFromCounter(counter_disk_write)) + L"/s");
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_trans) << "/s";
+            DiskTrans().Text(ss.str());
+            ss = std::wstringstream{};
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_io) << "/s";
+            DiskIO().Text(ss.str());
+            TotalLineGraph().AddDataPoint(L"磁盘", graphX, GetValueFromCounter(counter_disk_time));
 
-        double gpu_time = 0.0;
-        if (isNvidia) {
-            if (pdh_first) {
-                gpu_time = GetValueFromCounterArray(counter_gpu_time);
+            double gpu_time = 0.0;
+            if (isNvidia) {
+                if (pdh_first) {
+                    gpu_time = GetValueFromCounterArray(counter_gpu_time);
+                }
+                else {
+                    gpu_time = gpu_utilization.gpu;
+                }
+                ss = std::wstringstream{};
+                ss << std::fixed << std::setprecision(1) << FormatMemorySize(gpu_memory.used) << "/" << FormatMemorySize(gpu_memory.total);
+                GpuMem().Text(ss.str());
+                GpuTemp().Text(to_hstring(gpu_temp) + L" ℃");
+                ss = std::wstringstream{};
+                ss << std::fixed << std::setprecision(2) << gpu_clock_graphics / 1024.0 << " GHz";
+                GpuClockGraphics().Text(ss.str());
+                ss = std::wstringstream{};
+                ss << std::fixed << std::setprecision(2) << gpu_clock_mem / 1024.0 << " GHz";
+                GpuClockMem().Text(ss.str());
             }
             else {
-                gpu_time = gpu_utilization.gpu;
+                gpu_time = GetValueFromCounterArray(counter_gpu_time);
+                GpuMem().Text(L"NaN");
+                GpuTemp().Text(L"NaN");
+                GpuClockGraphics().Text(L"NaN");
+                GpuClockMem().Text(L"NaN");
             }
+            GpuGauge().Value(gpu_time);
             ss = std::wstringstream{};
-            ss << std::fixed << std::setprecision(1) << FormatMemorySize(gpu_memory.used) << "/" << FormatMemorySize(gpu_memory.total);
-            GpuMem().Text(ss.str());
-            GpuTemp().Text(to_hstring(gpu_temp) + L" ℃");
+            ss << std::fixed << std::setprecision(1) << gpu_time << "%";
+            GpuPercent().Text(ss.str());
+            GpuManufacture().Text(gpu_manufacture);
+            TotalLineGraph().AddDataPoint(L"GPU", graphX, gpu_time);
+
+            if (isNetSend) {
+                NetGauge().Value(GetValueFromCounterArray(counter_net_send) / (1024 * 1024));
+                NetGauge().ValueStringFormat(L"↑ {0} MB/s");
+            }
+            else {
+                NetGauge().Value(GetValueFromCounterArray(counter_net_receive) / (1024 * 1024));
+                NetGauge().ValueStringFormat(L"↓ {0} MB/s");
+            }
+            NetManufacture().Text(netadpt_manufacture);
+            NetReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_receive)) + L"/s");
+            NetSend().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_send)) + L"/s");
             ss = std::wstringstream{};
-            ss << std::fixed << std::setprecision(2) << gpu_clock_graphics / 1024.0 << " GHz";
-            GpuClockGraphics().Text(ss.str());
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_packet_receive) << "/s";
+            NetPacketReceive().Text(ss.str());
             ss = std::wstringstream{};
-            ss << std::fixed << std::setprecision(2) << gpu_clock_mem / 1024.0 << " GHz";
-            GpuClockMem().Text(ss.str());
+            ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_packet_send) << "/s";
+            NetPacketSend().Text(ss.str());
         }
-        else {
-            gpu_time = GetValueFromCounterArray(counter_gpu_time);
-            GpuMem().Text(L"NaN");
-            GpuTemp().Text(L"NaN");
-            GpuClockGraphics().Text(L"NaN");
-            GpuClockMem().Text(L"NaN");
-        }
-        GpuGauge().Value(gpu_time);
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(1) << gpu_time << "%";
-        GpuPercent().Text(ss.str());
-        GpuManufacture().Text(gpu_manufacture);
-        TotalLineGraph().AddDataPoint(L"GPU", graphX, gpu_time);
-        
-        if (isNetSend) {
-            NetGauge().Value(GetValueFromCounterArray(counter_net_send) / (1024 * 1024));
-            NetGauge().ValueStringFormat(L"↑ {0} MB/s");
-        }
-        else {
-            NetGauge().Value(GetValueFromCounterArray(counter_net_receive) / (1024 * 1024));
-            NetGauge().ValueStringFormat(L"↓ {0} MB/s");
-        }
-        NetManufacture().Text(netadpt_manufacture);
-        NetReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_receive)) + L"/s");
-        NetSend().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_send)) + L"/s");
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_packet_receive) << "/s";
-        NetPacketReceive().Text(ss.str());
-        ss = std::wstringstream{};
-        ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_packet_send) << "/s";
-        NetPacketSend().Text(ss.str());
     }
 
     void HomePage::UpdateClock()

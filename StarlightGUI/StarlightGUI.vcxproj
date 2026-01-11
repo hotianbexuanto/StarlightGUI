@@ -207,6 +207,10 @@
       <DependentUpon>ModifyTokenDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="MonitorPage.xaml.h">
+      <DependentUpon>MonitorPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -261,6 +265,8 @@
     <ClInclude Include="Utils\KernelBase.h" />
     <ClInclude Include="Utils\KernelModuleInfo.h" />
     <ClInclude Include="Utils\MokuaiInfo.h" />
+    <ClInclude Include="Utils\NTBase.h" />
+    <ClInclude Include="Utils\ObjectEntry.h" />
     <ClInclude Include="Utils\ProcessInfo.h" />
     <ClInclude Include="Utils\TaskUtils.h" />
     <ClInclude Include="Utils\ThreadInfo.h" />
@@ -302,6 +308,9 @@
     </Page>
     <Page Include="MainWindow.xaml" />
     <Page Include="ModifyTokenDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MonitorPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Process_HandlePage.xaml">
@@ -377,6 +386,10 @@
       <DependentUpon>ModifyTokenDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="MonitorPage.xaml.cpp">
+      <DependentUpon>MonitorPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -434,6 +447,7 @@
     <ClCompile Include="Utils\KernelInstance.cpp" />
     <ClCompile Include="Utils\KernelModuleInfo.cpp" />
     <ClCompile Include="Utils\MokuaiInfo.cpp" />
+    <ClCompile Include="Utils\ObjectEntry.cpp" />
     <ClCompile Include="Utils\ProcessInfo.cpp" />
     <ClCompile Include="Utils\TaskUtils.cpp" />
     <ClCompile Include="Utils\ThreadInfo.cpp" />
@@ -489,6 +503,10 @@
       <DependentUpon>ModifyTokenDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
+    <Midl Include="MonitorPage.idl">
+      <DependentUpon>MonitorPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="Process_HandlePage.idl">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -530,6 +548,7 @@
     <Midl Include="Utils\KCTInfo.idl" />
     <Midl Include="Utils\KernelModuleInfo.idl" />
     <Midl Include="Utils\MokuaiInfo.idl" />
+    <Midl Include="Utils\ObjectEntry.idl" />
     <Midl Include="Utils\ProcessInfo.idl" />
     <Midl Include="Utils\ThreadInfo.idl" />
     <Midl Include="Utils\WindowInfo.idl" />

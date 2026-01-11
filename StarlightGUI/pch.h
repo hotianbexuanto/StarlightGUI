@@ -53,6 +53,8 @@
 #include <Utils/FileInfo.h>
 #include <Utils/WindowInfo.h>
 
+#include <Utils/ObjectEntry.h>
+
 #include <Utils/TaskUtils.h>
 #include <Utils/Utils.h>
 #include <Utils/KernelBase.h>

@@ -1005,6 +1005,277 @@ namespace winrt::StarlightGUI::implementation {
 		}
 	}
 
+	static NtQueryDirectoryObject_t NtQueryDirectoryObject = nullptr;
+	static NtQuerySymbolicLinkObject_t NtQuerySymbolicLinkObject = nullptr;
+	static NtQueryEvent_t NtQueryEvent = nullptr;
+	static NtQueryMutant_t NtQueryMutant = nullptr;
+	static NtQuerySemaphore_t NtQuerySemaphore = nullptr;
+	static NtQuerySection_t NtQuerySection = nullptr;
+	static NtQueryTimer_t NtQueryTimer = nullptr;
+	static NtQueryIoCompletion_t NtQueryIoCompletion = nullptr;
+	static NtOpenDirectoryObject_t NtOpenDirectoryObject = nullptr;
+	static NtOpenSymbolicLinkObject_t NtOpenSymbolicLinkObject = nullptr;
+	static NtOpenEvent_t NtOpenEvent = nullptr;
+	static NtOpenMutant_t NtOpenMutant = nullptr;
+	static NtOpenSemaphore_t NtOpenSemaphore = nullptr;
+	static NtOpenSection_t NtOpenSection = nullptr;
+	static NtOpenTimer_t NtOpenTimer = nullptr;
+	static NtOpenFile_t NtOpenFile = nullptr;
+	static NtOpenSession_t NtOpenSession = nullptr;
+	static NtOpenCpuPartition_t NtOpenCpuPartition = nullptr;
+	static NtOpenJobObject_t NtOpenJobObject = nullptr;
+	static NtOpenIoCompletion_t NtOpenIoCompletion = nullptr;
+	static NtOpenPartition_t NtOpenPartition = nullptr;
+
+	BOOL KernelInstance::EnumObjectByDirectory(std::wstring objectPath, std::vector<winrt::StarlightGUI::ObjectEntry>& objectList) noexcept {
+		if (!NtQueryDirectoryObject || !NtQuerySymbolicLinkObject || !NtQueryEvent || !NtQueryMutant || !NtQuerySemaphore || !NtQuerySection || !NtQueryTimer || !NtQueryIoCompletion
+			|| !NtOpenDirectoryObject || !NtOpenSymbolicLinkObject || !NtOpenEvent || !NtOpenMutant || !NtOpenSemaphore || !NtOpenSection || !NtOpenTimer || !NtOpenFile 
+			|| !NtOpenSession || !NtOpenCpuPartition || !NtOpenJobObject || !NtOpenIoCompletion || !NtOpenPartition) {
+			HMODULE hModule = GetModuleHandleW(L"ntdll.dll");
+			if (!hModule) return FALSE;
+
+			NtQueryDirectoryObject = (NtQueryDirectoryObject_t)GetProcAddress(hModule, "NtQueryDirectoryObject");
+			NtQuerySymbolicLinkObject = (NtQuerySymbolicLinkObject_t)GetProcAddress(hModule, "NtQuerySymbolicLinkObject");
+			NtQueryEvent = (NtQueryEvent_t)GetProcAddress(hModule, "NtQueryEvent");
+			NtQueryMutant = (NtQueryMutant_t)GetProcAddress(hModule, "NtQueryMutant");
+			NtQuerySemaphore = (NtQuerySemaphore_t)GetProcAddress(hModule, "NtQuerySemaphore");
+			NtQuerySection = (NtQuerySection_t)GetProcAddress(hModule, "NtQuerySection");
+			NtQueryTimer = (NtQueryTimer_t)GetProcAddress(hModule, "NtQueryTimer");
+			NtQueryIoCompletion = (NtQueryIoCompletion_t)GetProcAddress(hModule, "NtQueryIoCompletion");
+			NtOpenDirectoryObject = (NtOpenDirectoryObject_t)GetProcAddress(hModule, "NtOpenDirectoryObject");
+			NtOpenSymbolicLinkObject = (NtOpenSymbolicLinkObject_t)GetProcAddress(hModule, "NtOpenSymbolicLinkObject");
+			NtOpenEvent = (NtOpenEvent_t)GetProcAddress(hModule, "NtOpenEvent");
+			NtOpenMutant = (NtOpenMutant_t)GetProcAddress(hModule, "NtOpenMutant");
+			NtOpenSemaphore = (NtOpenSemaphore_t)GetProcAddress(hModule, "NtOpenSemaphore");
+			NtOpenSection = (NtOpenSection_t)GetProcAddress(hModule, "NtOpenSection");
+			NtOpenTimer = (NtOpenTimer_t)GetProcAddress(hModule, "NtOpenTimer");
+			NtOpenFile = (NtOpenFile_t)GetProcAddress(hModule, "NtOpenFile");
+			NtOpenSession = (NtOpenSession_t)GetProcAddress(hModule, "NtOpenSession");
+			NtOpenCpuPartition = (NtOpenCpuPartition_t)GetProcAddress(hModule, "NtOpenCpuPartition");
+			NtOpenJobObject = (NtOpenJobObject_t)GetProcAddress(hModule, "NtOpenJobObject");
+			NtOpenIoCompletion = (NtOpenIoCompletion_t)GetProcAddress(hModule, "NtOpenIoCompletion");
+			NtOpenPartition = (NtOpenPartition_t)GetProcAddress(hModule, "NtOpenPartition");
+
+			if (!NtQueryDirectoryObject || !NtQuerySymbolicLinkObject || !NtQueryEvent || !NtQueryMutant || !NtQuerySemaphore || !NtQuerySection || !NtQueryTimer || !NtQueryIoCompletion
+				|| !NtOpenDirectoryObject || !NtOpenSymbolicLinkObject || !NtOpenEvent || !NtOpenMutant || !NtOpenSemaphore || !NtOpenSection || !NtOpenTimer || !NtOpenFile
+				|| !NtOpenSession || !NtOpenCpuPartition || !NtOpenJobObject || !NtOpenIoCompletion || !NtOpenPartition) return FALSE;
+		}
+
+		UNICODE_STRING objName;
+		RtlInitUnicodeString(&objName, objectPath.c_str());
+
+		OBJECT_ATTRIBUTES objAttr;
+		InitializeObjectAttributes(&objAttr, &objName, OBJ_CASE_INSENSITIVE, NULL, NULL);
+
+		HANDLE hDir = NULL;
+		NTSTATUS status = NtOpenDirectoryObject(&hDir, 0x0001 /* DIRECTORY_QUERY */, &objAttr);
+
+		if (!NT_SUCCESS(status) || !hDir) {
+			return FALSE;
+		}
+
+		// 枚举对象
+		ULONG context = 0;
+		ULONG returnLength = 0;
+		std::vector<BYTE> buffer(4096);
+
+		status = ERROR_SUCCESS;
+		while (NT_SUCCESS(status)) {
+			status = NtQueryDirectoryObject(hDir, buffer.data(), buffer.size(), FALSE, FALSE, &context, &returnLength);
+
+			POBJECT_DIRECTORY_INFORMATION info =
+				(POBJECT_DIRECTORY_INFORMATION)buffer.data();
+
+			while (info->Name.Buffer) {
+				winrt::StarlightGUI::ObjectEntry entry = winrt::make<winrt::StarlightGUI::implementation::ObjectEntry>();
+
+				std::wstring name(info->Name.Buffer, info->Name.Length / sizeof(WCHAR));
+				std::wstring type(info->TypeName.Buffer, info->TypeName.Length / sizeof(WCHAR));
+				hstring path(objectPath + L"\\" + name);
+				entry.Name(name);
+				entry.Type(type);
+				entry.Path(FixBackSplash(path));
+
+				// 只获取符号链接的详细信息，其他类型获取详细信息会很慢
+				if (type == L"SymbolicLink") {
+					KernelInstance::GetObjectDetails(name, type, entry);
+				}
+
+				objectList.push_back(entry);
+
+				info++;
+			}
+		}
+
+		CloseHandle(hDir);
+		return TRUE;
+	}
+
+	BOOL KernelInstance::GetObjectDetails(std::wstring fullPath, std::wstring type, winrt::StarlightGUI::ObjectEntry& entry) noexcept {
+		HANDLE hObject = NULL;
+		NTSTATUS status = ERROR_SUCCESS;
+		ULONG returnLength = 0;
+
+		UNICODE_STRING objName;
+		RtlInitUnicodeString(&objName, fullPath.c_str());
+
+		OBJECT_ATTRIBUTES objAttr;
+		InitializeObjectAttributes(&objAttr, &objName, OBJ_CASE_INSENSITIVE, NULL, NULL);
+
+		// 根据类型尝试不同方式打开
+		if (type == L"Directory") {
+			status = NtOpenDirectoryObject(&hObject, 0x0001 /* DIRECTORY_QUERY */, &objAttr);
+		}
+		else if (type == L"SymbolicLink") {
+			status = NtOpenSymbolicLinkObject(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Event") {
+			status = NtOpenEvent(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Mutant") {
+			status = NtOpenMutant(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Semaphore") {
+			status = NtOpenSemaphore(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Section") {
+			status = NtOpenSection(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Timer") {
+			status = NtOpenTimer(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Device") {
+			// Device 使用 NtOpenFile 打开
+			IO_STATUS_BLOCK ioStatus = { 0 };
+			status = NtOpenFile(&hObject, GENERIC_READ, &objAttr, &ioStatus, FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_NON_DIRECTORY_FILE);
+		}
+		else if (type == L"Session") {
+			status = NtOpenSession(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"CpuPartition") {
+			status = NtOpenCpuPartition(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Job") {
+			status = NtOpenJobObject(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"IoCompletion") {
+			status = NtOpenIoCompletion(&hObject, GENERIC_READ, &objAttr);
+		}
+		else if (type == L"Partition") {
+			status = NtOpenPartition(&hObject, GENERIC_READ, &objAttr);
+		}
+		else {
+			// 不支持的类型
+			return FALSE;
+		}
+
+		if (!NT_SUCCESS(status) || !hObject) return FALSE;
+
+		// 获取基本信息
+		OBJECT_BASIC_INFORMATION basicInfo{};
+		status = NtQueryObject(hObject, ObjectBasicInformation, &basicInfo, sizeof(basicInfo), &returnLength);
+
+		if (NT_SUCCESS(status)) {
+			entry.Permanent((basicInfo.Attributes & OBJ_PERMANENT) != 0);
+			entry.References(basicInfo.PointerCount);
+			entry.Handles(basicInfo.HandleCount);
+			entry.PagedPool(basicInfo.PagedPoolCharge);
+			entry.NonPagedPool(basicInfo.NonPagedPoolCharge);
+			FILETIME ft = { basicInfo.CreationTime.LowPart, basicInfo.CreationTime.HighPart };
+			SYSTEMTIME st;
+			if (FileTimeToSystemTime(&ft, &st))
+			{
+				std::wstringstream ss;
+				ss << std::setw(4) << std::setfill(L'0') << st.wYear << L"/"
+					<< std::setw(2) << std::setfill(L'0') << st.wMonth << L"/"
+					<< std::setw(2) << std::setfill(L'0') << st.wDay << L" "
+					<< std::setw(2) << std::setfill(L'0') << st.wHour << L":"
+					<< std::setw(2) << std::setfill(L'0') << st.wMinute << L":"
+					<< std::setw(2) << std::setfill(L'0') << st.wSecond;
+				entry.CreationTime(ss.str());
+			}
+			else
+			{
+				entry.CreationTime(L"(未知)");
+			}
+
+			ULONG bufferLength = 0;
+			if (type == L"SymbolicLink") {
+				UNICODE_STRING target{};
+
+				status = NtQuerySymbolicLinkObject(hObject, &target, &bufferLength);
+
+				if (!NT_SUCCESS(status)) {
+					target.Buffer = (PWSTR)HeapAlloc(GetProcessHeap(), 0, bufferLength);
+					target.Length = 0;
+					target.MaximumLength = (USHORT)bufferLength;
+
+					status = NtQuerySymbolicLinkObject(hObject, &target, &bufferLength);
+					if (NT_SUCCESS(status)) {
+						entry.Link(std::wstring(target.Buffer, target.Length / sizeof(WCHAR)));
+					}
+					HeapFree(GetProcessHeap(), 0, target.Buffer);
+				}
+			}
+			else if (type == L"Event") {
+				EVENT_BASIC_INFORMATION eventInfo{};
+
+				status = NtQueryEvent(hObject, EventBasicInformation, &eventInfo, sizeof(eventInfo), &bufferLength);
+				if (NT_SUCCESS(status)) {
+					entry.EventType(eventInfo.EventType == NotificationEvent ? L"Notification (Manual reset)" : L"Synchronization (Auto reset)");
+					entry.EventSignaled(eventInfo.EventState == 0 ? FALSE : TRUE);
+				}
+			}
+			else if (type == L"Mutant") {
+				MUTANT_BASIC_INFORMATION mutantInfo{};
+
+				status = NtQueryMutant(hObject, MutantBasicInformation, &mutantInfo, sizeof(mutantInfo), &bufferLength);
+				if (NT_SUCCESS(status)) {
+					entry.MutantHoldCount(mutantInfo.CurrentCount);
+					entry.MutantAbandoned(mutantInfo.AbandonedState == 0 ? FALSE : TRUE);
+				}
+			}
+			else if (type == L"Semaphore") {
+				SEMAPHORE_BASIC_INFORMATION semaphoreInfo{};
+
+				status = NtQuerySemaphore(hObject, SemaphoreBasicInformation, &semaphoreInfo, sizeof(semaphoreInfo), &bufferLength);
+				if (NT_SUCCESS(status)) {
+					entry.SemaphoreCount(semaphoreInfo.CurrentCount);
+					entry.SemaphoreLimit(semaphoreInfo.MaximumCount);
+				}
+			}
+			else if (type == L"Section") {
+				SECTION_BASIC_INFORMATION sectionInfo{};
+
+				status = NtQuerySection(hObject, SectionBasicInformation, &sectionInfo, sizeof(sectionInfo), NULL); // 这里传入长度会报错，可能是微软的问题
+				if (NT_SUCCESS(status)) {
+					entry.SectionBaseAddress((ULONG64)sectionInfo.BaseAddress);
+					entry.SectionMaximumSize(sectionInfo.MaximumSize.QuadPart);
+					entry.SectionAttributes(sectionInfo.AllocationAttributes);
+				}
+			}
+			else if (type == L"Timer") {
+				TIMER_BASIC_INFORMATION timerInfo{};
+				status = NtQueryTimer(hObject, TimerBasicInformation, &timerInfo, sizeof(timerInfo), &bufferLength);
+				if (NT_SUCCESS(status)) {
+					entry.TimerRemainingTime(timerInfo.RemainingTime.QuadPart);
+					entry.TimerState(timerInfo.TimerState);
+				}
+			}
+			else if (type == L"IoCompletion") {
+				IO_COMPLETION_BASIC_INFORMATION ioCompletionInfo{};
+
+				status = NtQueryIoCompletion(hObject, IoCompletionBasicInformation, &ioCompletionInfo, sizeof(ioCompletionInfo), &bufferLength);
+				if (NT_SUCCESS(status)) {
+					entry.IoCompletionDepth(ioCompletionInfo.Depth);
+				}
+			}
+		}
+
+		CloseHandle(hObject);
+		return NT_SUCCESS(status);
+	}
+
 
 	// =================================
 	//				PRIVATE
