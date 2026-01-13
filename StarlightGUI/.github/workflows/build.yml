@@ -1,0 +1,45 @@
+name: 构建 Starlight GUI 应用程序
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:  # 允许手动触发工作流
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        platform: [x64]
+
+    steps:
+    - name: 检出代码仓库
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: 安装 MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: 安装 NuGet
+      uses: nuget/setup-nuget@v2
+
+    - name: 恢复 NuGet 包
+      run: nuget restore StarlightGUI.sln
+
+    - name: 编译解决方案
+      run: msbuild StarlightGUI.sln \
+        /p:Configuration=${{ matrix.configuration }} \
+        /p:Platform=${{ matrix.platform }} \
+        /p:AppxBundlePlatforms=${{ matrix.platform }} \
+        /p:AppxBundle=Never \
+        /p:UapAppxPackageBuildMode=SideloadOnly
+
+    - name: 上传构建结果
+      uses: actions/upload-artifact@v4
+      with:
+        name: StarlightGUI-${{ matrix.configuration }}-${{ matrix.platform }}
+        path: ${{ matrix.platform }}/${{ matrix.configuration }}/
+        if-no-files-found: warn
