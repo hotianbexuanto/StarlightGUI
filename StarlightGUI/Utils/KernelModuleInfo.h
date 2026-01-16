@@ -4,57 +4,57 @@
 
 namespace winrt::StarlightGUI::implementation
 {
-    struct KernelModuleInfo : KernelModuleInfoT<KernelModuleInfo>
-    {
-        KernelModuleInfo() = default;
+	struct KernelModuleInfo : KernelModuleInfoT<KernelModuleInfo>
+	{
+		KernelModuleInfo() = default;
 
-        hstring Name();
-        void Name(hstring const& value);
+		hstring Name() { return m_name; }
+		void Name(hstring const& value) { m_name = value; }
 
-        hstring Path();
-        void Path(hstring const& value);
+		hstring Path() { return m_path; }
+		void Path(hstring const& value) { m_path = value; }
 
-        hstring ImageBase();
-        void ImageBase(hstring const& value);
+		hstring ImageBase() { return m_imageBase; }
+		void ImageBase(hstring const& value) { m_imageBase = value; }
 
-        ULONG64 ImageBaseULong();
-        void ImageBaseULong(ULONG64 const& value);
+		ULONG64 ImageBaseULong() { return m_imageBaseULong; }
+		void ImageBaseULong(ULONG64 const& value) { m_imageBaseULong = value; }
 
-        hstring Size();
-        void Size(hstring const& value);
+		hstring Size() { return m_size; }
+		void Size(hstring const& value) { m_size = value; }
 
-        ULONG64 SizeULong();
-        void SizeULong(ULONG64 const& value);
+		ULONG64 SizeULong() { return m_sizeULong; }
+		void SizeULong(ULONG64 value) { m_sizeULong = value; }
 
-        hstring DriverObject();
-        void DriverObject(hstring const& value);
+		hstring DriverObject() { return m_driverObject; }
+		void DriverObject(hstring const& value) { m_driverObject = value; }
 
-        ULONG64 DriverObjectULong();
-        void DriverObjectULong(ULONG64 const& value);
+		ULONG64 DriverObjectULong() { return m_driverObjectULong; }
+		void DriverObjectULong(ULONG64 value) { m_driverObjectULong = value; }
 
-        hstring LoadOrder();
-        void LoadOrder(hstring const& value);
+		hstring LoadOrder() { return m_loadOrder; }
+		void LoadOrder(hstring const& value) { m_loadOrder = value; }
 
-        ULONG64 LoadOrderULong();
-        void LoadOrderULong(ULONG64 const& value);
+		ULONG64 LoadOrderULong() { return m_loadOrderULong; }
+		void LoadOrderULong(ULONG64 value) { m_loadOrderULong = value; }
 
-    private:
-        hstring m_name{ L"" };
-        hstring m_path{ L"" };
-        hstring m_imageBase{ L"" };
-        ULONG64 m_imageBaseULong{ 0 };
-        hstring m_size{ L"" };
-        ULONG64 m_sizeULong{ 0 };
-        hstring m_driverObject{ L"" };
-        ULONG64 m_driverObjectULong{ 0 };
-        hstring m_loadOrder{ L"" };
-        ULONG64 m_loadOrderULong{ 0 };
-    };
+	private:
+		hstring m_name{ L"" };
+		hstring m_path{ L"" };
+		hstring m_imageBase{ L"" };
+		ULONG64 m_imageBaseULong{ 0 };
+		hstring m_size{ L"" };
+		ULONG64 m_sizeULong{ 0 };
+		hstring m_driverObject{ L"" };
+		ULONG64 m_driverObjectULong{ 0 };
+		hstring m_loadOrder{ L"" };
+		ULONG64 m_loadOrderULong{ 0 };
+	};
 }
 
 namespace winrt::StarlightGUI::factory_implementation
 {
-    struct KernelModuleInfo : KernelModuleInfoT<KernelModuleInfo, implementation::KernelModuleInfo>
-    {
-    };
+	struct KernelModuleInfo : KernelModuleInfoT<KernelModuleInfo, implementation::KernelModuleInfo>
+	{
+	};
 }

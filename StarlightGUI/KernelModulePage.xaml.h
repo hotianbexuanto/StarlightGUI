@@ -26,7 +26,7 @@ namespace winrt::StarlightGUI::implementation
         winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);
 
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::KernelModuleInfo> m_kernelModuleList{
-            winrt::multi_threaded_observable_vector<winrt::StarlightGUI::KernelModuleInfo>()
+            winrt::single_threaded_observable_vector<winrt::StarlightGUI::KernelModuleInfo>()
         };
 
         bool m_isLoadingKernelModules = false;

@@ -115,17 +115,17 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">RequireAdministrator</UACExecutionLevel>
-      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</EnableUAC>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">HighestAvailable</UACExecutionLevel>
+      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</AllowIsolation>
     </Link>
     <Link>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">RequireAdministrator</UACExecutionLevel>
-      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</EnableUAC>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">HighestAvailable</UACExecutionLevel>
+      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</AllowIsolation>
     </Link>
     <Link>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AsInvoker</UACExecutionLevel>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">HighestAvailable</UACExecutionLevel>
       <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</AllowIsolation>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalDependencies)</AdditionalDependencies>
@@ -143,11 +143,11 @@
     <Link>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">RequireAdministrator</UACExecutionLevel>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">RequireAdministrator</UACExecutionLevel>
-      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AsInvoker</UACExecutionLevel>
-      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</EnableUAC>
-      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EnableUAC>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">HighestAvailable</UACExecutionLevel>
+      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</EnableUAC>
+      <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableUAC>
       <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</AllowIsolation>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</AllowIsolation>
@@ -256,7 +256,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="Utils\AstralIO.h" />
-    <ClInclude Include="Utils\CallbackEntry.h" />
+    <ClInclude Include="Utils\GeneralEntry.h" />
     <ClInclude Include="Utils\Config.h" />
     <ClInclude Include="Utils\CppUtils.h" />
     <ClInclude Include="Utils\Elevator.h" />
@@ -438,11 +438,11 @@
       <DependentUpon>UtilityPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="Utils\CallbackEntry.cpp" />
     <ClCompile Include="Utils\Config.cpp" />
     <ClCompile Include="Utils\CppUtils.cpp" />
     <ClCompile Include="Utils\DriverUtils.cpp" />
     <ClCompile Include="Utils\FileInfo.cpp" />
+    <ClCompile Include="Utils\GeneralEntry.cpp" />
     <ClCompile Include="Utils\HandleInfo.cpp" />
     <ClCompile Include="Utils\KCTInfo.cpp" />
     <ClCompile Include="Utils\KernelBase.cpp" />
@@ -545,7 +545,7 @@
       <DependentUpon>UtilityPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
-    <Midl Include="Utils\CallbackEntry.idl" />
+    <Midl Include="Utils\GeneralEntry.idl" />
     <Midl Include="Utils\FileInfo.idl" />
     <Midl Include="Utils\HandleInfo.idl" />
     <Midl Include="Utils\KCTInfo.idl" />

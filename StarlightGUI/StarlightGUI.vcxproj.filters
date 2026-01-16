@@ -105,7 +105,7 @@
     <Midl Include="Utils\ObjectEntry.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
-    <Midl Include="Utils\CallbackEntry.idl">
+    <Midl Include="Utils\GeneralEntry.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
   </ItemGroup>
@@ -124,19 +124,22 @@
     <ClCompile Include="Utils\TaskUtils.cpp">
       <Filter>Utils\Advanced</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\ProcessInfo.cpp">
-      <Filter>Utils\Types</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\ThreadInfo.cpp">
-      <Filter>Utils\Types</Filter>
-    </ClCompile>
     <ClCompile Include="Utils\CppUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\HandleInfo.cpp">
+    <ClCompile Include="ConsoleLogger.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Utils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Config.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\FileInfo.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\MokuaiInfo.cpp">
+    <ClCompile Include="Utils\HandleInfo.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
     <ClCompile Include="Utils\KCTInfo.cpp">
@@ -145,25 +148,22 @@
     <ClCompile Include="Utils\KernelModuleInfo.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\FileInfo.cpp">
+    <ClCompile Include="Utils\MokuaiInfo.cpp">
       <Filter>Utils\Types</Filter>
-    </ClCompile>
-    <ClCompile Include="ConsoleLogger.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\Utils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\WindowInfo.cpp">
-      <Filter>Utils\Types</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\Config.cpp">
-      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Utils\ObjectEntry.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\CallbackEntry.cpp">
+    <ClCompile Include="Utils\ProcessInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\ThreadInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\WindowInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\GeneralEntry.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
   </ItemGroup>
@@ -227,7 +227,7 @@
     <ClInclude Include="Utils\NTBase.h">
       <Filter>Utils\Advanced</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\CallbackEntry.h">
+    <ClInclude Include="Utils\GeneralEntry.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
   </ItemGroup>

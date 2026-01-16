@@ -47,7 +47,19 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL EnumProcessKernelCallbackTable(ULONG64 eprocess, std::vector<winrt::StarlightGUI::KCTInfo>& threads) noexcept;
 		static BOOL EnumDrivers(std::vector<winrt::StarlightGUI::KernelModuleInfo>& kernelModules) noexcept;
 		static BOOL EnumObjectsByDirectory(std::wstring objectPath, std::vector<winrt::StarlightGUI::ObjectEntry>& objectList) noexcept;
-		static BOOL EnumCallbacks(std::vector<winrt::StarlightGUI::CallbackEntry>& callbacks) noexcept;
+		static BOOL EnumCallbacks(std::vector<winrt::StarlightGUI::GeneralEntry>& callbacks) noexcept;
+		static BOOL EnumMiniFilter(std::vector<winrt::StarlightGUI::GeneralEntry>& miniFilters) noexcept;
+		static BOOL EnumStandardFilter(std::vector<winrt::StarlightGUI::GeneralEntry>& filters) noexcept;
+		static BOOL EnumSSDT(std::vector<winrt::StarlightGUI::GeneralEntry>& ssdts) noexcept;
+		static BOOL EnumSSSDT(std::vector<winrt::StarlightGUI::GeneralEntry>& sssdts) noexcept;
+		static BOOL EnumExCallback(std::vector<winrt::StarlightGUI::GeneralEntry>& callbacks) noexcept;
+		static BOOL EnumIoTimer(std::vector<winrt::StarlightGUI::GeneralEntry>& timers) noexcept;
+		static BOOL EnumIDT(std::vector<winrt::StarlightGUI::GeneralEntry>& idtEntries) noexcept;
+		static BOOL EnumGDT(std::vector<winrt::StarlightGUI::GeneralEntry>& gdtEntries) noexcept;
+		static BOOL EnumPiDDBCacheTable(std::vector<winrt::StarlightGUI::GeneralEntry>& piddbEntries) noexcept;
+		static BOOL EnumHalDispatchTable(std::vector<winrt::StarlightGUI::GeneralEntry>& halEntries) noexcept;
+		static BOOL EnumHalPrivateDispatchTable(std::vector<winrt::StarlightGUI::GeneralEntry>& halPrivateEntries) noexcept;
+
 
 		// File
 		static BOOL QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files) noexcept;
@@ -92,6 +104,7 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL GetDriverDevice2() noexcept;
 		static BOOL _DeleteFile(std::wstring path) noexcept;
 		static BOOL MurderFile(std::wstring path) noexcept;
+		static std::string GetMiniFilterMajorFunction(ULONG64 Index) noexcept;
 	};
 
 	class KernelBase {

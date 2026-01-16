@@ -31,7 +31,7 @@ namespace winrt::StarlightGUI::implementation
         winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process);
 
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::ProcessInfo> m_processList{
-            winrt::multi_threaded_observable_vector<winrt::StarlightGUI::ProcessInfo>()
+            winrt::single_threaded_observable_vector<winrt::StarlightGUI::ProcessInfo>()
         };
 
         bool m_isLoadingProcesses = false;

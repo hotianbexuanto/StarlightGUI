@@ -4,87 +4,87 @@
 
 namespace winrt::StarlightGUI::implementation
 {
-    struct ObjectEntry : ObjectEntryT<ObjectEntry>
-    {
-        ObjectEntry() = default;
+	struct ObjectEntry : ObjectEntryT<ObjectEntry>
+	{
+		ObjectEntry() = default;
 
-        hstring Name();
-        void Name(hstring const& value);
+		hstring Name() { return m_name; }
+		void Name(hstring const& value) { m_name = value; }
 
-        hstring Path();
-        void Path(hstring const& value);
+		hstring Path() { return m_path; }
+		void Path(hstring const& value) { m_path = value; }
 
-		hstring Type();
-		void Type(hstring const& value);
+		hstring Type() { return m_type; }
+		void Type(hstring const& value) { m_type = value; }
 
-        bool Permanent();
-        void Permanent(bool value);
+		bool Permanent() { return m_permanent; }
+		void Permanent(bool value) { m_permanent = value; }
 
-        ULONG References();
-        void References(ULONG value);
+		ULONG References() { return m_references; }
+		void References(ULONG value) { m_references = value; }
 
-        ULONG Handles();
-        void Handles(ULONG value);
+		ULONG Handles() { return m_handles; }
+		void Handles(ULONG value) { m_handles = value; }
 
-        ULONG PagedPool();
-        void PagedPool(ULONG value);
+		ULONG PagedPool() { return m_pagedPool; }
+		void PagedPool(ULONG value) { m_pagedPool = value; }
 
-        ULONG NonPagedPool();
-        void NonPagedPool(ULONG value);
+		ULONG NonPagedPool() { return m_nonPagedPool; }
+		void NonPagedPool(ULONG value) { m_nonPagedPool = value; }
 
-        hstring CreationTime();
-        void CreationTime(hstring const& value);
+		hstring CreationTime() { return m_creationTime; }
+		void CreationTime(hstring const& value) { m_creationTime = value; }
 
-        hstring Link();
-		void Link(hstring const& value);
+		hstring Link() { return m_link; }
+		void Link(hstring const& value) { m_link = value; }
 
-		hstring EventType();
-		void EventType(hstring const& value);
+		hstring EventType() { return m_eventType; }
+		void EventType(hstring const& value) { m_eventType = value; }
 
-		bool EventSignaled();
-		void EventSignaled(bool value);
+		bool EventSignaled() { return m_eventSignaled; }
+		void EventSignaled(bool value) { m_eventSignaled = value; }
 
-		ULONG MutantHoldCount();
-		void MutantHoldCount(ULONG value);
+		ULONG MutantHoldCount() { return m_mutantHoldCount; }
+		void MutantHoldCount(ULONG value) { m_mutantHoldCount = value; }
 
-		bool MutantAbandoned();
-		void MutantAbandoned(bool value);
+		bool MutantAbandoned() { return m_mutantAbandoned; }
+		void MutantAbandoned(bool value) { m_mutantAbandoned = value; }
 
-		ULONG SemaphoreCount();
-		void SemaphoreCount(ULONG value);
+		ULONG SemaphoreCount() { return m_semaphoreCount; }
+		void SemaphoreCount(ULONG value) { m_semaphoreCount = value; }
 
-		ULONG SemaphoreLimit();
-		void SemaphoreLimit(ULONG value);
+		ULONG SemaphoreLimit() { return m_semaphoreLimit; }
+		void SemaphoreLimit(ULONG value) { m_semaphoreLimit = value; }
 
-		ULONG64 SectionBaseAddress();
-		void SectionBaseAddress(ULONG64 value);
+		ULONG64 SectionBaseAddress() { return m_sectionBaseAddress; }
+		void SectionBaseAddress(ULONG64 value) { m_sectionBaseAddress = value; }
 
-		ULONG64 SectionMaximumSize();
-		void SectionMaximumSize(ULONG64 value);
+		ULONG64 SectionMaximumSize() { return m_sectionMaximumSize; }
+		void SectionMaximumSize(ULONG64 value) { m_sectionMaximumSize = value; }
 
-		ULONG SectionAttributes();
-		void SectionAttributes(ULONG value);
+		ULONG SectionAttributes() { return m_sectionAttributes; }
+		void SectionAttributes(ULONG value) { m_sectionAttributes = value; }
 
-		ULONG64 TimerRemainingTime();
-		void TimerRemainingTime(ULONG64 value);
+		ULONG64 TimerRemainingTime() { return m_timerRemainingTime; }
+		void TimerRemainingTime(ULONG64 value) { m_timerRemainingTime = value; }
 
-		bool TimerState();
-		void TimerState(bool value);
+		bool TimerState() { return m_timerState; }
+		void TimerState(bool value) { m_timerState = value; }
 
-		LONG IoCompletionDepth();
-		void IoCompletionDepth(LONG value);
+		LONG IoCompletionDepth() { return m_ioCompletionDepth; }
+		void IoCompletionDepth(LONG value) { m_ioCompletionDepth = value; }
 
-    private:
-        hstring m_name{ L"" };
-        hstring m_path{ L"" };
-        hstring m_type{ L"" };
-        bool m_permanent{ false };
-        ULONG m_references{ 0 };
-        ULONG m_handles{ 0 };
-        ULONG m_pagedPool{ 0 };
-        ULONG m_nonPagedPool{ 0 };
-        hstring m_creationTime{ L"" };
-        hstring m_link{ L"" };
+	private:
+		hstring m_name{ L"" };
+		hstring m_path{ L"" };
+		hstring m_type{ L"" };
+		bool m_permanent{ false };
+		ULONG m_references{ 0 };
+		ULONG m_handles{ 0 };
+		ULONG m_pagedPool{ 0 };
+		ULONG m_nonPagedPool{ 0 };
+		hstring m_creationTime{ L"" };
+		hstring m_link{ L"" };
 		hstring m_eventType{ L"" };
 		bool m_eventSignaled{ false };
 		ULONG m_mutantHoldCount{ 0 };
@@ -97,12 +97,12 @@ namespace winrt::StarlightGUI::implementation
 		ULONG64 m_timerRemainingTime{ 0 };
 		bool m_timerState{ false };
 		LONG m_ioCompletionDepth{ 0 };
-    };
+	};
 }
 
 namespace winrt::StarlightGUI::factory_implementation
 {
-    struct ObjectEntry : ObjectEntryT<ObjectEntry, implementation::ObjectEntry>
-    {
-    };
+	struct ObjectEntry : ObjectEntryT<ObjectEntry, implementation::ObjectEntry>
+	{
+	};
 }

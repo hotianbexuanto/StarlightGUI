@@ -44,10 +44,11 @@
                            Margin="16,0,0,0"
                            VerticalAlignment="Center"/>
                     <TextBlock Text="{StaticResource Version}" 
-                           FontSize="14"
-                           Margin="4,0,0,0"
-                           Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                           VerticalAlignment="Center"/>
+                               FontSize="14"
+                               FontStyle="Italic"
+                               Margin="4,0,0,0"
+                               Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- 标题栏拖拽区域 -->

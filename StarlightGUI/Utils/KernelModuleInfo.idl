@@ -1,20 +1,20 @@
 ﻿namespace StarlightGUI
 {
-    [bindable]
-    [default_interface]
-    runtimeclass KernelModuleInfo
-    {
-        KernelModuleInfo();
+	[bindable]
+	[default_interface]
+	runtimeclass KernelModuleInfo
+	{
+		KernelModuleInfo();
 
-        String Name{ get; set; };
-        String Path{ get; set; };
-        String ImageBase{ get; set; };
-        UInt64 ImageBaseULong{ get; set; };
-        String Size{ get; set; };
-        UInt64 SizeULong{ get; set; };
-        String DriverObject{ get; set; };
-        UInt64 DriverObjectULong{ get; set; };
-        String LoadOrder{ get; set; };
-        UInt64 LoadOrderULong{ get; set; };
-    }
+		String Name{ get; set; };
+		String Path{ get; set; };
+		String ImageBase{ get; set; };
+		UInt64 ImageBaseULong{ get; set; };
+		String Size{ get; set; };
+		UInt64 SizeULong{ get; set; };
+		String DriverObject{ get; set; };
+		UInt64 DriverObjectULong{ get; set; };
+		String LoadOrder{ get; set; };
+		UInt64 LoadOrderULong{ get; set; };
+	}
 }
