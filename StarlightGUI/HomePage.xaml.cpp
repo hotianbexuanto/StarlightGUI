@@ -178,7 +178,7 @@ namespace winrt::StarlightGUI::implementation
                     auto json = Windows::Data::Json::JsonObject::Parse(result);
                     hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
 
-                    LOG_INFO(__WFUNCTION__, L"Hitokoto result: %s", hitokoto.c_str());
+                    LOG_INFO(__WFUNCTION__, L"Hitokoto json result: %s", result.c_str());
                 }
             }
         }

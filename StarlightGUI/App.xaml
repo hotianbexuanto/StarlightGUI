@@ -17,7 +17,7 @@
                 <ResourceDictionary Source="ms-appx:///WinUI3Package/GroupBox_Resource.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <x:String x:Key="Version">v2.0.0 [Implementation.0116] (Project. AliveBase)</x:String>
+            <x:String x:Key="Version">v2.0.0 [AliveBase.ModernImplementation.0116]</x:String>
             <x:Int32 x:Key="BuildNumber">20000</x:Int32>
             <x:String x:Key="ReleaseDate">2026/1/16</x:String>
             <x:String x:Key="Author">Stars</x:String>
