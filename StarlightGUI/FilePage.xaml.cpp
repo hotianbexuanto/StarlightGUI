@@ -142,14 +142,14 @@ namespace winrt::StarlightGUI::implementation
         // 选项2.3
         MenuFlyoutItem item2_3;
         item2_3.Icon(CreateFontIcon(L"\uf5ab"));
-        item2_3.Text(L"强制删除");
+        item2_3.Text(L"删除 (内存抹杀)");
         item2_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::MurderFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);

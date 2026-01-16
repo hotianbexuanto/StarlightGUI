@@ -125,14 +125,14 @@ namespace winrt::StarlightGUI::implementation
         // 选项1.3
         MenuFlyoutItem item1_3;
         item1_3.Icon(CreateFontIcon(L"\ue945"));
-        item1_3.Text(L"强制结束进程");
+        item1_3.Text(L"结束进程 (内存抹杀)");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
                 if (KernelInstance::MurderProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             else {
                 safeAcceptedPID = item.Id();

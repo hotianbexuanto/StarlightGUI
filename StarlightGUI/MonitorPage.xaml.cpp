@@ -443,6 +443,7 @@ namespace winrt::StarlightGUI::implementation
 		if (!IsLoaded() || m_isLoading) co_return;
 		LoadingRing().IsActive(true);
 
+		auto weak_this = get_weak();
 		segmentedIndex = index;
 
 		// 清除列表以防止潜在的内存占用
@@ -507,7 +508,9 @@ namespace winrt::StarlightGUI::implementation
 		}
 		}
 
-		LoadingRing().IsActive(false);
+		if (auto strong_this = weak_this.get()) {
+			LoadingRing().IsActive(false);
+		}
 		co_return;
 	}
 }

@@ -258,25 +258,18 @@ namespace winrt::StarlightGUI::implementation {
 		return 0;
 	}
 
-	// =====================================================
-	// Private --- Starting here
-	// =====================================================
-	BOOL CALLBACK TaskUtils::EndTaskByWindow(HWND hwnd, LPARAM lparam) {
-		DWORD* procPid = (DWORD*)lparam;
-		DWORD windowPid;
-
+	BOOL CALLBACK TaskUtils::EndTaskByWindow(HWND hwnd) {
 		if (_EndTask == nullptr) {
 			_EndTask = (P_EndTask)GetProcAddress(GetModuleHandleW(L"user32.dll"), "EndTask");
 		}
 
-		// Get thread ID
-		GetWindowThreadProcessId(hwnd, &windowPid);
-
-		if (windowPid == *procPid) {
-			_EndTask(hwnd, FALSE, TRUE);
-		}
+		_EndTask(hwnd, FALSE, TRUE);
 		return TRUE;
 	}
+
+	// =====================================================
+// Private --- Starting here
+// =====================================================
 
 	bool TaskUtils::EnableDebugPrivilege() {
 		HANDLE hToken;

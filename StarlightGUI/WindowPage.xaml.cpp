@@ -81,6 +81,7 @@ namespace winrt::StarlightGUI::implementation
         if (!listView.SelectedItem()) return;
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::WindowInfo>();
+        WINDOWINFO idk{};
 
         MenuFlyout menuFlyout;
 
@@ -88,8 +89,33 @@ namespace winrt::StarlightGUI::implementation
         item1_1.Icon(CreateFontIcon(L"\ue711"));
         item1_1.Text(L"关闭窗口");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SendMessageW((HWND)item.Hwnd(), WM_CLOSE, 0, 0);
-            if (GetLastError() == 0) {
+            if (PostMessageW((HWND)item.Hwnd(), WM_DESTROY, 0, 0)) {
+                CreateInfoBarAndDisplay(L"成功", L"成功关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+
+        MenuFlyoutItem item1_2;
+        item1_2.Icon(CreateFontIcon(L"\ue8f0"));
+        item1_2.Text(L"关闭窗口 (结束任务)");
+        item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::EndTaskByWindow((HWND)item.Hwnd())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+
+        MenuFlyoutItem item1_3;
+        item1_3.Icon(CreateFontIcon(L"\ue945"));
+        item1_3.Text(L"关闭窗口 (内核)");
+        item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            DWORD pid;
+			GetWindowThreadProcessId((HWND)item.Hwnd(), &pid);
+            if (KernelInstance::_ZwTerminateProcess(pid)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
@@ -132,8 +158,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub3.Icon(CreateFontIcon(L"\ue740"));
         item2_1_sub3.Text(L"最大化");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SendMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MAXIMIZE, 0);
-            if (GetLastError() == 0) {
+            if (PostMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MAXIMIZE, 0) == ERROR_SUCCESS) {
                 CreateInfoBarAndDisplay(L"成功", L"成功最大化窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
@@ -145,8 +170,7 @@ namespace winrt::StarlightGUI::implementation
         item2_1_sub4.Icon(CreateFontIcon(L"\ue73f"));
         item2_1_sub4.Text(L"最小化");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SendMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MINIMIZE, 0);
-            if (GetLastError() == 0) {
+            if (PostMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MINIMIZE, 0) == ERROR_SUCCESS) {
                 CreateInfoBarAndDisplay(L"成功", L"成功最小化窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
@@ -181,40 +205,13 @@ namespace winrt::StarlightGUI::implementation
             co_return;
             });
 
-        // 选项2.4
-        MenuFlyoutSubItem item2_4;
-        item2_4.Icon(CreateFontIcon(L"\ue912"));
-        item2_4.Text(L"设置捕获");
-        MenuFlyoutItem item2_4_sub1;
-        item2_4_sub1.Text(L"开启捕获");
-        item2_4_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SetCapture((HWND)item.Hwnd());
-            if (GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"成功", L"成功开启捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
-                WaitAndReloadAsync(1000);
-            }
-            else CreateInfoBarAndDisplay(L"失败", L"无法开启捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
-            co_return;
-            });
-        item2_4.Items().Append(item2_4_sub1);
-        MenuFlyoutItem item2_4_sub2;
-        item2_4_sub2.Text(L"释放捕获");
-        item2_4_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (ReleaseCapture()) {
-                CreateInfoBarAndDisplay(L"成功", L"成功释放捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
-                WaitAndReloadAsync(1000);
-            }
-            else CreateInfoBarAndDisplay(L"失败", L"无法释放捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
-            co_return;
-            });
-        item2_4.Items().Append(item2_4_sub2);
-
 		menuFlyout.Items().Append(item1_1);
+        menuFlyout.Items().Append(item1_2);
+        menuFlyout.Items().Append(item1_3);
 		menuFlyout.Items().Append(separator1);
         menuFlyout.Items().Append(item2_1);
         menuFlyout.Items().Append(item2_2);
         menuFlyout.Items().Append(item2_3);
-        menuFlyout.Items().Append(item2_4);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
