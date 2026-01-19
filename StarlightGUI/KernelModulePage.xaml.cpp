@@ -180,7 +180,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingKernelModules = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading kernel module list...");
-
+        m_kernelModuleList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -201,7 +201,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_kernelModuleList.Clear();
         for (const auto& kernelModule : kernelModules) {
             bool shouldRemove = query.empty() ? false : ApplyFilter(kernelModule, query);
             if (shouldRemove) continue;

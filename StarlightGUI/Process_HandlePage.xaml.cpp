@@ -110,7 +110,7 @@ namespace winrt::StarlightGUI::implementation
         }
 
         LOG_INFO(__WFUNCTION__, L"Loading handle list... (pid=%d)", processForInfoWindow.Id());
-
+        m_handleList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -132,7 +132,6 @@ namespace winrt::StarlightGUI::implementation
             CreateInfoBarAndDisplay(L"警告", L"该进程持有过多句柄，程序无法完整显示，将显示前1000条！", InfoBarSeverity::Warning, g_infoWindowInstance);
         }
 
-        m_handleList.Clear();
         for (const auto& handle : handles) {
             m_handleList.Append(handle);
         }

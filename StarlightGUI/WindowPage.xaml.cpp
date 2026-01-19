@@ -224,7 +224,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingWindows = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading window list...");
-
+        m_windowList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -245,7 +245,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_windowList.Clear();
         for (const auto& window : windows) {
             bool shouldRemove = query.empty() ? false : ApplyFilter(window, query);
             if (shouldRemove) continue;

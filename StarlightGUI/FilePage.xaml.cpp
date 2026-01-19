@@ -333,7 +333,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingFiles = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading file list...");
-
+        ResetState();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -347,10 +347,10 @@ namespace winrt::StarlightGUI::implementation
 
         // 简单判断根目录
         PreviousButton().IsEnabled(path.length() > 3);
-        ResetState();
-        m_allFiles.clear();
 
         co_await winrt::resume_background();
+
+        m_allFiles.clear();
 
         if (KernelInstance::IsRunningAsAdmin()) {
             KernelInstance::QueryFile(path, m_allFiles);

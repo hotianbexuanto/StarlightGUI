@@ -215,7 +215,7 @@ namespace winrt::StarlightGUI::implementation
         if (!processForInfoWindow) co_return;
 
         LOG_INFO(__WFUNCTION__, L"Loading thread list... (pid=%d)", processForInfoWindow.Id());
-
+        m_threadList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -233,7 +233,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_threadList.Clear();
         for (const auto& thread : threads) {
             if (thread.ModuleInfo().empty()) thread.ModuleInfo(L"(未知)");
 

@@ -445,6 +445,9 @@
     <Filter Include="Utils\Elements">
       <UniqueIdentifier>{c581fe4b-97e8-4bc6-ba36-991d8c2d2052}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animations">
+      <UniqueIdentifier>{d224c9e4-77b2-4e05-92aa-3bea658d3835}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />

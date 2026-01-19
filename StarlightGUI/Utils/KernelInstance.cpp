@@ -1751,8 +1751,8 @@ namespace winrt::StarlightGUI::implementation {
 			for (ULONG i = 0; i < nRet; i++) {
 				DATA_INFO data = pProcessInfo[i];
 				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
-				entry.String1(to_hstring(data.Module1));
-				entry.String2(to_hstring(data.Module));
+				entry.String1(to_hstring(data.Module));
+				entry.String2(to_hstring(data.Module1));
 				entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
 				entry.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
 				entry.String5(ULongToHexString((ULONG64)data.pvoidaddressdata3));

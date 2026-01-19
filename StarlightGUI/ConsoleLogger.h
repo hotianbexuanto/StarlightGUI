@@ -55,7 +55,7 @@ public:
 
     template<typename... Args>
     void Log(LogLevel level, const std::wstring& source, const std::wstring& message, Args&&... args) {
-        wchar_t buffer[1024];
+        wchar_t buffer[2048];
         swprintf_s(buffer, _countof(buffer), message.c_str(), args...);
 
         LogEntry entry;

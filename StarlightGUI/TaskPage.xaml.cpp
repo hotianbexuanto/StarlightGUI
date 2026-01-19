@@ -455,6 +455,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingProcesses = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading process list...");
+        m_processList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -516,7 +517,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_processList.Clear();
         winrt::StarlightGUI::ProcessInfo& selectedTarget = winrt::make<winrt::StarlightGUI::implementation::ProcessInfo>();
         for (const auto& process : processes) {
             bool shouldRemove = query.empty() ? false : ApplyFilter(process, query);

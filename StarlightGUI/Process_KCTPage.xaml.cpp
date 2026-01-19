@@ -121,7 +121,7 @@ namespace winrt::StarlightGUI::implementation
         }
 
         LOG_INFO(__WFUNCTION__, L"Loading kernel callback table list... (pid=%d)", processForInfoWindow.Id());
-
+        m_kctList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -143,7 +143,6 @@ namespace winrt::StarlightGUI::implementation
             CreateInfoBarAndDisplay(L"警告", L"该进程持有过多内核回调表记录，程序无法完整显示，将显示前1000条！", InfoBarSeverity::Warning, g_infoWindowInstance);
         }
 
-        m_kctList.Clear();
         for (const auto& kct : kcts) {
             if (kct.Name().empty()) kct.Name(L"(未知)");
             if (kct.Address().empty()) kct.Address(L"(未知)");

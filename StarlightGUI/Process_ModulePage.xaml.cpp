@@ -133,7 +133,7 @@ namespace winrt::StarlightGUI::implementation
         }
 
         LOG_INFO(__WFUNCTION__, L"Loading module list... (pid=%d)", processForInfoWindow.Id());
-
+        m_moduleList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -155,7 +155,6 @@ namespace winrt::StarlightGUI::implementation
             CreateInfoBarAndDisplay(L"警告", L"该进程持有过多模块，程序无法完整显示，将显示前1000条！", InfoBarSeverity::Warning, g_infoWindowInstance);
         }
 
-        m_moduleList.Clear();
         for (const auto& module : modules) {
             if (module.Name().empty()) module.Name(L"(未知)");
             if (module.Path().empty()) module.Path(L"(未知)");

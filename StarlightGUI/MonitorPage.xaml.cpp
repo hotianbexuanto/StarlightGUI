@@ -17,22 +17,38 @@ namespace winrt::StarlightGUI::implementation
 	MonitorPage::MonitorPage() {
 		InitializeComponent();
 
-		ObjectTreeView().ItemsSource(m_itemList);
-		ObjectListView().ItemsSource(m_objectList);
-		CallbackListView().ItemsSource(m_generalList);
-		MiniFilterListView().ItemsSource(m_generalList);
-		StdFilterListView().ItemsSource(m_generalList);
-		SSDTListView().ItemsSource(m_generalList);
-		SSSDTListView().ItemsSource(m_generalList);
-		IoTimerListView().ItemsSource(m_generalList);
+		// 初始化所有列表
+		{
+			ObjectTreeView().ItemsSource(m_itemList);
+			ObjectListView().ItemsSource(m_objectList);
+			CallbackListView().ItemsSource(m_generalList);
+			MiniFilterListView().ItemsSource(m_generalList);
+			StdFilterListView().ItemsSource(m_generalList);
+			SSDTListView().ItemsSource(m_generalList);
+			SSSDTListView().ItemsSource(m_generalList);
+			IoTimerListView().ItemsSource(m_generalList);
+			ExCallbackListView().ItemsSource(m_generalList);
+			IDTListView().ItemsSource(m_generalList);
+			GDTListView().ItemsSource(m_generalList);
+			PiDDBListView().ItemsSource(m_generalList);
+			HALDPTListView().ItemsSource(m_generalList);
+			HALPDPTListView().ItemsSource(m_generalList);
+		}
 
 		if (!list_animation) {
 			ObjectListView().ItemContainerTransitions().Clear();
 			CallbackListView().ItemContainerTransitions().Clear();
 			MiniFilterListView().ItemContainerTransitions().Clear();
 			StdFilterListView().ItemContainerTransitions().Clear();
-			SSDTListView().ItemsSource(m_generalList);
-			SSSDTListView().ItemsSource(m_generalList);
+			SSDTListView().ItemContainerTransitions().Clear();
+			SSSDTListView().ItemContainerTransitions().Clear();
+			IoTimerListView().ItemContainerTransitions().Clear();
+			ExCallbackListView().ItemContainerTransitions().Clear();
+			IDTListView().ItemContainerTransitions().Clear();
+			GDTListView().ItemContainerTransitions().Clear();
+			PiDDBListView().ItemContainerTransitions().Clear();
+			HALDPTListView().ItemContainerTransitions().Clear();
+			HALPDPTListView().ItemContainerTransitions().Clear();
 		}
 
 		if (!KernelInstance::IsRunningAsAdmin()) {
@@ -42,11 +58,21 @@ namespace winrt::StarlightGUI::implementation
 			SSDTSegmentedItem().IsEnabled(false);
 			SSSDTSegmentedItem().IsEnabled(false);
 			IoTimerSegmentedItem().IsEnabled(false);
+			ExCallbackSegmentedItem().IsEnabled(false);
+			IDTSegmentedItem().IsEnabled(false);
+			GDTSegmentedItem().IsEnabled(false);
+			PiDDBSegmentedItem().IsEnabled(false);
+			HALDPTSegmentedItem().IsEnabled(false);
+			HALPDPTSegmentedItem().IsEnabled(false);
 		}
 
 		// SelectionChanged 会在进入时触发一次，特么的不知道为啥，不管他
 		Loaded([this](auto&&, auto&&) {
 			HandleSegmentedChange(0, true);
+			});
+
+		Unloaded([this](auto&&, auto&&) {
+			windbgTimer.Stop();
 			});
 	}
 
@@ -121,50 +147,92 @@ namespace winrt::StarlightGUI::implementation
 
 		std::vector<winrt::StarlightGUI::GeneralEntry> entries;
 
-		static std::vector<winrt::StarlightGUI::GeneralEntry> callbackCache, minifilterCache, standardfilterCache, ssdtCache, sssdtCache, ioTimerCache;
+		static std::vector<winrt::StarlightGUI::GeneralEntry> callbackCache, minifilterCache, standardfilterCache, ssdtCache, sssdtCache, ioTimerCache, exCallbackCache, idtCache, gdtCache, piddbCache, halDptCache, halPdptCache;
 
 		switch (requestedIndex) {
-		case 1:
+		case 2:
 			if (force || callbackCache.empty()) {
 				KernelInstance::EnumCallbacks(entries);
 				callbackCache = entries;
 			}
 			else entries = callbackCache;
 			break;
-		case 2:
+		case 3:
 			if (force || minifilterCache.empty()) {
 				KernelInstance::EnumMiniFilter(entries);
 				minifilterCache = entries;
 			}
 			else entries = minifilterCache;
 			break;
-		case 3:
+		case 4:
 			if (force || standardfilterCache.empty()) {
 				KernelInstance::EnumStandardFilter(entries);
 				standardfilterCache = entries;
 			}
 			else entries = standardfilterCache;
 			break;
-		case 4:
+		case 5:
 			if (force || ssdtCache.empty()) {
 				KernelInstance::EnumSSDT(entries);
 				ssdtCache = entries;
 			}
 			else entries = ssdtCache;
 			break;
-		case 5:
+		case 6:
 			if (force || sssdtCache.empty()) {
 				KernelInstance::EnumSSSDT(entries);
 				sssdtCache = entries;
 			}
 			else entries = sssdtCache;
 			break;
-		case 6:
+		case 7:
 			if (force || ioTimerCache.empty()) {
 				KernelInstance::EnumIoTimer(entries);
 				ioTimerCache = entries;
 			}
 			else entries = ioTimerCache;
+			break;
+		case 8:
+			if (force || exCallbackCache.empty()) {
+				KernelInstance::EnumExCallback(entries);
+				exCallbackCache = entries;
+			}
+			else entries = exCallbackCache;
+			break;
+		case 9:
+			if (force || idtCache.empty()) {
+				KernelInstance::EnumIDT(entries);
+				idtCache = entries;
+			}
+			else entries = idtCache;
+			break;
+		case 10:
+			if (force || gdtCache.empty()) {
+				KernelInstance::EnumGDT(entries);
+				gdtCache = entries;
+			}
+			else entries = gdtCache;
+			break;
+		case 11:
+			if (force || piddbCache.empty()) {
+				KernelInstance::EnumPiDDBCacheTable(entries);
+				piddbCache = entries;
+			}
+			else entries = piddbCache;
+			break;
+		case 12:
+			if (force || halDptCache.empty()) {
+				KernelInstance::EnumHalDispatchTable(entries);
+				halDptCache = entries;
+			}
+			else entries = halDptCache;
+			break;
+		case 13:
+			if (force || halPdptCache.empty()) {
+				KernelInstance::EnumHalPrivateDispatchTable(entries);
+				halPdptCache = entries;
+			}
+			else entries = halPdptCache;
 			break;
 		}
 
@@ -413,6 +481,86 @@ namespace winrt::StarlightGUI::implementation
 		co_return;
 	}
 
+	winrt::fire_and_forget MonitorPage::DbgViewButton_Click(IInspectable const&, RoutedEventArgs const&)
+	{
+		isDbgViewEnabled = !isDbgViewEnabled;
+		DbgViewButton().Content(isDbgViewEnabled ? box_value(L"关闭") : box_value(L"开启"));
+		InitializeDbgView();
+		co_return;
+	}
+
+	winrt::fire_and_forget MonitorPage::DbgViewGlobalCheckBox_Click(IInspectable const&, RoutedEventArgs const&)
+	{
+		isDbgViewGlobalEnabled = DbgViewGlobalCheckBox().IsChecked().GetBoolean();
+		InitializeDbgView();
+		co_return;
+	}
+
+	static DWORD DbgViewThread(bool global, DbgViewMonitor* m)
+	{
+		HANDLE& BufferReadyEvent = global ? m->GlobalBufferReadyEvent : m->LocalBufferReadyEvent;
+		HANDLE& DataReadyEvent = global ? m->GlobalDataReadyEvent : m->LocalDataReadyEvent;
+		PDBWIN_PAGE_BUFFER debugMessageBuffer = global ? m->GlobalDebugBuffer : m->LocalDebugBuffer;
+
+		while (global ? m->GlobalCaptureEnabled : m->LocalCaptureEnabled)
+		{
+			SetEvent(BufferReadyEvent);
+
+			DWORD status = WaitForSingleObject(DataReadyEvent, 1000);
+			if (status != WAIT_OBJECT_0) {
+				continue;
+			}
+
+			SYSTEMTIME st;
+			GetLocalTime(&st);
+			{
+				std::lock_guard<std::mutex> guard(*m->Lock);
+				wchar_t buffer[4096];
+				swprintf_s(buffer, _countof(buffer), L"[%02d:%02d:%02d.%03d] [PID=%d] %hs\n", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, debugMessageBuffer->ProcessId, debugMessageBuffer->Buffer);
+				*(m->Data) = *(m->Data) + to_hstring(buffer);
+			}
+		}
+
+		LOG_INFO(__WFUNCTION__, L"Debug view thread exited!");
+
+		return 0;
+	}
+
+	static DWORD WINAPI DbgViewLocalThread(PVOID param)
+	{
+		LOG_INFO(__WFUNCTION__, L"Thread created for local debug view!");
+		return DbgViewThread(false, (DbgViewMonitor*)param);
+	}
+
+	static DWORD WINAPI DbgViewGlobalThread(PVOID param)
+	{
+		LOG_INFO(__WFUNCTION__, L"Thread created for global debug view!");
+		return DbgViewThread(true, (DbgViewMonitor*)param);
+	}
+
+	winrt::Windows::Foundation::IAsyncAction MonitorPage::InitializeDbgView() {
+		if (isDbgViewEnabled) {
+			dbgViewMonitor.Init(false);
+			HANDLE hThread = CreateThread(nullptr, 0, DbgViewLocalThread, &dbgViewMonitor, 0, nullptr);
+			if (hThread) {
+				CloseHandle(hThread);
+			}
+			if (isDbgViewGlobalEnabled) {
+				dbgViewMonitor.Init(true);
+				HANDLE hThread = CreateThread(nullptr, 0, DbgViewGlobalThread, &dbgViewMonitor, 0, nullptr);
+				if (hThread) {
+					CloseHandle(hThread);
+				}
+			}
+		}
+		else {
+			dbgViewMonitor.UnInit(false);
+			dbgViewMonitor.UnInit(true);
+		}
+
+		co_return;
+	}
+
 	winrt::Windows::Foundation::IAsyncAction MonitorPage::WaitAndReloadAsync(int interval) {
 		auto lifetime = get_strong();
 
@@ -454,14 +602,22 @@ namespace winrt::StarlightGUI::implementation
 		m_itemList.Clear();
 		m_objectList.Clear();
 		m_generalList.Clear();
+		windbgTimer.Stop();
 
 		ObjectGrid().Visibility(Visibility::Collapsed);
+		DbgViewGrid().Visibility(Visibility::Collapsed);
 		CallbackGrid().Visibility(Visibility::Collapsed);
 		MiniFilterGrid().Visibility(Visibility::Collapsed);
 		StdFilterGrid().Visibility(Visibility::Collapsed);
 		SSDTGrid().Visibility(Visibility::Collapsed);
 		SSSDTGrid().Visibility(Visibility::Collapsed);
 		IoTimerGrid().Visibility(Visibility::Collapsed);
+		ExCallbackGrid().Visibility(Visibility::Collapsed);
+		IDTGrid().Visibility(Visibility::Collapsed);
+		GDTGrid().Visibility(Visibility::Collapsed);
+		PiDDBGrid().Visibility(Visibility::Collapsed);
+		HALDPTGrid().Visibility(Visibility::Collapsed);
+		HALPDPTGrid().Visibility(Visibility::Collapsed);
 		switch (index) {
 		case 0: {
 			ObjectGrid().Visibility(Visibility::Visible);
@@ -477,32 +633,74 @@ namespace winrt::StarlightGUI::implementation
 			break;
 		}
 		case 1: {
+			DbgViewGrid().Visibility(Visibility::Visible);
+			DbgViewButton().Content(isDbgViewEnabled ? box_value(L"关闭") : box_value(L"开启"));
+			DbgViewGlobalCheckBox().IsChecked(isDbgViewGlobalEnabled);
+			windbgTimer.Interval(std::chrono::seconds(1));
+			windbgTimer.Tick([this](auto&&, auto&&) {
+				std::lock_guard<std::mutex> guard(dbgViewMutex);
+				DbgViewBox().Text(dbgViewData);
+				});
+			windbgTimer.Start();
+			break;
+		}
+		case 2: {
 			CallbackGrid().Visibility(Visibility::Visible);
 			co_await LoadGeneralList(force);
 			break;
 		}
-		case 2: {
+		case 3: {
 			MiniFilterGrid().Visibility(Visibility::Visible);
 			co_await LoadGeneralList(force);
 			break;
 		}
-		case 3: {
+		case 4: {
 			StdFilterGrid().Visibility(Visibility::Visible);
 			co_await LoadGeneralList(force);
 			break;
 		}
-		case 4: {
+		case 5: {
 			SSDTGrid().Visibility(Visibility::Visible);
 			co_await LoadGeneralList(force);
 			break;
 		}
-		case 5: {
+		case 6: {
 			SSSDTGrid().Visibility(Visibility::Visible);
 			co_await LoadGeneralList(force);
 			break;
 		}
-		case 6: {
+		case 7: {
 			IoTimerGrid().Visibility(Visibility::Visible);
+			co_await LoadGeneralList(force);
+			break;
+		}
+		case 8: {
+			ExCallbackGrid().Visibility(Visibility::Visible);
+			co_await LoadGeneralList(force);
+			break;
+		}
+		case 9: {
+			IDTGrid().Visibility(Visibility::Visible);
+			co_await LoadGeneralList(force);
+			break;
+		}
+		case 10: {
+			GDTGrid().Visibility(Visibility::Visible);
+			co_await LoadGeneralList(force);
+			break;
+		}
+		case 11: {
+			PiDDBGrid().Visibility(Visibility::Visible);
+			co_await LoadGeneralList(force);
+			break;
+		}
+		case 12: {
+			HALDPTGrid().Visibility(Visibility::Visible);
+			co_await LoadGeneralList(force);
+			break;
+		}
+		case 13: {
+			HALPDPTGrid().Visibility(Visibility::Visible);
 			co_await LoadGeneralList(force);
 			break;
 		}
