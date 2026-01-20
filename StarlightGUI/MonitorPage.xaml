@@ -348,8 +348,8 @@
                     Grid.Row="1"
                     Margin="5,5,5,5"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch" 
-                    TextWrapping="Wrap"/>
+                    VerticalAlignment="Stretch"
+                    TextWrapping="Wrap" />
             </ScrollView>
         </Grid>
         <Grid

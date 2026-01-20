@@ -257,10 +257,16 @@ namespace winrt::StarlightGUI::implementation
         SizeHeaderButton().Content(box_value(L"大小"));
         LoadOrderHeaderButton().Content(box_value(L"加载顺序"));
 
+        std::vector<winrt::StarlightGUI::KernelModuleInfo> sortedKernelModules;
+
+        for (auto& kernelModule : m_kernelModuleList) {
+            sortedKernelModules.push_back(kernelModule);
+        }
+
         if (column == "Name") {
             if (isAscending) {
                 NameHeaderButton().Content(box_value(L"模块 ↓"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -272,7 +278,7 @@ namespace winrt::StarlightGUI::implementation
             }
             else {
                 NameHeaderButton().Content(box_value(L"模块 ↑"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -285,13 +291,13 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "Size") {
             if (isAscending) {
                 SizeHeaderButton().Content(box_value(L"大小 ↓"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.SizeULong() < b.SizeULong();
                     });
             }
             else {
                 SizeHeaderButton().Content(box_value(L"大小 ↑"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.SizeULong() > b.SizeULong();
                     });
             }
@@ -299,20 +305,20 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "LoadOrder") {
             if (isAscending) {
                 LoadOrderHeaderButton().Content(box_value(L"加载顺序 ↓"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.LoadOrderULong() < b.LoadOrderULong();
                     });
             }
             else {
                 LoadOrderHeaderButton().Content(box_value(L"加载顺序 ↑"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.LoadOrderULong() > b.LoadOrderULong();
                     });
             }
         }
 
         m_kernelModuleList.Clear();
-        for (auto& kernelModule : fullRecordedKernelModules) {
+        for (auto& kernelModule : sortedKernelModules) {
             m_kernelModuleList.Append(kernelModule);
         }
 

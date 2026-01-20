@@ -723,10 +723,16 @@ namespace winrt::StarlightGUI::implementation
         MemoryHeaderButton().Content(box_value(L"内存"));
         IdHeaderButton().Content(box_value(L"PID"));
 
+        std::vector<winrt::StarlightGUI::ProcessInfo> processes;
+        processes.reserve(m_processList.Size());
+        for (auto const& process : m_processList) {
+            processes.push_back(process);
+        }
+
         if (column == "Name") {
             if (isAscending) {
                 NameHeaderButton().Content(box_value(L"进程 ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -738,7 +744,7 @@ namespace winrt::StarlightGUI::implementation
             }
             else {
                 NameHeaderButton().Content(box_value(L"进程 ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -751,13 +757,13 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "CpuUsage") {
             if (isAscending) {
                 CpuHeaderButton().Content(box_value(L"CPU ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return std::stod(a.CpuUsage().c_str()) < std::stod(b.CpuUsage().c_str());
                     });
             }
             else {
                 CpuHeaderButton().Content(box_value(L"CPU ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return std::stod(a.CpuUsage().c_str()) > std::stod(b.CpuUsage().c_str());
                     });
             }
@@ -765,13 +771,13 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "MemoryUsage") {
             if (isAscending) {
                 MemoryHeaderButton().Content(box_value(L"内存 ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() < b.MemoryUsageByte();
                     });
             }
             else {
                 MemoryHeaderButton().Content(box_value(L"内存 ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() > b.MemoryUsageByte();
                     });
             }
@@ -779,20 +785,20 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "Id") {
             if (isAscending) {
                 IdHeaderButton().Content(box_value(L"PID ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.Id() < b.Id();
                     });
             }
             else {
                 IdHeaderButton().Content(box_value(L"PID ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.Id() > b.Id();
                     });
             }
         }
 
         m_processList.Clear();
-        for (auto& process : fullRecordedProcesses) {
+        for (auto& process : processes) {
             m_processList.Append(process);
         }
 
