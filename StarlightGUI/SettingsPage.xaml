@@ -108,7 +108,6 @@
                     </ComboBox>
                     <essential:SettingsExpander.Items>
                         <essential:SettingsCard
-                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
                             Description="背景的亚克力效果模式"
                             Header="亚克力类型"
                             IsActionIconVisible="False"
@@ -126,7 +125,6 @@
                         </essential:SettingsCard>
                         <!--  Mica类型  -->
                         <essential:SettingsCard
-                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
                             Description="背景的 Mica 效果模式"
                             Header="Mica 类型"
                             IsActionIconVisible="False"
@@ -158,7 +156,6 @@
                     <TextBlock x:Name="ImagePathText" Foreground="LightGray" />
                     <essential:SettingsExpander.Items>
                         <essential:SettingsCard
-                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
                             Description="从电脑中导入一张图片作为背景"
                             Header="导入背景"
                             IsActionIconVisible="False"
@@ -166,7 +163,6 @@
                             <Button Click="SetImageButton_Click" Content="导入" />
                         </essential:SettingsCard>
                         <essential:SettingsCard
-                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
                             Description="清除已经设置的图片背景"
                             Header="清除背景"
                             IsActionIconVisible="False"
@@ -174,7 +170,6 @@
                             <Button Click="ClearImageButton_Click" Content="清除" />
                         </essential:SettingsCard>
                         <essential:SettingsCard
-                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
                             Description="背景中图片大小的设置方式"
                             Header="图片拉伸模式"
                             IsActionIconVisible="False"
