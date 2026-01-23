@@ -246,7 +246,29 @@ namespace winrt::StarlightGUI::implementation
 
 		m_generalList.Clear();
 		for (const auto& entry : entries) {
-			bool shouldRemove = query.empty() ? false : ApplyFilter(entry.String1(), query);
+			bool shouldRemove = false;
+			if (!query.empty()) {
+				switch (requestedIndex) {
+				case 2:
+				case 3:
+				case 5:
+				case 6:
+				case 8:
+				case 12:
+				case 13:
+					shouldRemove = ApplyFilter(entry.String1(), query) && ApplyFilter(entry.String2(), query);
+					break;
+				case 4:
+					shouldRemove = ApplyFilter(entry.String2(), query) && ApplyFilter(entry.String3(), query);
+					break;
+				case 7:
+				case 9:
+				case 10:
+				case 11:
+					shouldRemove = ApplyFilter(entry.String1(), query);
+					break;
+				}
+			}
 			if (shouldRemove) continue;
 
 			if (entry.String1().empty()) entry.String1(L"(未知)");

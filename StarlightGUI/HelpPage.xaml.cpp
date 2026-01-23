@@ -97,7 +97,7 @@ namespace winrt::StarlightGUI::implementation
                 co_await winrt::resume_background();
 
                 HttpClient client;
-                Uri uri(L"https://pastebin.com/raw/6MzyhUXg");
+                Uri uri(L"https://pastebin.com/raw/vVhAkyVT");
 
                 // 防止获取旧数据
                 client.DefaultRequestHeaders().Append(L"Cache-Control", L"no-cache");

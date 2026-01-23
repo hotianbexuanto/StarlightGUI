@@ -118,11 +118,13 @@
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">HighestAvailable</UACExecutionLevel>
       <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</AllowIsolation>
+      <OptimizeReferences Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</OptimizeReferences>
     </Link>
     <Link>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">HighestAvailable</UACExecutionLevel>
       <EnableUAC Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EnableUAC>
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</AllowIsolation>
+      <OptimizeReferences Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</OptimizeReferences>
     </Link>
     <Link>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">HighestAvailable</UACExecutionLevel>
@@ -130,7 +132,7 @@
       <AllowIsolation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</AllowIsolation>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</LinkTimeCodeGeneration>
-      <OptimizeReferences Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</OptimizeReferences>
+      <OptimizeReferences Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</OptimizeReferences>
       <EnableCOMDATFolding Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
@@ -142,7 +144,7 @@
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <OptimizeReferences>false</OptimizeReferences>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">HighestAvailable</UACExecutionLevel>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">HighestAvailable</UACExecutionLevel>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">HighestAvailable</UACExecutionLevel>
