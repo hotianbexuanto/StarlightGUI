@@ -11,6 +11,9 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
         void WindowListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void WindowListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
         void ShowVisibleOnlyCheckBox_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);

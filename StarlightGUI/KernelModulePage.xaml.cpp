@@ -81,10 +81,14 @@ namespace winrt::StarlightGUI::implementation
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         // 选项1.1
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\uec91"));
         item1_1.Text(L"卸载模块");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -98,6 +102,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.2
         MenuFlyoutItem item1_2;
+        item1_2.Style(style);
         item1_2.Icon(CreateFontIcon(L"\ued1a"));
         item1_2.Text(L"隐藏模块");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -114,9 +119,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutSubItem item2_1;
+        item2_1.Style(styleSub);
         item2_1.Icon(CreateFontIcon(L"\ue8c8"));
         item2_1.Text(L"复制信息");
         MenuFlyoutItem item2_1_sub1;
+        item2_1_sub1.Style(style);
         item2_1_sub1.Icon(CreateFontIcon(L"\ue943"));
         item2_1_sub1.Text(L"名称");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -128,6 +135,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
+        item2_1_sub2.Style(style);
         item2_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
         item2_1_sub2.Text(L"路径");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -139,6 +147,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub2);
         MenuFlyoutItem item2_1_sub3;
+        item2_1_sub3.Style(style);
         item2_1_sub3.Icon(CreateFontIcon(L"\ueb19"));
         item2_1_sub3.Text(L"基址");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -150,6 +159,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub3);
         MenuFlyoutItem item2_1_sub4;
+        item2_1_sub4.Style(style);
         item2_1_sub4.Icon(CreateFontIcon(L"\ueb1d"));
         item2_1_sub4.Text(L"驱动对象");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -167,6 +177,18 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item2_1);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
+    }
+
+    void KernelModulePage::KernelModuleListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
     }
 
     winrt::Windows::Foundation::IAsyncAction KernelModulePage::LoadKernelModuleList()

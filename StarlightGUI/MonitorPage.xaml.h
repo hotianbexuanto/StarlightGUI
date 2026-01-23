@@ -179,6 +179,9 @@ namespace winrt::StarlightGUI::implementation
 
         void ObjectTreeView_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e);
         void ObjectListView_Tapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const& e);
+        void MonitorListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
         winrt::fire_and_forget RefreshButton_Click(IInspectable const&, RoutedEventArgs const&);
         winrt::fire_and_forget DbgViewButton_Click(IInspectable const&, RoutedEventArgs const&);
         winrt::fire_and_forget DbgViewGlobalCheckBox_Click(IInspectable const&, RoutedEventArgs const&);

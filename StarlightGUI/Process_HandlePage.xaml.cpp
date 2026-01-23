@@ -65,9 +65,13 @@ namespace winrt::StarlightGUI::implementation
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::HandleInfo>();
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem itemRefresh;
+        itemRefresh.Style(style);
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
         itemRefresh.Text(L"刷新");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -79,9 +83,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.1
         MenuFlyoutSubItem item1_1;
+        item1_1.Style(styleSub);
         item1_1.Icon(CreateFontIcon(L"\ue8c8"));
         item1_1.Text(L"复制信息");
         MenuFlyoutItem item1_1_sub1;
+        item1_1_sub1.Style(style);
         item1_1_sub1.Icon(CreateFontIcon(L"\ue943"));
         item1_1_sub1.Text(L"类型");
         item1_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -98,6 +104,18 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item1_1);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
+    }
+
+    void Process_HandlePage::HandleListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
     }
 
     winrt::Windows::Foundation::IAsyncAction Process_HandlePage::LoadHandleList()

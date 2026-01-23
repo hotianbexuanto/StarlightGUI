@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:essential="using:WinUI3Package"
     xmlns:local="using:StarlightGUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Background="{StaticResource WindowBackgroundBrush}"
@@ -172,139 +173,144 @@
                         VerticalAlignment="Center"
                         IsActive="False" />
 
-                    <ListView
-                        x:Name="ProcessListView"
-                        Background="Transparent"
-                        RightTapped="ProcessListView_RightTapped">
+                    <essential:RevealFocusPanel x:Name="ProcessListViewRevealFocusPanel">
+                        <ListView
+                            x:Name="ProcessListView"
+                            Background="Transparent"
+                            ContainerContentChanging="ProcessListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            RightTapped="ProcessListView_RightTapped"
+                            Tag="{x:Bind ProcessListViewRevealFocusPanel}">
 
-                        <!--  进程数据  -->
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                    </Grid.ColumnDefinitions>
+                            <!--  进程数据  -->
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  进程图标  -->
-                                    <Image
-                                        Grid.Column="0"
-                                        Width="16"
-                                        Height="16"
-                                        Margin="0,0,16,0"
-                                        VerticalAlignment="Center"
-                                        Source="{Binding Icon}" />
+                                        <!--  进程图标  -->
+                                        <Image
+                                            Grid.Column="0"
+                                            Width="16"
+                                            Height="16"
+                                            Margin="0,0,16,0"
+                                            VerticalAlignment="Center"
+                                            Source="{Binding Icon}" />
 
-                                    <!--  进程名  -->
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <!--  进程名  -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding Name}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding Description}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  EPROCESS  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Name}" />
-                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding Description}" />
-                                    </StackPanel>
+                                            Text="{Binding EProcess}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  EPROCESS  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding EProcess}" />
+                                        <!--  CPU  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding CpuUsage}" />
 
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="4"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  CPU  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding CpuUsage}" />
+                                        <!--  内存使用  -->
+                                        <TextBlock
+                                            Grid.Column="4"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding MemoryUsage}" />
 
-                                    <Border
-                                        Grid.Column="4"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="5"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  内存使用  -->
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding MemoryUsage}" />
+                                        <!--  状态  -->
+                                        <TextBlock
+                                            Grid.Column="5"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding Status}" />
 
-                                    <Border
-                                        Grid.Column="5"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="6"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  状态  -->
-                                    <TextBlock
-                                        Grid.Column="5"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding Status}" />
-
-                                    <Border
-                                        Grid.Column="6"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  进程ID  -->
-                                    <TextBlock
-                                        Grid.Column="6"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding Id}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  进程ID  -->
+                                        <TextBlock
+                                            Grid.Column="6"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding Id}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>

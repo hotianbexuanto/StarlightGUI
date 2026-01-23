@@ -64,31 +64,44 @@
                 <essential:WindowCaptionButtonThemeWorkaround Height="48" Window="{x:Bind}" />
             </Grid>
 
-            <controls:NavigationView
-                x:Name="RootNavigation"
-                Grid.Row="1"
-                Background="{StaticResource WindowBackgroundBrush}"
-                CompactModeThresholdWidth="0"
-                ExpandedModeThresholdWidth="0"
-                IsBackButtonVisible="Collapsed"
-                IsPaneOpen="False"
-                IsPaneToggleButtonVisible="True"
-                IsSettingsVisible="False"
-                ItemInvoked="RootNavigation_ItemInvoked"
-                OpenPaneLength="280"
-                PaneDisplayMode="LeftCompact">
+            <essential:RevealFocusPanel x:Name="RevealFocusPanel" Grid.Row="1">
+                <NavigationView
+                    x:Name="RootNavigation"
+                    Background="{StaticResource WindowBackgroundBrush}"
+                    CompactModeThresholdWidth="0"
+                    ExpandedModeThresholdWidth="0"
+                    IsBackButtonVisible="Collapsed"
+                    IsPaneOpen="False"
+                    IsPaneToggleButtonVisible="True"
+                    IsSettingsVisible="False"
+                    ItemInvoked="RootNavigation_ItemInvoked"
+                    OpenPaneLength="280"
+                    PaneDisplayMode="LeftCompact">
 
-                <!--  选项，从上到下  -->
-                <controls:NavigationView.MenuItems>
-                    <controls:NavigationViewItem Content="线程" Icon="List" />
-                    <controls:NavigationViewItem Content="句柄" Icon="Tag" />
-                    <controls:NavigationViewItem Content="模块" Icon="AddFriend" />
-                    <controls:NavigationViewItem Content="内核回调表" Icon="NewWindow" />
-                </controls:NavigationView.MenuItems>
+                    <!--  选项，从上到下  -->
+                    <NavigationView.MenuItems>
+                        <NavigationViewItem
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Content="线程"
+                            Icon="List" />
+                        <NavigationViewItem
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Content="句柄"
+                            Icon="Tag" />
+                        <NavigationViewItem
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Content="模块"
+                            Icon="AddFriend" />
+                        <NavigationViewItem
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Content="内核回调表"
+                            Icon="NewWindow" />
+                    </NavigationView.MenuItems>
 
-                <!--  内容  -->
-                <Frame x:Name="MainFrame" Grid.Row="1" />
-            </controls:NavigationView>
+                    <!--  内容  -->
+                    <Frame x:Name="MainFrame" Grid.Row="1" />
+                </NavigationView>
+            </essential:RevealFocusPanel>
         </Grid>
         <StackPanel
             x:Name="InfoBarPanel"

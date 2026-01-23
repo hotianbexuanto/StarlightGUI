@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:essential="using:WinUI3Package"
     xmlns:local="using:StarlightGUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Background="{StaticResource WindowBackgroundBrush}"
@@ -160,83 +161,88 @@
                         VerticalAlignment="Center"
                         IsActive="False" />
 
-                    <ListView
-                        x:Name="FileListView"
-                        Background="Transparent"
-                        DoubleTapped="FileListView_DoubleTapped"
-                        IsDoubleTapEnabled="True"
-                        IsMultiSelectCheckBoxEnabled="True"
-                        RightTapped="FileListView_RightTapped"
-                        SelectionMode="Extended">
+                    <essential:RevealFocusPanel x:Name="FileListViewRevealFocusPanel">
+                        <ListView
+                            x:Name="FileListView"
+                            Background="Transparent"
+                            ContainerContentChanging="FileListView_ContainerContentChanging"
+                            DoubleTapped="FileListView_DoubleTapped"
+                            IsDoubleTapEnabled="True"
+                            IsMultiSelectCheckBoxEnabled="True"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            RightTapped="FileListView_RightTapped"
+                            SelectionMode="Extended"
+                            Tag="{x:Bind FileListViewRevealFocusPanel}">
 
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="40">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="80" />
-                                    </Grid.ColumnDefinitions>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="40">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="80" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  进程图标  -->
-                                    <Image
-                                        Grid.Column="0"
-                                        Width="16"
-                                        Height="16"
-                                        Margin="0,0,12,0"
-                                        VerticalAlignment="Center"
-                                        Source="{Binding Icon}" />
+                                        <!--  进程图标  -->
+                                        <Image
+                                            Grid.Column="0"
+                                            Width="16"
+                                            Height="16"
+                                            Margin="0,0,12,0"
+                                            VerticalAlignment="Center"
+                                            Source="{Binding Icon}" />
 
-                                    <!--  文件名  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="0,-2,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="16"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                        Text="{Binding Name}" />
+                                        <!--  文件名  -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="0,-2,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                            Text="{Binding Name}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  修改日期  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ModifyTime}" />
+                                        <!--  修改日期  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ModifyTime}" />
 
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  大小  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding Size}" />
+                                        <!--  大小  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding Size}" />
 
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>

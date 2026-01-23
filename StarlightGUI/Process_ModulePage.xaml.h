@@ -12,6 +12,9 @@ namespace winrt::StarlightGUI::implementation
         Process_ModulePage();
 
         void ModuleListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void ModuleListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         winrt::Windows::Foundation::IAsyncAction LoadModuleList();
 

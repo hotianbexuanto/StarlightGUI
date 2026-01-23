@@ -36,6 +36,7 @@
             <ComboBox
                 x:Name="TokenComboBox"
                 essential:ComboBoxHelper.AcrylicWorkaround="True"
+                ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
                 SelectedIndex="0"
                 Text="令牌">
                 <ComboBoxItem Content="System" />

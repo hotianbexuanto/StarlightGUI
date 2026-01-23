@@ -83,9 +83,13 @@ namespace winrt::StarlightGUI::implementation
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::WindowInfo>();
         WINDOWINFO idk{};
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\ue711"));
         item1_1.Text(L"关闭窗口");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -98,6 +102,7 @@ namespace winrt::StarlightGUI::implementation
             });
 
         MenuFlyoutItem item1_2;
+        item1_2.Style(style);
         item1_2.Icon(CreateFontIcon(L"\ue8f0"));
         item1_2.Text(L"关闭窗口 (结束任务)");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -110,6 +115,7 @@ namespace winrt::StarlightGUI::implementation
             });
 
         MenuFlyoutItem item1_3;
+        item1_3.Style(style);
         item1_3.Icon(CreateFontIcon(L"\ue945"));
         item1_3.Text(L"关闭窗口 (内核)");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -128,9 +134,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutSubItem item2_1;
+        item2_1.Style(styleSub);
         item2_1.Icon(CreateFontIcon(L"\ue912"));
         item2_1.Text(L"设置窗口状态");
         MenuFlyoutItem item2_1_sub1;
+        item2_1_sub1.Style(style);
         item2_1_sub1.Icon(CreateFontIcon(L"\ueb1d"));
         item2_1_sub1.Text(L"显示");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -143,6 +151,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
+        item2_1_sub2.Style(style);
         item2_1_sub2.Icon(CreateFontIcon(L"\ueb19"));
         item2_1_sub2.Text(L"隐藏");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -155,6 +164,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub2);
         MenuFlyoutItem item2_1_sub3;
+        item2_1_sub3.Style(style);
         item2_1_sub3.Icon(CreateFontIcon(L"\ue740"));
         item2_1_sub3.Text(L"最大化");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -167,6 +177,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub3);
         MenuFlyoutItem item2_1_sub4;
+        item2_1_sub4.Style(style);
         item2_1_sub4.Icon(CreateFontIcon(L"\ue73f"));
         item2_1_sub4.Text(L"最小化");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -181,6 +192,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.2
         MenuFlyoutItem item2_2;
+        item2_2.Style(style);
         item2_2.Icon(CreateFontIcon(L"\ue754"));
         item2_2.Text(L"在任务栏闪烁");
         item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -194,6 +206,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.3
         MenuFlyoutItem item2_3;
+        item2_3.Style(style);
         item2_3.Icon(CreateFontIcon(L"\ue75c"));
         item2_3.Text(L"重绘窗口");
         item2_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -214,6 +227,18 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item2_3);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
+    }
+
+    void WindowPage::WindowListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
     }
 
     winrt::Windows::Foundation::IAsyncAction WindowPage::LoadWindowList()

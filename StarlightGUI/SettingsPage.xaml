@@ -8,305 +8,330 @@
     Background="{StaticResource WindowBackgroundBrush}">
 
     <ScrollViewer Padding="20">
-        <StackPanel>
-            <TextBlock
-                Padding="10"
-                HorizontalAlignment="Left"
-                FontSize="14"
-                FontWeight="Bold"
-                Text="功能" />
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="文件管理器中进行遍历文件使用的 API，NTFSPARSER 可能不会工作"
-                Header="遍历文件模式"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xe736;" />
-                </essential:SettingsCard.HeaderIcon>
-                <ComboBox
-                    x:Name="EnumFileModeComboBox"
-                    essential:ComboBoxHelper.AcrylicWorkaround="True"
-                    SelectionChanged="EnumFileModeComboBox_SelectionChanged">
-                    <ComboBoxItem Content="ENUM_FILE_NTAPI" />
-                    <ComboBoxItem Content="ENUM_FILE_IRP" />
-                    <ComboBoxItem Content="ENUM_FILE_NTFSPARSER" />
-                </ComboBox>
-            </essential:SettingsCard>
+        <essential:RevealFocusPanel x:Name="RevealFocusPanel">
+            <StackPanel>
+                <TextBlock
+                    Padding="10"
+                    HorizontalAlignment="Left"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Text="功能" />
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="文件管理器中进行遍历文件使用的 API，NTFSPARSER 可能不会工作"
+                    Header="遍历文件模式"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xe736;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <ComboBox
+                        x:Name="EnumFileModeComboBox"
+                        essential:ComboBoxHelper.AcrylicWorkaround="True"
+                        ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                        SelectionChanged="EnumFileModeComboBox_SelectionChanged">
+                        <ComboBoxItem Content="ENUM_FILE_NTAPI" />
+                        <ComboBoxItem Content="ENUM_FILE_IRP" />
+                        <ComboBoxItem Content="ENUM_FILE_NTFSPARSER" />
+                    </ComboBox>
+                </essential:SettingsCard>
 
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="强制使用 SKT64 作为任务管理器枚举进程的驱动，可能会导致效率变低"
-                Header="进程枚举强化"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xf272;" />
-                </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch
-                    x:Name="EnumStrengthenButton"
-                    Margin="0,0,-80,0"
-                    Toggled="EnumStrengthenButton_Toggled" />
-            </essential:SettingsCard>
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="强制使用 SKT64 作为任务管理器枚举进程的驱动，可能会导致效率变低"
+                    Header="进程枚举强化"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xf272;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        x:Name="EnumStrengthenButton"
+                        Margin="0,0,-80,0"
+                        Toggled="EnumStrengthenButton_Toggled" />
+                </essential:SettingsCard>
 
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="即使 NVML 可用，依旧使用系统 PDH 为 GPU 提供的数据"
-                Header="PDH 数据优先"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xe7f1;" />
-                </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch
-                    x:Name="PDHFirstButton"
-                    Margin="0,0,-80,0"
-                    Toggled="PDHFirstButton_Toggled" />
-            </essential:SettingsCard>
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="即使 NVML 可用，依旧使用系统 PDH 为 GPU 提供的数据"
+                    Header="PDH 数据优先"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xe7f1;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        x:Name="PDHFirstButton"
+                        Margin="0,0,-80,0"
+                        Toggled="PDHFirstButton_Toggled" />
+                </essential:SettingsCard>
 
-            <TextBlock
-                Padding="10"
-                HorizontalAlignment="Left"
-                FontSize="14"
-                FontWeight="Bold"
-                Text="外观" />
+                <TextBlock
+                    Padding="10"
+                    HorizontalAlignment="Left"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Text="外观" />
 
-            <!--  背景  -->
-            <essential:SettingsExpander
-                Margin="0,0,0,10"
-                Description="应用的背景颜色类型"
-                Header="背景">
-                <essential:SettingsExpander.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xef1f;" />
-                </essential:SettingsExpander.HeaderIcon>
-                <ComboBox
-                    x:Name="BackgroundComboBox"
-                    essential:ComboBoxHelper.AcrylicWorkaround="True"
-                    SelectionChanged="BackgroundComboBox_SelectionChanged">
-                    <ComboBoxItem Content="Static" />
-                    <ComboBoxItem Content="Mica" />
-                    <ComboBoxItem Content="Acrylic" />
-                </ComboBox>
-                <essential:SettingsExpander.Items>
-                    <essential:SettingsCard
-                        Description="背景的亚克力效果模式"
-                        Header="亚克力类型"
-                        IsActionIconVisible="False"
-                        IsClickEnabled="True">
-                        <!--  亚克力类型  -->
-                        <ComboBox
-                            x:Name="AcrylicTypeComboBox"
-                            essential:ComboBoxHelper.AcrylicWorkaround="True"
-                            SelectionChanged="AcrylicTypeComboBox_SelectionChanged">
-                            <ComboBoxItem Content="Default" />
-                            <ComboBoxItem Content="Base" />
-                            <ComboBoxItem Content="Thin" />
-                        </ComboBox>
-                    </essential:SettingsCard>
-                    <!--  Mica类型  -->
-                    <essential:SettingsCard
-                        Description="背景的 Mica 效果模式"
-                        Header="Mica 类型"
-                        IsActionIconVisible="False"
-                        IsClickEnabled="True">
-                        <ComboBox
-                            x:Name="MicaTypeComboBox"
-                            essential:ComboBoxHelper.AcrylicWorkaround="True"
-                            SelectionChanged="MicaTypeComboBox_SelectionChanged">
-                            <ComboBoxItem Content="Base" />
-                            <ComboBoxItem Content="BaseAlt" />
-                        </ComboBox>
-                    </essential:SettingsCard>
-                </essential:SettingsExpander.Items>
-            </essential:SettingsExpander>
+                <!--  背景  -->
+                <essential:SettingsExpander
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="应用的背景颜色类型"
+                    Header="背景">
+                    <essential:SettingsExpander.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xef1f;" />
+                    </essential:SettingsExpander.HeaderIcon>
+                    <ComboBox
+                        x:Name="BackgroundComboBox"
+                        essential:ComboBoxHelper.AcrylicWorkaround="True"
+                        ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                        SelectionChanged="BackgroundComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Static" />
+                        <ComboBoxItem Content="Mica" />
+                        <ComboBoxItem Content="Acrylic" />
+                    </ComboBox>
+                    <essential:SettingsExpander.Items>
+                        <essential:SettingsCard
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Description="背景的亚克力效果模式"
+                            Header="亚克力类型"
+                            IsActionIconVisible="False"
+                            IsClickEnabled="True">
+                            <!--  亚克力类型  -->
+                            <ComboBox
+                                x:Name="AcrylicTypeComboBox"
+                                essential:ComboBoxHelper.AcrylicWorkaround="True"
+                                ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                                SelectionChanged="AcrylicTypeComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Default" />
+                                <ComboBoxItem Content="Base" />
+                                <ComboBoxItem Content="Thin" />
+                            </ComboBox>
+                        </essential:SettingsCard>
+                        <!--  Mica类型  -->
+                        <essential:SettingsCard
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Description="背景的 Mica 效果模式"
+                            Header="Mica 类型"
+                            IsActionIconVisible="False"
+                            IsClickEnabled="True">
+                            <ComboBox
+                                x:Name="MicaTypeComboBox"
+                                essential:ComboBoxHelper.AcrylicWorkaround="True"
+                                ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                                SelectionChanged="MicaTypeComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Base" />
+                                <ComboBoxItem Content="BaseAlt" />
+                            </ComboBox>
+                        </essential:SettingsCard>
+                    </essential:SettingsExpander.Items>
+                </essential:SettingsExpander>
 
-            <!--  图片背景  -->
-            <essential:SettingsExpander
-                Margin="0,0,0,10"
-                Description="在背景层添加自定义图片"
-                Header="图片背景">
-                <essential:SettingsExpander.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xee71;" />
-                </essential:SettingsExpander.HeaderIcon>
-                <TextBlock x:Name="ImagePathText" Foreground="LightGray" />
-                <essential:SettingsExpander.Items>
-                    <essential:SettingsCard
-                        Description="从电脑中导入一张图片作为背景"
-                        Header="导入背景"
-                        IsActionIconVisible="False"
-                        IsClickEnabled="True">
-                        <Button Click="SetImageButton_Click" Content="导入" />
-                    </essential:SettingsCard>
-                    <essential:SettingsCard
-                        Description="清除已经设置的图片背景"
-                        Header="清除背景"
-                        IsActionIconVisible="False"
-                        IsClickEnabled="True">
-                        <Button Click="ClearImageButton_Click" Content="清除" />
-                    </essential:SettingsCard>
-                    <essential:SettingsCard
-                        Description="背景中图片大小的设置方式"
-                        Header="图片拉伸模式"
-                        IsActionIconVisible="False"
-                        IsClickEnabled="True">
-                        <ComboBox
-                            x:Name="ImageStretchComboBox"
-                            essential:ComboBoxHelper.AcrylicWorkaround="True"
-                            SelectionChanged="ImageStretchComboBox_SelectionChanged">
-                            <ComboBoxItem Content="None" />
-                            <ComboBoxItem Content="Fill" />
-                            <ComboBoxItem Content="Uniform" />
-                            <ComboBoxItem Content="UniformToFill" />
-                        </ComboBox>
-                    </essential:SettingsCard>
-                    <essential:SettingsCard
-                        Description="图片在背景中的透明度，会覆盖窗口色"
-                        Header="透明度"
-                        IsActionIconVisible="False"
-                        IsClickEnabled="True">
-                        <StackPanel Orientation="Horizontal">
-                            <Slider
-                                x:Name="ImageOpacitySlider"
-                                Width="300"
-                                Margin="0,0,10,0"
-                                Maximum="100"
-                                Minimum="0"
-                                Value="20" />
-                            <Button Click="RefreshOpacityButton_Click" Content="刷新" />
-                        </StackPanel>
-                    </essential:SettingsCard>
-                </essential:SettingsExpander.Items>
-            </essential:SettingsExpander>
+                <!--  图片背景  -->
+                <essential:SettingsExpander
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="在背景层添加自定义图片"
+                    Header="图片背景">
+                    <essential:SettingsExpander.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xee71;" />
+                    </essential:SettingsExpander.HeaderIcon>
+                    <TextBlock x:Name="ImagePathText" Foreground="LightGray" />
+                    <essential:SettingsExpander.Items>
+                        <essential:SettingsCard
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Description="从电脑中导入一张图片作为背景"
+                            Header="导入背景"
+                            IsActionIconVisible="False"
+                            IsClickEnabled="True">
+                            <Button Click="SetImageButton_Click" Content="导入" />
+                        </essential:SettingsCard>
+                        <essential:SettingsCard
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Description="清除已经设置的图片背景"
+                            Header="清除背景"
+                            IsActionIconVisible="False"
+                            IsClickEnabled="True">
+                            <Button Click="ClearImageButton_Click" Content="清除" />
+                        </essential:SettingsCard>
+                        <essential:SettingsCard
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Description="背景中图片大小的设置方式"
+                            Header="图片拉伸模式"
+                            IsActionIconVisible="False"
+                            IsClickEnabled="True">
+                            <ComboBox
+                                x:Name="ImageStretchComboBox"
+                                essential:ComboBoxHelper.AcrylicWorkaround="True"
+                                ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                                SelectionChanged="ImageStretchComboBox_SelectionChanged">
+                                <ComboBoxItem Content="None" />
+                                <ComboBoxItem Content="Fill" />
+                                <ComboBoxItem Content="Uniform" />
+                                <ComboBoxItem Content="UniformToFill" />
+                            </ComboBox>
+                        </essential:SettingsCard>
+                        <essential:SettingsCard
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Description="图片在背景中的透明度，会覆盖窗口色"
+                            Header="透明度"
+                            IsActionIconVisible="False"
+                            IsClickEnabled="True">
+                            <StackPanel Orientation="Horizontal">
+                                <Slider
+                                    x:Name="ImageOpacitySlider"
+                                    Width="300"
+                                    Margin="0,0,10,0"
+                                    Maximum="100"
+                                    Minimum="0"
+                                    Value="20" />
+                                <Button Click="RefreshOpacityButton_Click" Content="刷新" />
+                            </StackPanel>
+                        </essential:SettingsCard>
+                    </essential:SettingsExpander.Items>
+                </essential:SettingsExpander>
 
-            <!--  导航栏  -->
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="导航栏的位置和显示样式"
-                Header="导航栏"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xe728;" />
-                </essential:SettingsCard.HeaderIcon>
-                <ComboBox
-                    x:Name="NavigationComboBox"
-                    essential:ComboBoxHelper.AcrylicWorkaround="True"
-                    SelectionChanged="NavigationComboBox_SelectionChanged">
-                    <ComboBoxItem Content="LeftCompact" />
-                    <ComboBoxItem Content="Left" />
-                    <ComboBoxItem Content="Top" />
-                </ComboBox>
-            </essential:SettingsCard>
+                <!--  导航栏  -->
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="导航栏的位置和显示样式"
+                    Header="导航栏"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xe728;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <ComboBox
+                        x:Name="NavigationComboBox"
+                        essential:ComboBoxHelper.AcrylicWorkaround="True"
+                        ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                        SelectionChanged="NavigationComboBox_SelectionChanged">
+                        <ComboBoxItem Content="LeftCompact" />
+                        <ComboBoxItem Content="Left" />
+                        <ComboBoxItem Content="Top" />
+                    </ComboBox>
+                </essential:SettingsCard>
 
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="列表的渐入动画效果"
-                Header="列表动画"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xeb9d;" />
-                </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch
-                    x:Name="ListAnimationButton"
-                    Margin="0,0,-80,0"
-                    Toggled="ListAnimationButton_Toggled" />
-            </essential:SettingsCard>
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="列表的渐入动画效果"
+                    Header="列表动画"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xeb9d;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        x:Name="ListAnimationButton"
+                        Margin="0,0,-80,0"
+                        Toggled="ListAnimationButton_Toggled" />
+                </essential:SettingsCard>
 
-            <TextBlock
-                Padding="10"
-                HorizontalAlignment="Left"
-                FontSize="14"
-                FontWeight="Bold"
-                Text="其他" />
+                <TextBlock
+                    Padding="10"
+                    HorizontalAlignment="Left"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Text="其他" />
 
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="在运行危险操作前先进行确认"
-                Header="危险提示"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xe7ba;" />
-                </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch
-                    x:Name="DangerousConfirmButton"
-                    Margin="0,0,-80,0"
-                    Toggled="DangerousConfirmButton_Toggled" />
-            </essential:SettingsCard>
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="在运行危险操作前先进行确认"
+                    Header="危险提示"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xe7ba;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        x:Name="DangerousConfirmButton"
+                        Margin="0,0,-80,0"
+                        Toggled="DangerousConfirmButton_Toggled" />
+                </essential:SettingsCard>
 
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="每次启动时检查更新，保持从网盘获取更新可以为作者创造一些收益"
-                Header="检查更新"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xecc5;" />
-                </essential:SettingsCard.HeaderIcon>
-                <ToggleSwitch
-                    x:Name="CheckUpdateButton"
-                    Margin="0,0,-80,0"
-                    Toggled="CheckUpdateButton_Toggled" />
-            </essential:SettingsCard>
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="每次启动时检查更新，保持从网盘获取更新可以为作者创造一些收益"
+                    Header="检查更新"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xecc5;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        x:Name="CheckUpdateButton"
+                        Margin="0,0,-80,0"
+                        Toggled="CheckUpdateButton_Toggled" />
+                </essential:SettingsCard>
 
 
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="打开或关闭日志窗口"
-                Header="日志"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xe70b;" />
-                </essential:SettingsCard.HeaderIcon>
-                <Button Click="LogButton_Click" Content="切换" />
-            </essential:SettingsCard>
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="打开或关闭日志窗口"
+                    Header="日志"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xe70b;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <Button Click="LogButton_Click" Content="切换" />
+                </essential:SettingsCard>
 
-            <essential:SettingsCard
-                Margin="0,0,0,10"
-                Description="如果无法正确加载完整功能，请尝试运行这个修复"
-                Header="服务修复"
-                IsActionIconVisible="False"
-                IsClickEnabled="True">
-                <essential:SettingsCard.HeaderIcon>
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="16"
-                        Glyph="&#xe90f;" />
-                </essential:SettingsCard.HeaderIcon>
-                <Button Click="FixButton_Click" Content="修复" />
-            </essential:SettingsCard>
-        </StackPanel>
+                <essential:SettingsCard
+                    Margin="0,0,0,10"
+                    essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                    Description="如果无法正确加载完整功能，请尝试运行这个修复"
+                    Header="服务修复"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <essential:SettingsCard.HeaderIcon>
+                        <FontIcon
+                            FontFamily="Segoe Fluent Icons"
+                            FontSize="16"
+                            Glyph="&#xe90f;" />
+                    </essential:SettingsCard.HeaderIcon>
+                    <Button Click="FixButton_Click" Content="修复" />
+                </essential:SettingsCard>
+            </StackPanel>
+        </essential:RevealFocusPanel>
     </ScrollViewer>
 </Page>

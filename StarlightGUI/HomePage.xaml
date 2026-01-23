@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ct="using:XamlToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:essential="using:WinUI3Package"
     xmlns:local="using:StarlightGUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Background="{StaticResource WindowBackgroundBrush}"
@@ -12,630 +13,636 @@
 
     <Grid>
         <ScrollViewer Padding="20">
-            <StackPanel>
-                <Button
-                    x:Name="MainButton"
-                    Margin="0,0,0,10"
-                    Padding="16"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
+            <essential:RevealFocusPanel x:Name="RevealFocusPanel">
+                <StackPanel>
+                    <Button
+                        x:Name="MainButton"
+                        Margin="0,0,0,10"
+                        Padding="16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
 
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel
-                            Grid.Column="0"
-                            HorizontalAlignment="Left"
-                            Orientation="Horizontal">
-                            <Grid
-                                Width="80"
-                                Height="80"
-                                Margin="0,0,16,0"
-                                HorizontalAlignment="Left">
-                                <Ellipse Width="80" Height="80">
-                                    <Ellipse.Fill>
-                                        <ImageBrush x:Name="UserAvatar" Stretch="UniformToFill" />
-                                    </Ellipse.Fill>
-                                </Ellipse>
-                                <Ellipse
+                        <Grid Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel
+                                Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                Orientation="Horizontal">
+                                <Grid
                                     Width="80"
                                     Height="80"
-                                    Stroke="{StaticResource WindowBackgroundBrush}"
-                                    StrokeThickness="1.5" />
-                            </Grid>
-                            <StackPanel HorizontalAlignment="Left">
-                                <TextBlock
-                                    x:Name="WelcomeText"
-                                    FontSize="18"
-                                    FontWeight="Bold" />
-                                <TextBlock
-                                    x:Name="AppIntroduction"
-                                    Margin="0,5,0,0"
-                                    FontSize="14" />
-                                <TextBlock
-                                    x:Name="HitokotoText"
-                                    Margin="0,15,0,0"
-                                    FontSize="14"
-                                    Foreground="LightGray" />
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!--  钟  -->
-                        <StackPanel
-                            Grid.Column="2"
-                            Margin="20,0,0,0"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center">
-                            <TextBlock
-                                Margin="0,0,0,10"
-                                HorizontalAlignment="Center"
-                                FontSize="16"
-                                FontWeight="SemiBold"
-                                Text="当前时间" />
-
-                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                                <!--  小时  -->
-                                <Button
-                                    Margin="2"
-                                    Padding="8,4"
-                                    CornerRadius="4">
+                                    Margin="0,0,16,0"
+                                    HorizontalAlignment="Left">
+                                    <Ellipse Width="80" Height="80">
+                                        <Ellipse.Fill>
+                                            <ImageBrush x:Name="UserAvatar" Stretch="UniformToFill" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <Ellipse
+                                        Width="80"
+                                        Height="80"
+                                        Stroke="{StaticResource WindowBackgroundBrush}"
+                                        StrokeThickness="1.5" />
+                                </Grid>
+                                <StackPanel HorizontalAlignment="Left">
                                     <TextBlock
-                                        x:Name="Hour1"
-                                        MinWidth="20"
-                                        HorizontalAlignment="Center"
-                                        FontSize="32"
+                                        x:Name="WelcomeText"
+                                        FontSize="18"
                                         FontWeight="Bold" />
-                                </Button>
-                                <Button
-                                    Margin="2"
-                                    Padding="8,4"
-                                    CornerRadius="4">
                                     <TextBlock
-                                        x:Name="Hour2"
-                                        MinWidth="20"
-                                        HorizontalAlignment="Center"
-                                        FontSize="32"
-                                        FontWeight="Bold" />
-                                </Button>
+                                        x:Name="AppIntroduction"
+                                        Margin="0,5,0,0"
+                                        FontSize="14" />
+                                    <TextBlock
+                                        x:Name="HitokotoText"
+                                        Margin="0,15,0,0"
+                                        FontSize="14"
+                                        Foreground="LightGray" />
+                                </StackPanel>
+                            </StackPanel>
 
-                                <TextBlock
-                                    Margin="4,0"
-                                    VerticalAlignment="Center"
-                                    FontSize="32"
-                                    FontWeight="Bold"
-                                    Text=":" />
-
-                                <!--  分钟  -->
-                                <Button
-                                    Margin="2"
-                                    Padding="8,4"
-                                    CornerRadius="4">
-                                    <TextBlock
-                                        x:Name="Minute1"
-                                        MinWidth="20"
-                                        HorizontalAlignment="Center"
-                                        FontSize="32"
-                                        FontWeight="Bold" />
-                                </Button>
-                                <Button
-                                    Margin="2"
-                                    Padding="8,4"
-                                    CornerRadius="4">
-                                    <TextBlock
-                                        x:Name="Minute2"
-                                        MinWidth="20"
-                                        HorizontalAlignment="Center"
-                                        FontSize="32"
-                                        FontWeight="Bold" />
-                                </Button>
-
-                                <TextBlock
-                                    Margin="4,0"
-                                    VerticalAlignment="Center"
-                                    FontSize="32"
-                                    FontWeight="Bold"
-                                    Text=":" />
-
-                                <!--  秒钟  -->
-                                <Button
-                                    Margin="2"
-                                    Padding="8,4"
-                                    CornerRadius="4">
-                                    <TextBlock
-                                        x:Name="Second1"
-                                        MinWidth="20"
-                                        HorizontalAlignment="Center"
-                                        FontSize="32"
-                                        FontWeight="Bold" />
-                                </Button>
-                                <Button
-                                    Margin="2"
-                                    Padding="8,4"
-                                    CornerRadius="4">
-                                    <TextBlock
-                                        x:Name="Second2"
-                                        MinWidth="20"
-                                        HorizontalAlignment="Center"
-                                        FontSize="32"
-                                        FontWeight="Bold" />
-                                </Button>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
-                </Button>
-                <Button
-                    Margin="0,0,0,10"
-                    Padding="16"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Image
-                            Grid.Column="0"
-                            Width="225"
-                            Height="150"
-                            Margin="-8,0,20,0"
-                            HorizontalAlignment="Left"
-                            Source="/Assets/StarlightGUI.png" />
-                        <StackPanel
-                            Grid.Column="1"
-                            Margin="0,-10,0,0"
-                            HorizontalAlignment="Left">
-                            <TextBlock
-                                FontSize="32"
-                                FontWeight="Bold"
-                                Text="Starlight GUI" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="16"
-                                Text="一个拥有现代化UI界面的全能系统工具" />
-                            <StackPanel Margin="0,15,0,0" Orientation="Horizontal">
-                                <FontIcon
-                                    FontSize="14"
-                                    Foreground="Gray"
-                                    Glyph="&#xecc5;" />
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="LightGray"
-                                    Text="  版本：" />
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="LightGray"
-                                    Text="{StaticResource Version}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <FontIcon
-                                    FontSize="14"
-                                    Foreground="Gray"
-                                    Glyph="&#xec92;" />
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="LightGray"
-                                    Text="  更新日期：" />
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="LightGray"
-                                    Text="{StaticResource ReleaseDate}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <FontIcon
-                                    FontSize="14"
-                                    Foreground="Gray"
-                                    Glyph="&#xe943;" />
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="LightGray"
-                                    Text="  开发者：" />
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="LightGray"
-                                    Text="{StaticResource Author}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <FontIcon
-                                    FontSize="14"
-                                    Foreground="Gray"
-                                    Glyph="&#xe71b;" />
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="LightGray"
-                                    Text="  开源仓库：https://github.com/RinoRika/StarlightGUI" />
-                            </StackPanel>
-                            <TextBlock
-                                Padding="0,10,0,0"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Bottom"
-                                FontSize="14"
-                                Foreground="LightGray"
-                                Text="Apache 2.0 License | OSI Certified | Copyright © 2026 Starlight. Some Rights Reserved." />
-                        </StackPanel>
-                    </Grid>
-                </Button>
-                <TextBlock
-                    Padding="10"
-                    HorizontalAlignment="Left"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Text="系统概览" />
-                <Expander
-                    Margin="0,0,0,10"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    BorderBrush="Transparent"
-                    Header="统计图">
-                    <local:LineGraphControl
-                        x:Name="TotalLineGraph"
-                        Title="占用率统计"
-                        Height="300"
-                        Margin="-20,0,0,0"
-                        HorizontalAlignment="Stretch"
-                        EnableZoom="False" />
-                </Expander>
-                <!--  CPU  -->
-                <Button
-                    Margin="0,0,0,10"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ct:RadialGauge
-                            x:Name="CpuGauge"
-                            Grid.Column="0"
-                            Width="150"
-                            IsInteractive="False"
-                            Maximum="100"
-                            Minimum="0"
-                            NeedleBrush="LightSkyBlue"
-                            StepSize="1"
-                            TickSpacing="10"
-                            TrailBrush="LightSkyBlue"
-                            ValueStringFormat=" {0}% " />
-                        <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                            <TextBlock
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Text="CPU" />
-                            <TextBlock
-                                x:Name="CpuManufacture"
-                                FontSize="16"
-                                FontWeight="SemiBold" />
-                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                                <StackPanel Width="200">
-                                    <TextBlock>
-                                        <Run Text="速度: " />
-                                        <Run x:Name="CpuFrequency" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="进程: " />
-                                        <Run x:Name="CpuProcess" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="线程: " />
-                                        <Run x:Name="CpuThread" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="系统调用: " />
-                                        <Run x:Name="CpuSyscall" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="正常运行时间: " />
-                                        <Run x:Name="CpuRunTime" Foreground="LightGray" />
-                                    </TextBlock>
-                                </StackPanel>
-                                <StackPanel Width="200">
-                                    <TextBlock>
-                                        <Run Text="核心: " />
-                                        <Run x:Name="CpuCore" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="虚拟化: " />
-                                        <Run x:Name="CpuVirtualization" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="L1 缓存: " />
-                                        <Run x:Name="CpuCacheL1" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="L2 缓存: " />
-                                        <Run x:Name="CpuCacheL2" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="L3 缓存: " />
-                                        <Run x:Name="CpuCacheL3" Foreground="LightGray" />
-                                    </TextBlock>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                        <TextBlock
-                            x:Name="CpuPercent"
-                            Grid.Column="3"
-                            FontSize="24"
-                            FontWeight="Bold" />
-                    </Grid>
-                </Button>
-                <!--  内存  -->
-                <Button
-                    Margin="0,0,0,10"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ct:RadialGauge
-                            x:Name="MemGauge"
-                            Grid.Column="0"
-                            Width="150"
-                            IsInteractive="False"
-                            Maximum="100"
-                            Minimum="0"
-                            NeedleBrush="DodgerBlue"
-                            StepSize="1"
-                            TickSpacing="10"
-                            TrailBrush="DodgerBlue"
-                            ValueStringFormat=" {0}% " />
-                        <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                            <TextBlock
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Text="内存" />
-                            <TextBlock
-                                x:Name="MemSize"
-                                FontSize="16"
-                                FontWeight="SemiBold" />
-                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                                <StackPanel Width="200">
-                                    <TextBlock>
-                                        <Run Text="使用中: " />
-                                        <Run x:Name="MemUsing" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="可用: " />
-                                        <Run x:Name="MemUsable" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="已提交: " />
-                                        <Run x:Name="MemCommitted" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="已缓存: " />
-                                        <Run x:Name="MemCached" Foreground="LightGray" />
-                                    </TextBlock>
-                                </StackPanel>
-                                <StackPanel Width="200">
-                                    <TextBlock>
-                                        <Run Text="页读取: " />
-                                        <Run x:Name="MemPageRead" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="页写入: " />
-                                        <Run x:Name="MemPageWrite" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="页传出: " />
-                                        <Run x:Name="MemPageInput" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="页传入: " />
-                                        <Run x:Name="MemPageOutput" Foreground="LightGray" />
-                                    </TextBlock>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                        <TextBlock
-                            x:Name="MemPercent"
-                            Grid.Column="3"
-                            FontSize="24"
-                            FontWeight="Bold" />
-                    </Grid>
-                </Button>
-                <!--  磁盘  -->
-                <Button
-                    Margin="0,0,0,10"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ct:RadialGauge
-                            x:Name="DiskGauge"
-                            Grid.Column="0"
-                            Width="150"
-                            IsInteractive="False"
-                            Maximum="100"
-                            Minimum="0"
-                            NeedleBrush="LimeGreen"
-                            StepSize="1"
-                            TickSpacing="10"
-                            TrailBrush="LimeGreen"
-                            ValueStringFormat=" {0}% " />
-                        <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                            <TextBlock
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Text="磁盘" />
-                            <TextBlock
-                                x:Name="DiskManufacture"
-                                FontSize="16"
-                                FontWeight="SemiBold" />
-                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                                <StackPanel Width="200">
-                                    <TextBlock>
-                                        <Run Text="读取速度: " />
-                                        <Run x:Name="DiskRead" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="写入速度: " />
-                                        <Run x:Name="DiskWrite" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="传输量: " />
-                                        <Run x:Name="DiskTrans" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="I/O 量: " />
-                                        <Run x:Name="DiskIO" Foreground="LightGray" />
-                                    </TextBlock>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                        <TextBlock
-                            x:Name="DiskPercent"
-                            Grid.Column="3"
-                            FontSize="24"
-                            FontWeight="Bold" />
-                    </Grid>
-                </Button>
-                <!--  GPU  -->
-                <Button
-                    Margin="0,0,0,10"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ct:RadialGauge
-                            x:Name="GpuGauge"
-                            Grid.Column="0"
-                            Width="150"
-                            IsInteractive="False"
-                            Maximum="100"
-                            Minimum="0"
-                            NeedleBrush="MediumPurple"
-                            StepSize="1"
-                            TickSpacing="10"
-                            TrailBrush="MediumPurple"
-                            ValueStringFormat=" {0}% " />
-                        <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                            <TextBlock
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Text="GPU" />
-                            <TextBlock
-                                x:Name="GpuManufacture"
-                                FontSize="16"
-                                FontWeight="SemiBold" />
-                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                                <StackPanel Width="200">
-                                    <TextBlock>
-                                        <Run Text="内存: " />
-                                        <Run x:Name="GpuMem" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="温度: " />
-                                        <Run x:Name="GpuTemp" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="图形速度: " />
-                                        <Run x:Name="GpuClockGraphics" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="内存速度: " />
-                                        <Run x:Name="GpuClockMem" Foreground="LightGray" />
-                                    </TextBlock>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                        <TextBlock
-                            x:Name="GpuPercent"
-                            Grid.Column="3"
-                            FontSize="24"
-                            FontWeight="Bold" />
-                    </Grid>
-                </Button>
-                <!--  网络  -->
-                <Button
-                    Margin="0,0,0,10"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ct:RadialGauge
-                            x:Name="NetGauge"
-                            Grid.Column="0"
-                            Width="150"
-                            IsInteractive="False"
-                            Maximum="10240"
-                            Minimum="0"
-                            NeedleBrush="DeepPink"
-                            StepSize="1"
-                            TickSpacing="1024"
-                            TrailBrush="DeepPink"
-                            ValueStringFormat="" />
-                        <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                            <TextBlock
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Text="网络" />
-                            <TextBlock
-                                x:Name="NetManufacture"
-                                MaxWidth="500"
-                                FontSize="16"
-                                FontWeight="SemiBold" />
-                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                                <StackPanel Width="200">
-                                    <TextBlock>
-                                        <Run Text="下载: " />
-                                        <Run x:Name="NetReceive" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="上传: " />
-                                        <Run x:Name="NetSend" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="数据包发送: " />
-                                        <Run x:Name="NetPacketSend" Foreground="LightGray" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="数据包接收: " />
-                                        <Run x:Name="NetPacketReceive" Foreground="LightGray" />
-                                    </TextBlock>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                        <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
-                            <Button
-                                Margin="0,0,0,5"
+                            <!--  钟  -->
+                            <StackPanel
+                                Grid.Column="2"
+                                Margin="20,0,0,0"
                                 HorizontalAlignment="Right"
-                                Click="NextAdapterName_Click"
-                                Content="下一个适配器名称" />
-                            <Button Click="ChangeMode_Click" Content="图表切换发送/接收" />
-                        </StackPanel>
-                    </Grid>
-                </Button>
-            </StackPanel>
+                                VerticalAlignment="Center">
+                                <TextBlock
+                                    Margin="0,0,0,10"
+                                    HorizontalAlignment="Center"
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Text="当前时间" />
+
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <!--  小时  -->
+                                    <Button
+                                        Margin="2"
+                                        Padding="8,4"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            x:Name="Hour1"
+                                            MinWidth="20"
+                                            HorizontalAlignment="Center"
+                                            FontSize="32"
+                                            FontWeight="Bold" />
+                                    </Button>
+                                    <Button
+                                        Margin="2"
+                                        Padding="8,4"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            x:Name="Hour2"
+                                            MinWidth="20"
+                                            HorizontalAlignment="Center"
+                                            FontSize="32"
+                                            FontWeight="Bold" />
+                                    </Button>
+
+                                    <TextBlock
+                                        Margin="4,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="32"
+                                        FontWeight="Bold"
+                                        Text=":" />
+
+                                    <!--  分钟  -->
+                                    <Button
+                                        Margin="2"
+                                        Padding="8,4"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            x:Name="Minute1"
+                                            MinWidth="20"
+                                            HorizontalAlignment="Center"
+                                            FontSize="32"
+                                            FontWeight="Bold" />
+                                    </Button>
+                                    <Button
+                                        Margin="2"
+                                        Padding="8,4"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            x:Name="Minute2"
+                                            MinWidth="20"
+                                            HorizontalAlignment="Center"
+                                            FontSize="32"
+                                            FontWeight="Bold" />
+                                    </Button>
+
+                                    <TextBlock
+                                        Margin="4,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="32"
+                                        FontWeight="Bold"
+                                        Text=":" />
+
+                                    <!--  秒钟  -->
+                                    <Button
+                                        Margin="2"
+                                        Padding="8,4"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            x:Name="Second1"
+                                            MinWidth="20"
+                                            HorizontalAlignment="Center"
+                                            FontSize="32"
+                                            FontWeight="Bold" />
+                                    </Button>
+                                    <Button
+                                        Margin="2"
+                                        Padding="8,4"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            x:Name="Second2"
+                                            MinWidth="20"
+                                            HorizontalAlignment="Center"
+                                            FontSize="32"
+                                            FontWeight="Bold" />
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                    <Button
+                        Margin="0,0,0,10"
+                        Padding="16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
+                        <Grid Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Image
+                                Grid.Column="0"
+                                Width="225"
+                                Height="150"
+                                Margin="-8,0,20,0"
+                                HorizontalAlignment="Left"
+                                Source="/Assets/StarlightGUI.png" />
+                            <StackPanel
+                                Grid.Column="1"
+                                Margin="0,-10,0,0"
+                                HorizontalAlignment="Left">
+                                <TextBlock
+                                    FontSize="32"
+                                    FontWeight="Bold"
+                                    Text="Starlight GUI" />
+                                <TextBlock
+                                    Margin="0,5,0,0"
+                                    FontSize="16"
+                                    Text="一个拥有现代化UI界面的全能系统工具" />
+                                <StackPanel Margin="0,15,0,0" Orientation="Horizontal">
+                                    <FontIcon
+                                        FontSize="14"
+                                        Foreground="Gray"
+                                        Glyph="&#xecc5;" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="  版本：" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="{StaticResource Version}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon
+                                        FontSize="14"
+                                        Foreground="Gray"
+                                        Glyph="&#xec92;" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="  更新日期：" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="{StaticResource ReleaseDate}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon
+                                        FontSize="14"
+                                        Foreground="Gray"
+                                        Glyph="&#xe943;" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="  开发者：" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="{StaticResource Author}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon
+                                        FontSize="14"
+                                        Foreground="Gray"
+                                        Glyph="&#xe71b;" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="  开源仓库：https://github.com/RinoRika/StarlightGUI" />
+                                </StackPanel>
+                                <TextBlock
+                                    Padding="0,10,0,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    FontSize="14"
+                                    Foreground="LightGray"
+                                    Text="Apache 2.0 License | OSI Certified | Copyright © 2026 Starlight. Some Rights Reserved." />
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                    <TextBlock
+                        Padding="10"
+                        HorizontalAlignment="Left"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Text="系统概览" />
+                    <Expander
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        BorderBrush="Transparent"
+                        Header="统计图">
+                        <local:LineGraphControl
+                            x:Name="TotalLineGraph"
+                            Title="占用率统计"
+                            Height="300"
+                            Margin="-20,0,0,0"
+                            HorizontalAlignment="Stretch"
+                            EnableZoom="False" />
+                    </Expander>
+                    <!--  CPU  -->
+                    <Button
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
+                        <Grid Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ct:RadialGauge
+                                x:Name="CpuGauge"
+                                Grid.Column="0"
+                                Width="150"
+                                IsInteractive="False"
+                                Maximum="100"
+                                Minimum="0"
+                                NeedleBrush="LightSkyBlue"
+                                StepSize="1"
+                                TickSpacing="10"
+                                TrailBrush="LightSkyBlue"
+                                ValueStringFormat=" {0}% " />
+                            <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                <TextBlock
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Text="CPU" />
+                                <TextBlock
+                                    x:Name="CpuManufacture"
+                                    FontSize="16"
+                                    FontWeight="SemiBold" />
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <StackPanel Width="200">
+                                        <TextBlock>
+                                            <Run Text="速度: " />
+                                            <Run x:Name="CpuFrequency" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="进程: " />
+                                            <Run x:Name="CpuProcess" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="线程: " />
+                                            <Run x:Name="CpuThread" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="系统调用: " />
+                                            <Run x:Name="CpuSyscall" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="正常运行时间: " />
+                                            <Run x:Name="CpuRunTime" Foreground="LightGray" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Width="200">
+                                        <TextBlock>
+                                            <Run Text="核心: " />
+                                            <Run x:Name="CpuCore" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="虚拟化: " />
+                                            <Run x:Name="CpuVirtualization" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="L1 缓存: " />
+                                            <Run x:Name="CpuCacheL1" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="L2 缓存: " />
+                                            <Run x:Name="CpuCacheL2" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="L3 缓存: " />
+                                            <Run x:Name="CpuCacheL3" Foreground="LightGray" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                x:Name="CpuPercent"
+                                Grid.Column="3"
+                                FontSize="24"
+                                FontWeight="Bold" />
+                        </Grid>
+                    </Button>
+                    <!--  内存  -->
+                    <Button
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
+                        <Grid Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ct:RadialGauge
+                                x:Name="MemGauge"
+                                Grid.Column="0"
+                                Width="150"
+                                IsInteractive="False"
+                                Maximum="100"
+                                Minimum="0"
+                                NeedleBrush="DodgerBlue"
+                                StepSize="1"
+                                TickSpacing="10"
+                                TrailBrush="DodgerBlue"
+                                ValueStringFormat=" {0}% " />
+                            <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                <TextBlock
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Text="内存" />
+                                <TextBlock
+                                    x:Name="MemSize"
+                                    FontSize="16"
+                                    FontWeight="SemiBold" />
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <StackPanel Width="200">
+                                        <TextBlock>
+                                            <Run Text="使用中: " />
+                                            <Run x:Name="MemUsing" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="可用: " />
+                                            <Run x:Name="MemUsable" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="已提交: " />
+                                            <Run x:Name="MemCommitted" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="已缓存: " />
+                                            <Run x:Name="MemCached" Foreground="LightGray" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Width="200">
+                                        <TextBlock>
+                                            <Run Text="页读取: " />
+                                            <Run x:Name="MemPageRead" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="页写入: " />
+                                            <Run x:Name="MemPageWrite" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="页传出: " />
+                                            <Run x:Name="MemPageInput" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="页传入: " />
+                                            <Run x:Name="MemPageOutput" Foreground="LightGray" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                x:Name="MemPercent"
+                                Grid.Column="3"
+                                FontSize="24"
+                                FontWeight="Bold" />
+                        </Grid>
+                    </Button>
+                    <!--  磁盘  -->
+                    <Button
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
+                        <Grid Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ct:RadialGauge
+                                x:Name="DiskGauge"
+                                Grid.Column="0"
+                                Width="150"
+                                IsInteractive="False"
+                                Maximum="100"
+                                Minimum="0"
+                                NeedleBrush="LimeGreen"
+                                StepSize="1"
+                                TickSpacing="10"
+                                TrailBrush="LimeGreen"
+                                ValueStringFormat=" {0}% " />
+                            <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                <TextBlock
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Text="磁盘" />
+                                <TextBlock
+                                    x:Name="DiskManufacture"
+                                    FontSize="16"
+                                    FontWeight="SemiBold" />
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <StackPanel Width="200">
+                                        <TextBlock>
+                                            <Run Text="读取速度: " />
+                                            <Run x:Name="DiskRead" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="写入速度: " />
+                                            <Run x:Name="DiskWrite" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="传输量: " />
+                                            <Run x:Name="DiskTrans" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="I/O 量: " />
+                                            <Run x:Name="DiskIO" Foreground="LightGray" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                x:Name="DiskPercent"
+                                Grid.Column="3"
+                                FontSize="24"
+                                FontWeight="Bold" />
+                        </Grid>
+                    </Button>
+                    <!--  GPU  -->
+                    <Button
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
+                        <Grid Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ct:RadialGauge
+                                x:Name="GpuGauge"
+                                Grid.Column="0"
+                                Width="150"
+                                IsInteractive="False"
+                                Maximum="100"
+                                Minimum="0"
+                                NeedleBrush="MediumPurple"
+                                StepSize="1"
+                                TickSpacing="10"
+                                TrailBrush="MediumPurple"
+                                ValueStringFormat=" {0}% " />
+                            <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                <TextBlock
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Text="GPU" />
+                                <TextBlock
+                                    x:Name="GpuManufacture"
+                                    FontSize="16"
+                                    FontWeight="SemiBold" />
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <StackPanel Width="200">
+                                        <TextBlock>
+                                            <Run Text="内存: " />
+                                            <Run x:Name="GpuMem" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="温度: " />
+                                            <Run x:Name="GpuTemp" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="图形速度: " />
+                                            <Run x:Name="GpuClockGraphics" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="内存速度: " />
+                                            <Run x:Name="GpuClockMem" Foreground="LightGray" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock
+                                x:Name="GpuPercent"
+                                Grid.Column="3"
+                                FontSize="24"
+                                FontWeight="Bold" />
+                        </Grid>
+                    </Button>
+                    <!--  网络  -->
+                    <Button
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
+                        <Grid Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ct:RadialGauge
+                                x:Name="NetGauge"
+                                Grid.Column="0"
+                                Width="150"
+                                IsInteractive="False"
+                                Maximum="10240"
+                                Minimum="0"
+                                NeedleBrush="DeepPink"
+                                StepSize="1"
+                                TickSpacing="1024"
+                                TrailBrush="DeepPink"
+                                ValueStringFormat="" />
+                            <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                <TextBlock
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Text="网络" />
+                                <TextBlock
+                                    x:Name="NetManufacture"
+                                    MaxWidth="500"
+                                    FontSize="16"
+                                    FontWeight="SemiBold" />
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <StackPanel Width="200">
+                                        <TextBlock>
+                                            <Run Text="下载: " />
+                                            <Run x:Name="NetReceive" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="上传: " />
+                                            <Run x:Name="NetSend" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="数据包发送: " />
+                                            <Run x:Name="NetPacketSend" Foreground="LightGray" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="数据包接收: " />
+                                            <Run x:Name="NetPacketReceive" Foreground="LightGray" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
+                                <Button
+                                    Margin="0,0,0,5"
+                                    HorizontalAlignment="Right"
+                                    Click="NextAdapterName_Click"
+                                    Content="下一个适配器名称" />
+                                <Button Click="ChangeMode_Click" Content="图表切换发送/接收" />
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </essential:RevealFocusPanel>
         </ScrollViewer>
-        <StackPanel
-            x:Name="InfoBarPanel"
-            Margin="0,10,10,0"
-            HorizontalAlignment="Right" />
     </Grid>
 </Page>

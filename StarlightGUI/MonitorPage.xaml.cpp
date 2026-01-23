@@ -443,6 +443,18 @@ namespace winrt::StarlightGUI::implementation
 		flyout.ShowAt(ObjectListView(), options);
 	}
 
+    void MonitorPage::MonitorListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
+    }
+
 	void MonitorPage::ObjectTreeView_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
 	{
 		if (!IsLoaded() || segmentedIndex != 0) return;

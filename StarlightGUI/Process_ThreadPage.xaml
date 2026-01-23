@@ -2,6 +2,7 @@
     x:Class="StarlightGUI.Process_ThreadPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:essential="using:WinUI3Package"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:StarlightGUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -124,10 +125,11 @@
                         VerticalAlignment="Center"
                         IsActive="False" />
 
-                    <ListView
+                    <essential:RevealFocusPanel x:Name="ThreadListViewRevealFocusPanel">
+<ListView
                         x:Name="ThreadListView"
                         Background="Transparent"
-                        RightTapped="ThreadListView_RightTapped">
+                        RightTapped="ThreadListView_RightTapped" ItemContainerStyle="{StaticResource ListViewItemStyle}" ContainerContentChanging="ThreadListView_ContainerContentChanging" Tag="{x:Bind ThreadListViewRevealFocusPanel}">
 
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -245,6 +247,7 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+</essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>

@@ -80,6 +80,9 @@ namespace winrt::StarlightGUI::implementation
             selectedFiles.push_back(item);
         }
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         /*
@@ -87,6 +90,7 @@ namespace winrt::StarlightGUI::implementation
         */
         // 选项1.1
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\ue8e5"));
         item1_1.Text(L"打开");
         item1_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -112,6 +116,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutItem item2_1;
+        item2_1.Style(style);
         item2_1.Icon(CreateFontIcon(L"\ue74d"));
         item2_1.Text(L"删除");
         item2_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -126,6 +131,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.2
         MenuFlyoutItem item2_2;
+        item2_2.Style(style);
         item2_2.Icon(CreateFontIcon(L"\ue733"));
         item2_2.Text(L"删除 (内核)");
         item2_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -141,6 +147,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.3
         MenuFlyoutItem item2_3;
+        item2_3.Style(style);
         item2_3.Icon(CreateFontIcon(L"\uf5ab"));
         item2_3.Text(L"删除 (内存抹杀)");
         item2_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -156,6 +163,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.4
         MenuFlyoutItem item2_4;
+        item2_4.Style(style);
         item2_4.Icon(CreateFontIcon(L"\ue72e"));
         item2_4.Text(L"锁定");
         item2_4.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -171,6 +179,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.5
         MenuFlyoutItem item2_5;
+        item2_5.Style(style);
         item2_5.Icon(CreateFontIcon(L"\ue8c8"));
         item2_5.Text(L"复制");
         item2_5.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -182,9 +191,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.1
         MenuFlyoutSubItem item3_1;
+        item3_1.Style(styleSub);
         item3_1.Icon(CreateFontIcon(L"\ue8c8"));
         item3_1.Text(L"复制信息");
         MenuFlyoutItem item3_1_sub1;
+        item3_1_sub1.Style(style);
         item3_1_sub1.Icon(CreateFontIcon(L"\ue8ac"));
         item3_1_sub1.Text(L"名称");
         item3_1_sub1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -196,6 +207,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_1.Items().Append(item3_1_sub1);
         MenuFlyoutItem item3_1_sub2;
+        item3_1_sub2.Style(style);
         item3_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
         item3_1_sub2.Text(L"路径");
         item3_1_sub2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -207,6 +219,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_1.Items().Append(item3_1_sub2);
         MenuFlyoutItem item3_1_sub3;
+        item3_1_sub3.Style(style);
         item3_1_sub3.Icon(CreateFontIcon(L"\uec92"));
         item3_1_sub3.Text(L"修改日期");
         item3_1_sub3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -220,6 +233,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.2
         MenuFlyoutItem item3_2;
+        item3_2.Style(style);
         item3_2.Icon(CreateFontIcon(L"\uec50"));
         item3_2.Text(L"在文件管理器内打开");
         item3_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -233,6 +247,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.3
         MenuFlyoutItem item3_3;
+        item3_3.Style(style);
         item3_3.Icon(CreateFontIcon(L"\ue8ec"));
         item3_3.Text(L"属性");
         item3_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -283,6 +298,18 @@ namespace winrt::StarlightGUI::implementation
             ShellExecuteW(nullptr, L"open", item.Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
         }
 	}
+
+    void FilePage::FileListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
+    }
 
     void FilePage::CheckAndLoadMoreItems() {
         if (!m_listScrollViewer && !FindScrollViewer(FileListView())) return;

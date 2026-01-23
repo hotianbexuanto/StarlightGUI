@@ -70,64 +70,71 @@
             </Grid>
 
             <!--  侧边栏区域  -->
-            <NavigationView
-                x:Name="RootNavigation"
-                Grid.Row="1"
-                Background="{StaticResource WindowBackgroundBrush}"
-                CompactModeThresholdWidth="0"
-                ExpandedModeThresholdWidth="0"
-                IsBackButtonVisible="Collapsed"
-                IsPaneOpen="False"
-                IsPaneToggleButtonVisible="True"
-                IsSettingsVisible="True"
-                ItemInvoked="RootNavigation_ItemInvoked"
-                OpenPaneLength="280"
-                PaneDisplayMode="LeftCompact">
+            <essential:RevealFocusPanel x:Name="RevealFocusPanel" Grid.Row="1">
+                <NavigationView
+                    x:Name="RootNavigation"
+                    Background="{StaticResource WindowBackgroundBrush}"
+                    CompactModeThresholdWidth="0"
+                    ExpandedModeThresholdWidth="0"
+                    IsBackButtonVisible="Collapsed"
+                    IsPaneOpen="False"
+                    IsPaneToggleButtonVisible="True"
+                    IsSettingsVisible="True"
+                    ItemInvoked="RootNavigation_ItemInvoked"
+                    OpenPaneLength="280"
+                    PaneDisplayMode="LeftCompact">
 
-                <!--  选项，从上到下  -->
-                <NavigationView.MenuItems>
-                    <NavigationViewItem Content="主页" Icon="Home" />
-                    <NavigationViewItem Content="任务管理">
-                        <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xf120;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                    <NavigationViewItem x:Name="ModuleNavigationViewItem" Content="模块管理">
-                        <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8ce;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                    <NavigationViewItem Content="文件管理">
-                        <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xec50;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                    <NavigationViewItem Content="窗口管理">
-                        <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe74c;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                    <NavigationViewItem x:Name="UtilityNavigationViewItem" Content="系统功能">
-                        <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xec7a;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                    <NavigationViewItem Content="监视器">
-                        <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xea8f;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                </NavigationView.MenuItems>
+                    <!--  选项，从上到下  -->
+                    <NavigationView.MenuItems>
+                        <NavigationViewItem
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Content="主页"
+                            Icon="Home" />
+                        <NavigationViewItem essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}" Content="任务管理">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xf120;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}" Content="模块管理">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8ce;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}" Content="文件管理">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xec50;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}" Content="窗口管理">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe74c;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}" Content="系统功能">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xec7a;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}" Content="监视器">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xea8f;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationView.MenuItems>
 
-                <!--  从下到上  -->
-                <!--  最下面是设置  -->
-                <NavigationView.FooterMenuItems>
-                    <NavigationViewItem Content="关于" Icon="Help" />
-                </NavigationView.FooterMenuItems>
+                    <!--  从下到上  -->
+                    <!--  最下面是设置  -->
+                    <NavigationView.FooterMenuItems>
+                        <NavigationViewItem
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                            Content="关于"
+                            Icon="Help" />
+                    </NavigationView.FooterMenuItems>
 
-                <!--  内容  -->
-                <Frame x:Name="MainFrame" Grid.Row="1" />
-            </NavigationView>
+                    <!--  内容  -->
+                    <Frame x:Name="MainFrame" Grid.Row="1" />
+                </NavigationView>
+            </essential:RevealFocusPanel>
         </Grid>
         <StackPanel
             x:Name="InfoBarPanel"

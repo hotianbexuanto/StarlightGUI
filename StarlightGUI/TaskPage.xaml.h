@@ -18,6 +18,9 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget ModifyToken(ULONG pid);
 
         void ProcessListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void ProcessListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 

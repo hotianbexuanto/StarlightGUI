@@ -12,6 +12,9 @@ namespace winrt::StarlightGUI::implementation
         Process_KCTPage();
 
         void KCTListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void KCTListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         winrt::Windows::Foundation::IAsyncAction LoadKCTList();
 

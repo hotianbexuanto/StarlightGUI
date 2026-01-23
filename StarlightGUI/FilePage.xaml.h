@@ -13,6 +13,9 @@ namespace winrt::StarlightGUI::implementation
 
         void FileListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
         void FileListView_DoubleTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs const& e);
+        void FileListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         void ColumnHeader_Click(IInspectable const& sender, RoutedEventArgs const& e);
         winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);

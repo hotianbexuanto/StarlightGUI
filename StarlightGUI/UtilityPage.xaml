@@ -11,401 +11,414 @@
 
     <Grid>
         <ScrollViewer Padding="20">
-            <StackPanel>
-                <TextBlock
-                    Padding="10"
-                    HorizontalAlignment="Left"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Text="系统行为控制" />
+            <essential:RevealFocusPanel x:Name="RevealFocusPanel">
+                <StackPanel>
+                    <TextBlock
+                        Padding="10"
+                        HorizontalAlignment="Left"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Text="系统行为控制" />
 
-                <!--  创建进程  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许全局创建进程"
-                    Header="创建进程"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xe9d9;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_CREATE_PROCESS" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_CREATE_PROCESS" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  创建文件  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许全局创建文件"
-                    Header="创建文件"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xed25;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_CREATE_FILE" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_CREATE_FILE" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  加载驱动  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许系统加载驱动"
-                    Header="加载驱动"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xe8ce;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_LOAD_DRV" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_LOAD_DRV" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  卸载驱动  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许系统卸载驱动"
-                    Header="卸载驱动"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xe8cd;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_UNLOAD_DRV" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_UNLOAD_DRV" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  修改注册表  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许修改注册表"
-                    Header="修改注册表"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xe9d5;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_MODIFY_REG" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_MODIFY_REG" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  修改引导扇区  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许修改磁盘引导扇区"
-                    Header="修改引导扇区"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xe8a6;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_MODIFY_BOOTSEC" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_MODIFY_BOOTSEC" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  注册对象操作回调  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许注册对象操作回调 (ObRegisterCallbacks)"
-                    Header="注册对象操作回调"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xe951;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_OBJ_REG_CB" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_OBJ_REG_CB" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  注册注册表回调  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁止或允许注册注册表回调 (CmRegisterCallbackEx)"
-                    Header="注册注册表回调"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xe951;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_CM_REG_CB" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_CM_REG_CB" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  驱动签名强制  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="开启或关闭驱动签名强制 (Driver Signature Enforcement)"
-                    Header="驱动签名强制"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xef3f;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_DSE" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_DSE" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <!--  本地内核调试  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="开启或关闭本地内核调试"
-                    Header="本地内核调试"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="16"
-                            Glyph="&#xebe8;" />
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click"
-                            Content="启用"
-                            Tag="ENABLE_LKD" />
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="DISABLE_LKD" />
-                    </StackPanel>
-                </essential:SettingsCard>
-
-                <TextBlock
-                    Padding="10,0,0,0"
-                    HorizontalAlignment="Left"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Text="系统操作" />
-                <TextBlock
-                    Padding="10,0,0,10"
-                    HorizontalAlignment="Left"
-                    FontSize="12"
-                    Foreground="LightGray"
-                    Text="(警告: 该区域的功能可能无法正常工作，导致蓝屏或崩溃是正常现象！)" />
-
-                <!--  电源状态  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="更改系统的电源状态"
-                    Header="电源状态"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <Grid>
+                    <!--  创建进程  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许全局创建进程"
+                        Header="创建进程"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
                             <FontIcon
                                 FontFamily="Segoe Fluent Icons"
                                 FontSize="16"
-                                Glyph="&#xe7e8;" />
-                        </Grid>
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click2"
-                            Content="关机"
-                            Tag="POWER_SHUTDOWN" />
-                        <Button
-                            Margin="0,0,16,0"
-                            Click="Button_Click2"
-                            Content="重启"
-                            Tag="POWER_REBOOT" />
-                        <Button
-                            Click="Button_Click2"
-                            Content="强制重启"
-                            Tag="POWER_REBOOT_FORCE" />
-                    </StackPanel>
-                </essential:SettingsCard>
+                                Glyph="&#xe9d9;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_CREATE_PROCESS" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_CREATE_PROCESS" />
+                        </StackPanel>
+                    </essential:SettingsCard>
 
-                <!--  蓝屏  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="使系统发生崩溃 (Blue Screen Of Death)"
-                    Header="蓝屏"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <Grid>
+                    <!--  创建文件  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许全局创建文件"
+                        Header="创建文件"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
                             <FontIcon
                                 FontFamily="Segoe Fluent Icons"
                                 FontSize="16"
-                                Glyph="&#xe783;" />
-                        </Grid>
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <ComboBox
-                            x:Name="BSODColorComboBox"
-                            Margin="0,0,16,0"
-                            essential:ComboBoxHelper.AcrylicWorkaround="True"
-                            SelectedIndex="0">
-                            <ComboBoxItem Content="默认" />
-                            <ComboBoxItem Content="红色" />
-                            <ComboBoxItem Content="绿色" />
-                            <ComboBoxItem Content="蓝色" />
-                            <ComboBoxItem Content="黄色" />
-                            <ComboBoxItem Content="青色" />
-                            <ComboBoxItem Content="品红色" />
-                            <ComboBoxItem Content="黑色" />
-                            <ComboBoxItem Content="白色" />
-                            <ComboBoxItem Content="橙色" />
-                            <ComboBoxItem Content="紫色" />
-                            <ComboBoxItem Content="粉色" />
-                            <ComboBoxItem Content="灰色" />
-                            <ComboBoxItem Content="棕色" />
-                            <ComboBoxItem Content="金色" />
-                            <ComboBoxItem Content="银色" />
-                        </ComboBox>
-                        <Button
-                            Click="Button_Click"
-                            Content="崩溃"
-                            Tag="BSOD" />
-                    </StackPanel>
-                </essential:SettingsCard>
+                                Glyph="&#xed25;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_CREATE_FILE" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_CREATE_FILE" />
+                        </StackPanel>
+                    </essential:SettingsCard>
 
-                <!--  PatchGuard  -->
-                <essential:SettingsCard
-                    Margin="0,0,0,10"
-                    Description="禁用内核PatchGuard保护"
-                    Header="禁用内核保护"
-                    IsActionIconVisible="False"
-                    IsClickEnabled="True">
-                    <essential:SettingsCard.HeaderIcon>
-                        <Grid>
+                    <!--  加载驱动  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许系统加载驱动"
+                        Header="加载驱动"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
                             <FontIcon
                                 FontFamily="Segoe Fluent Icons"
                                 FontSize="16"
-                                Glyph="&#xf540;" />
-                        </Grid>
-                    </essential:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal">
-                        <ComboBox
-                            x:Name="PGTypeComboBox"
-                            Margin="0,0,16,0"
-                            essential:ComboBoxHelper.AcrylicWorkaround="True"
-                            SelectedIndex="2">
-                            <ComboBoxItem Content="EFI" />
-                            <ComboBoxItem Content="BIOS" />
-                            <ComboBoxItem Content="自动 (可能蓝屏)" />
-                        </ComboBox>
-                        <Button
-                            Click="Button_Click"
-                            Content="禁用"
-                            Tag="PatchGuard" />
-                    </StackPanel>
-                </essential:SettingsCard>
-            </StackPanel>
+                                Glyph="&#xe8ce;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_LOAD_DRV" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_LOAD_DRV" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  卸载驱动  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许系统卸载驱动"
+                        Header="卸载驱动"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Glyph="&#xe8cd;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_UNLOAD_DRV" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_UNLOAD_DRV" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  修改注册表  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许修改注册表"
+                        Header="修改注册表"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Glyph="&#xe9d5;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_MODIFY_REG" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_MODIFY_REG" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  修改引导扇区  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许修改磁盘引导扇区"
+                        Header="修改引导扇区"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Glyph="&#xe8a6;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_MODIFY_BOOTSEC" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_MODIFY_BOOTSEC" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  注册对象操作回调  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许注册对象操作回调 (ObRegisterCallbacks)"
+                        Header="注册对象操作回调"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Glyph="&#xe951;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_OBJ_REG_CB" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_OBJ_REG_CB" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  注册注册表回调  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁止或允许注册注册表回调 (CmRegisterCallbackEx)"
+                        Header="注册注册表回调"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Glyph="&#xe951;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_CM_REG_CB" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_CM_REG_CB" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  驱动签名强制  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="开启或关闭驱动签名强制 (Driver Signature Enforcement)"
+                        Header="驱动签名强制"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Glyph="&#xef3f;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_DSE" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_DSE" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  本地内核调试  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="开启或关闭本地内核调试"
+                        Header="本地内核调试"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="16"
+                                Glyph="&#xebe8;" />
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click"
+                                Content="启用"
+                                Tag="ENABLE_LKD" />
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="DISABLE_LKD" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <TextBlock
+                        Padding="10,0,0,0"
+                        HorizontalAlignment="Left"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Text="系统操作" />
+                    <TextBlock
+                        Padding="10,0,0,10"
+                        HorizontalAlignment="Left"
+                        FontSize="12"
+                        Foreground="LightGray"
+                        Text="(警告: 该区域的功能可能无法正常工作，导致蓝屏或崩溃是正常现象！)" />
+
+                    <!--  电源状态  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="更改系统的电源状态"
+                        Header="电源状态"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <Grid>
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="16"
+                                    Glyph="&#xe7e8;" />
+                            </Grid>
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click2"
+                                Content="关机"
+                                Tag="POWER_SHUTDOWN" />
+                            <Button
+                                Margin="0,0,16,0"
+                                Click="Button_Click2"
+                                Content="重启"
+                                Tag="POWER_REBOOT" />
+                            <Button
+                                Click="Button_Click2"
+                                Content="强制重启"
+                                Tag="POWER_REBOOT_FORCE" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  蓝屏  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="使系统发生崩溃 (Blue Screen Of Death)"
+                        Header="蓝屏"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <Grid>
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="16"
+                                    Glyph="&#xe783;" />
+                            </Grid>
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <ComboBox
+                                x:Name="BSODColorComboBox"
+                                Margin="0,0,16,0"
+                                essential:ComboBoxHelper.AcrylicWorkaround="True"
+                                ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                                SelectedIndex="0">
+                                <ComboBoxItem Content="默认" />
+                                <ComboBoxItem Content="红色" />
+                                <ComboBoxItem Content="绿色" />
+                                <ComboBoxItem Content="蓝色" />
+                                <ComboBoxItem Content="黄色" />
+                                <ComboBoxItem Content="青色" />
+                                <ComboBoxItem Content="品红色" />
+                                <ComboBoxItem Content="黑色" />
+                                <ComboBoxItem Content="白色" />
+                                <ComboBoxItem Content="橙色" />
+                                <ComboBoxItem Content="紫色" />
+                                <ComboBoxItem Content="粉色" />
+                                <ComboBoxItem Content="灰色" />
+                                <ComboBoxItem Content="棕色" />
+                                <ComboBoxItem Content="金色" />
+                                <ComboBoxItem Content="银色" />
+                            </ComboBox>
+                            <Button
+                                Click="Button_Click"
+                                Content="崩溃"
+                                Tag="BSOD" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+
+                    <!--  PatchGuard  -->
+                    <essential:SettingsCard
+                        Margin="0,0,0,10"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        Description="禁用内核PatchGuard保护"
+                        Header="禁用内核保护"
+                        IsActionIconVisible="False"
+                        IsClickEnabled="True">
+                        <essential:SettingsCard.HeaderIcon>
+                            <Grid>
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="16"
+                                    Glyph="&#xf540;" />
+                            </Grid>
+                        </essential:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <ComboBox
+                                x:Name="PGTypeComboBox"
+                                Margin="0,0,16,0"
+                                essential:ComboBoxHelper.AcrylicWorkaround="True"
+                                ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
+                                SelectedIndex="2">
+                                <ComboBoxItem Content="EFI" />
+                                <ComboBoxItem Content="BIOS" />
+                                <ComboBoxItem Content="自动 (可能蓝屏)" />
+                            </ComboBox>
+                            <Button
+                                Click="Button_Click"
+                                Content="禁用"
+                                Tag="PatchGuard" />
+                        </StackPanel>
+                    </essential:SettingsCard>
+                </StackPanel>
+            </essential:RevealFocusPanel>
         </ScrollViewer>
-        <StackPanel
-            x:Name="InfoBarPanel"
-            Margin="0,10,10,0"
-            HorizontalAlignment="Right" />
     </Grid>
 </Page>

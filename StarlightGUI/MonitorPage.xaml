@@ -26,141 +26,147 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <ScrollView ContentOrientation="Horizontal" HorizontalScrollBarVisibility="Auto">
-                <essential:Segmented
-                    x:Name="MainSegmented"
-                    Grid.Column="0"
-                    HorizontalAlignment="Left"
-                    SelectedIndex="0"
-                    SelectionChanged="MainSegmented_SelectionChanged">
-                    <essential:SegmentedItem>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xf0b2;" />
-                            <TextBlock Text="对象" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xebe8;" />
-                            <TextBlock Text="调试信息" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="CallbackSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe77e;" />
-                            <TextBlock Text="回调" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="MiniFilterSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe7e3;" />
-                            <TextBlock Text="微过滤驱动" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="StdFilterSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe7ec;" />
-                            <TextBlock Text="标准过滤驱动" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="SSDTSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xf0b9;" />
-                            <TextBlock Text="SSDT" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="SSSDTSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe727;" />
-                            <TextBlock Text="Shadow SSDT" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="IoTimerSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe916;" />
-                            <TextBlock Text="I/O 定时器" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="ExCallbackSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe7f2;" />
-                            <TextBlock Text="ExCallback" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="IDTSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe950;" />
-                            <TextBlock Text="中断描述符表" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="GDTSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xe964;" />
-                            <TextBlock Text="全局描述符表" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="PiDDBSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xf0e3;" />
-                            <TextBlock Text="PiDDB 缓存表" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="HALDPTSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xf590;" />
-                            <TextBlock Text="HAL 分发表" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                    <essential:SegmentedItem x:Name="HALPDPTSegmentedItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="14"
-                                Glyph="&#xf58f;" />
-                            <TextBlock Text="HAL 私有分发表" />
-                        </StackPanel>
-                    </essential:SegmentedItem>
-                </essential:Segmented>
-            </ScrollView>
+            <ScrollViewer
+                HorizontalScrollBarVisibility="Auto"
+                HorizontalScrollMode="Enabled"
+                VerticalScrollMode="Disabled">
+                <essential:RevealFocusPanel x:Name="RevealFocusPanel">
+                    <essential:Segmented
+                        x:Name="MainSegmented"
+                        Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
+                        SelectedIndex="0"
+                        SelectionChanged="MainSegmented_SelectionChanged">
+                        <essential:SegmentedItem>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xf0b2;" />
+                                <TextBlock Text="对象" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xebe8;" />
+                                <TextBlock Text="调试信息" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="CallbackSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe77e;" />
+                                <TextBlock Text="回调" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="MiniFilterSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe7e3;" />
+                                <TextBlock Text="微过滤驱动" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="StdFilterSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe7ec;" />
+                                <TextBlock Text="标准过滤驱动" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="SSDTSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xf0b9;" />
+                                <TextBlock Text="SSDT" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="SSSDTSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe727;" />
+                                <TextBlock Text="Shadow SSDT" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="IoTimerSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe916;" />
+                                <TextBlock Text="I/O 定时器" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="ExCallbackSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe7f2;" />
+                                <TextBlock Text="ExCallback" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="IDTSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe950;" />
+                                <TextBlock Text="中断描述符表" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="GDTSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xe964;" />
+                                <TextBlock Text="全局描述符表" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="PiDDBSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xf0e3;" />
+                                <TextBlock Text="PiDDB 缓存表" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="HALDPTSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xf590;" />
+                                <TextBlock Text="HAL 分发表" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                        <essential:SegmentedItem x:Name="HALPDPTSegmentedItem">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="14"
+                                    Glyph="&#xf58f;" />
+                                <TextBlock Text="HAL 私有分发表" />
+                            </StackPanel>
+                        </essential:SegmentedItem>
+                    </essential:Segmented>
+                </essential:RevealFocusPanel>
+            </ScrollViewer>
             <CommandBar
                 Grid.Column="2"
                 HorizontalAlignment="Right"
@@ -192,6 +198,7 @@
             VerticalAlignment="Center"
             IsActive="False" />
 
+        <!--  每个 ListView 单独包裹 RevealFocusPanel，Tag 绑定到对应 panel  -->
         <Grid
             x:Name="ObjectGrid"
             Grid.Row="1"
@@ -206,22 +213,30 @@
                 BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                 BorderThickness="1"
                 CornerRadius="5,0,0,5">
-                <ScrollView MaxWidth="150" ContentOrientation="Both">
-                    <essential:Segmented
-                        x:Name="ObjectTreeView"
-                        VerticalAlignment="Top"
-                        BorderThickness="0"
-                        CornerRadius="0"
-                        SelectedIndex="0"
-                        SelectionChanged="ObjectTreeView_SelectionChanged"
-                        Style="{StaticResource ButtonSegmentedStyle}">
-                        <essential:Segmented.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Vertical" />
-                            </ItemsPanelTemplate>
-                        </essential:Segmented.ItemsPanel>
-                    </essential:Segmented>
-                </ScrollView>
+                <ScrollViewer
+                    MaxWidth="150"
+                    HorizontalScrollBarVisibility="Auto"
+                    HorizontalScrollMode="Enabled"
+                    VerticalScrollBarVisibility="Auto"
+                    VerticalScrollMode="Enabled">
+                    <essential:RevealFocusPanel x:Name="RevealFocusPanel2">
+                        <essential:Segmented
+                            x:Name="ObjectTreeView"
+                            VerticalAlignment="Top"
+                            essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel2}"
+                            BorderThickness="0"
+                            CornerRadius="0"
+                            SelectedIndex="0"
+                            SelectionChanged="ObjectTreeView_SelectionChanged"
+                            Style="{StaticResource ButtonSegmentedStyle}">
+                            <essential:Segmented.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </essential:Segmented.ItemsPanel>
+                        </essential:Segmented>
+                    </essential:RevealFocusPanel>
+                </ScrollViewer>
             </Border>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
@@ -262,55 +277,61 @@
                     BorderThickness="0,0,1,1"
                     CornerRadius="0,0,5,0">
                     <Grid>
-                        <ListView
-                            x:Name="ObjectListView"
-                            Background="Transparent"
-                            Tapped="ObjectListView_Tapped">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Height="50">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="150" />
-                                        </Grid.ColumnDefinitions>
+                        <essential:RevealFocusPanel x:Name="ObjectRevealFocusPanel">
+                            <ListView
+                                x:Name="ObjectListView"
+                                Background="Transparent"
+                                ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                                ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                                Tag="{x:Bind ObjectRevealFocusPanel}"
+                                Tapped="ObjectListView_Tapped">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Height="50">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="150" />
+                                            </Grid.ColumnDefinitions>
 
-                                        <!--  名称  -->
-                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <!--  名称  -->
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock
+                                                    FontSize="14"
+                                                    Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                    Text="{Binding Name}" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                    Text="{Binding Path}" />
+                                            </StackPanel>
+
+                                            <Border
+                                                Grid.Column="1"
+                                                Margin="12,0,0,0"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Stretch"
+                                                BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                                BorderThickness="0,0,1,0" />
+
+                                            <!--  类型  -->
                                             <TextBlock
-                                                FontSize="14"
-                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                                Text="{Binding Name}" />
-                                            <TextBlock
+                                                Grid.Column="1"
+                                                Margin="24,0,0,0"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
                                                 FontSize="12"
                                                 Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                                Text="{Binding Path}" />
-                                        </StackPanel>
-
-                                        <Border
-                                            Grid.Column="1"
-                                            Margin="12,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Stretch"
-                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                            BorderThickness="0,0,1,0" />
-
-                                        <!--  类型  -->
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Margin="24,0,0,0"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding Type}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                                                Text="{Binding Type}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </essential:RevealFocusPanel>
                     </Grid>
                 </Border>
             </Grid>
         </Grid>
+
         <Grid
             x:Name="DbgViewGrid"
             Grid.Row="1"
@@ -352,6 +373,7 @@
                     TextWrapping="Wrap" />
             </ScrollView>
         </Grid>
+
         <Grid
             x:Name="CallbackGrid"
             Grid.Row="1"
@@ -403,70 +425,78 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="CallbackListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="CallbackRevealFocusPanel">
+                        <ListView
+                            x:Name="CallbackListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind CallbackRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  类型/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  类型/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String2}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String1}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  入口  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String2}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String1}" />
-                                    </StackPanel>
+                                            Text="{Binding String3}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  入口  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
-
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  句柄  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String4}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  句柄  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String4}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="MiniFilterGrid"
             Grid.Row="1"
@@ -527,89 +557,97 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="MiniFilterListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="MiniFilterRevealFocusPanel">
+                        <ListView
+                            x:Name="MiniFilterListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind MiniFilterRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  IRP/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  IRP/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String2}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String1}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  过滤器  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String2}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String1}" />
-                                    </StackPanel>
+                                            Text="{Binding String3}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  过滤器  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
+                                        <!--  PreFilter  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String4}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  PreFilter  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String4}" />
-
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  PostFilter  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String5}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  PostFilter  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String5}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="StdFilterGrid"
             Grid.Row="1"
@@ -670,89 +708,97 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="StdFilterListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="StdFilterRevealFocusPanel">
+                        <ListView
+                            x:Name="StdFilterListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind StdFilterRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  驱动/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  驱动/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String2}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String3}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  类型  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String2}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String3}" />
-                                    </StackPanel>
+                                            Text="{Binding String1}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  类型  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String1}" />
+                                        <!--  驱动对象  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String4}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  驱动对象  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String4}" />
-
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  目标驱动对象  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String5}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  目标驱动对象  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String5}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="SSDTGrid"
             Grid.Row="1"
@@ -822,108 +868,116 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="SSDTListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="80" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="SSDTRevealFocusPanel">
+                        <ListView
+                            x:Name="SSDTListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind SSDTRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="80" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  名称/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  名称/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String2}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String1}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  钩子  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String2}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String1}" />
-                                    </StackPanel>
+                                            Text="{Binding String5}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  钩子  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String5}" />
+                                        <!--  地址  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String3}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  地址  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
+                                        <!--  源地址  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String4}" />
 
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="4"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  源地址  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String4}" />
-
-                                    <Border
-                                        Grid.Column="4"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  序号  -->
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong1}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  序号  -->
+                                        <TextBlock
+                                            Grid.Column="4"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong1}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="SSSDTGrid"
             Grid.Row="1"
@@ -993,108 +1047,116 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="SSSDTListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="80" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="SSSDTRevealFocusPanel">
+                        <ListView
+                            x:Name="SSSDTListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind SSSDTRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="80" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  名称/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  名称/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String2}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String1}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  钩子  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String2}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String1}" />
-                                    </StackPanel>
+                                            Text="{Binding String5}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  钩子  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String5}" />
+                                        <!--  地址  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String3}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  地址  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
+                                        <!--  源地址  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String4}" />
 
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="4"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  源地址  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String4}" />
-
-                                    <Border
-                                        Grid.Column="4"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  序号  -->
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong1}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  序号  -->
+                                        <TextBlock
+                                            Grid.Column="4"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong1}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="IoTimerGrid"
             Grid.Row="1"
@@ -1146,67 +1208,75 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="IoTimerListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="IoTimerRevealFocusPanel">
+                        <ListView
+                            x:Name="IoTimerListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind IoTimerRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  模块  -->
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        Margin="0,-2,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="16"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                        Text="{Binding String1}" />
+                                        <!--  模块  -->
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Margin="0,-2,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                            Text="{Binding String1}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  地址  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String2}" />
+                                        <!--  地址  -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String2}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  对象  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  对象  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String3}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="ExCallbackGrid"
             Grid.Row="1"
@@ -1267,89 +1337,97 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="ExCallbackListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="ExCallbackRevealFocusPanel">
+                        <ListView
+                            x:Name="ExCallbackListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind ExCallbackRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  名称/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  名称/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String1}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String2}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  入口  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String1}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String2}" />
-                                    </StackPanel>
+                                            Text="{Binding String3}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  入口  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
+                                        <!--  对象  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String4}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  对象  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String4}" />
-
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  句柄  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String5}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  句柄  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String5}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="IDTGrid"
             Grid.Row="1"
@@ -1410,86 +1488,94 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="IDTListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="100" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="IDTRevealFocusPanel">
+                        <ListView
+                            x:Name="IDTListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind IDTRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="100" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  模块  -->
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        Margin="0,-2,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="16"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                        Text="{Binding String1}" />
+                                        <!--  模块  -->
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Margin="0,-2,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                            Text="{Binding String1}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  地址  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String2}" />
+                                        <!--  地址  -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String2}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  CPU  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong1}" />
+                                        <!--  CPU  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong1}" />
 
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  序号  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong2}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  序号  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong2}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="GDTGrid"
             Grid.Row="1"
@@ -1568,124 +1654,132 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="GDTListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="150" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="100" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="GDTRevealFocusPanel">
+                        <ListView
+                            x:Name="GDTListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind GDTRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="100" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  名称  -->
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        Margin="0,-2,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="16"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                        Text="{Binding String1}" />
+                                        <!--  名称  -->
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Margin="0,-2,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                            Text="{Binding String1}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  基址  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String2}" />
+                                        <!--  基址  -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String2}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  段界限  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
+                                        <!--  段界限  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding String3}" />
 
-                                    <Border
-                                        Grid.Column="3"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="3"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  特权级  -->
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong2}" />
+                                        <!--  特权级  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong2}" />
 
-                                    <Border
-                                        Grid.Column="4"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="4"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  访问权限  -->
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong3}" />
+                                        <!--  访问权限  -->
+                                        <TextBlock
+                                            Grid.Column="4"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong3}" />
 
-                                    <Border
-                                        Grid.Column="5"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="5"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  ID  -->
-                                    <TextBlock
-                                        Grid.Column="5"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong1}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  ID  -->
+                                        <TextBlock
+                                            Grid.Column="5"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong1}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="PiDDBGrid"
             Grid.Row="1"
@@ -1737,67 +1831,75 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="PiDDBListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="100" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="PiDDBRevealFocusPanel">
+                        <ListView
+                            x:Name="PiDDBListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind PiDDBRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="100" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  模块  -->
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        Margin="0,-2,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="16"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                        Text="{Binding String1}" />
+                                        <!--  模块  -->
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Margin="0,-2,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                            Text="{Binding String1}" />
 
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  状态  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong1}" />
+                                        <!--  状态  -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong1}" />
 
-                                    <Border
-                                        Grid.Column="2"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
 
-                                    <!--  时间戳  -->
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ULong2}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                        <!--  时间戳  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            Text="{Binding ULong2}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="HALDPTGrid"
             Grid.Row="1"
@@ -1840,51 +1942,59 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="HALDPTListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="HALDPTRevealFocusPanel">
+                        <ListView
+                            x:Name="HALDPTListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind HALDPTRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  名称/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  名称/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String1}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String2}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  地址  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String1}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String2}" />
-                                    </StackPanel>
-
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  地址  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                            Text="{Binding String3}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
+
         <Grid
             x:Name="HALPDPTGrid"
             Grid.Row="1"
@@ -1927,48 +2037,55 @@
                 BorderThickness="1,0,1,1"
                 CornerRadius="0,0,5,5">
                 <Grid>
-                    <ListView x:Name="HALPDPTListView" Background="Transparent">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Height="50">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="150" />
-                                    </Grid.ColumnDefinitions>
+                    <essential:RevealFocusPanel x:Name="HALPDPTRevealFocusPanel">
+                        <ListView
+                            x:Name="HALPDPTListView"
+                            Background="Transparent"
+                            ContainerContentChanging="MonitorListView_ContainerContentChanging"
+                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                            Tag="{x:Bind HALPDPTRevealFocusPanel}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <!--  名称/模块  -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <!--  名称/模块  -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                                Text="{Binding String1}" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding String2}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="12,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Stretch"
+                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                            BorderThickness="0,0,1,0" />
+
+                                        <!--  地址  -->
                                         <TextBlock
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding String1}" />
-                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="24,0,0,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding String2}" />
-                                    </StackPanel>
-
-                                    <Border
-                                        Grid.Column="1"
-                                        Margin="12,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-
-                                    <!--  地址  -->
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="24,0,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding String3}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                            Text="{Binding String3}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </essential:RevealFocusPanel>
                 </Grid>
             </Border>
         </Grid>
