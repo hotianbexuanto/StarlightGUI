@@ -12,8 +12,7 @@
 #pragma comment(lib, "iphlpapi.lib")
 #pragma comment(lib, "nvidia/nvml.lib")
 
-// Undefine GetCurrentTime macro to prevent
-// conflict with Storyboard::GetCurrentTime
+// 取消定义 GetCurrentTime 宏，避免与 Storyboard::GetCurrentTime 冲突
 #undef GetCurrentTime
 
 #include <Unknwn.h>

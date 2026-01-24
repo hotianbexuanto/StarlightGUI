@@ -312,7 +312,7 @@ void ConsoleLogger::ProcessLogQueue() {
             m_logHistory.push_back(entry);
 
             if (m_logHistory.size() > m_maxHistorySize) {
-                m_logHistory.erase(m_logHistory.begin());
+                m_logHistory.pop_front();
             }
         }
 
@@ -463,7 +463,7 @@ void ConsoleLogger::SetConsolePosition(int x, int y, int width, int height) {
 
 std::vector<LogEntry> ConsoleLogger::GetLogHistory() {
     std::lock_guard<std::mutex> lock(m_historyMutex);
-    return m_logHistory;
+    return std::vector<LogEntry>(m_logHistory.begin(), m_logHistory.end());
 }
 
 HWND ConsoleLogger::GetConsoleHandle() {

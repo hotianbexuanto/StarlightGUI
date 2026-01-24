@@ -28,7 +28,7 @@ namespace winrt::StarlightGUI::implementation
             });
     }
 
-    void App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
+    void App::OnLaunched(LaunchActivatedEventArgs const&)
     {
         InitializeLogger();
         InitializeConfig();

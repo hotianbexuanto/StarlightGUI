@@ -4,7 +4,7 @@
 //
 #define IDI_ICON1                       101
 
-// Next default values for new objects
+// 新对象的默认值
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS

@@ -38,11 +38,11 @@ using namespace Microsoft::UI::Composition::SystemBackdrops;
 namespace winrt::StarlightGUI::implementation
 {
     MainWindow* g_mainWindowInstance = nullptr;
-    static HWND globalHWND;
 
     MainWindow::MainWindow()
     {
         InitializeComponent();
+
 
         auto windowNative{ this->try_as<::IWindowNative>() };
         HWND hWnd{ 0 };
@@ -66,7 +66,7 @@ namespace winrt::StarlightGUI::implementation
 
         g_mainWindowInstance = this;
 
-        // Home page
+        // 进入主页
         MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
         RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
 
@@ -108,7 +108,7 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
+    void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
     {
         if (args.IsSettingsInvoked())
         {

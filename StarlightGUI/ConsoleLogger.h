@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <string>
 #include <vector>
+#include <deque>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -163,7 +164,7 @@ private:
     std::queue<LogEntry> m_fileLogQueue;
 
     std::mutex m_historyMutex;
-    std::vector<LogEntry> m_logHistory;
+    std::deque<LogEntry> m_logHistory;
     size_t m_maxHistorySize{ 10000 };
 
     std::wofstream m_logFile;

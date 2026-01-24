@@ -31,6 +31,7 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::InfoWindow> m_openWindows;
 
         inline static bool loaded = false;
+        inline static HWND globalHWND;
     };
 
     extern MainWindow* g_mainWindowInstance;

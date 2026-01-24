@@ -125,7 +125,7 @@ namespace winrt::StarlightGUI::implementation
         if (args.InRecycleQueue())
             return;
 
-        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
         if (auto itemContainer = args.ItemContainer())
             itemContainer.Tag(sender.Tag());
     }

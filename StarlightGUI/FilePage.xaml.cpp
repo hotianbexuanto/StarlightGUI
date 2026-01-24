@@ -306,7 +306,7 @@ namespace winrt::StarlightGUI::implementation
         if (args.InRecycleQueue())
             return;
 
-        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
         if (auto itemContainer = args.ItemContainer())
             itemContainer.Tag(sender.Tag());
     }
@@ -379,7 +379,8 @@ namespace winrt::StarlightGUI::implementation
 
         m_allFiles.clear();
 
-        if (KernelInstance::IsRunningAsAdmin()) {
+        bool useKernelEnum = KernelInstance::IsRunningAsAdmin();
+        if (useKernelEnum) {
             KernelInstance::QueryFile(path, m_allFiles);
             LOG_INFO(__WFUNCTION__, L"Enumerated files (kernel mode), %d entry(s).", m_allFiles.size());
         }
@@ -388,10 +389,16 @@ namespace winrt::StarlightGUI::implementation
             LOG_INFO(__WFUNCTION__, L"Enumerated files (user mode), %d entry(s).", m_allFiles.size());
         }
 
-
-        for (const auto& file : m_allFiles) {
-            co_await GetFileInfoAsync(file);
-            file.Path(FixBackSplash(file.Path()));
+        if (useKernelEnum) {
+            for (const auto& file : m_allFiles) {
+                co_await GetFileInfoAsync(file);
+                file.Path(FixBackSplash(file.Path()));
+            }
+        }
+        else {
+            for (const auto& file : m_allFiles) {
+                file.Path(FixBackSplash(file.Path()));
+            }
         }
 
         co_await wil::resume_foreground(DispatcherQueue());
@@ -754,6 +761,36 @@ namespace winrt::StarlightGUI::implementation
             fileInfo.Directory((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
             fileInfo.Flag((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 ? MFT_RECORD_FLAG_FILE : MFT_RECORD_FLAG_DIRECTORY);
             fileInfo.Path(path + L"\\" + findFileData.cFileName);
+
+            // 直接用枚举数据填充大小和修改时间，避免逐文件 stat IO
+            if (!fileInfo.Directory()) {
+                ULONG64 size = (static_cast<ULONG64>(findFileData.nFileSizeHigh) << 32) | findFileData.nFileSizeLow;
+                fileInfo.SizeULong(size);
+                fileInfo.Size(FormatMemorySize(size));
+            }
+            else {
+                fileInfo.Size(L"");
+            }
+
+            fileInfo.ModifyTimeULong((static_cast<ULONG64>(findFileData.ftLastAccessTime.dwHighDateTime) << 32)
+                | findFileData.ftLastAccessTime.dwLowDateTime);
+
+            SYSTEMTIME st;
+            if (FileTimeToSystemTime(&findFileData.ftLastAccessTime, &st))
+            {
+                std::wstringstream ss;
+                ss << std::setw(4) << std::setfill(L'0') << st.wYear << L"/"
+                    << std::setw(2) << std::setfill(L'0') << st.wMonth << L"/"
+                    << std::setw(2) << std::setfill(L'0') << st.wDay << L" "
+                    << std::setw(2) << std::setfill(L'0') << st.wHour << L":"
+                    << std::setw(2) << std::setfill(L'0') << st.wMinute << L":"
+                    << std::setw(2) << std::setfill(L'0') << st.wSecond;
+                fileInfo.ModifyTime(ss.str());
+            }
+            else
+            {
+                fileInfo.ModifyTime(L"(未知)");
+            }
 
             files.push_back(fileInfo);
 

@@ -484,7 +484,7 @@ namespace winrt::StarlightGUI::implementation
         if (args.InRecycleQueue())
             return;
 
-        // Set Tag on the container so the ListViewItemPresenter can bind to it via TemplatedParent
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
         if (auto itemContainer = args.ItemContainer())
             itemContainer.Tag(sender.Tag());
     }
@@ -765,6 +765,18 @@ namespace winrt::StarlightGUI::implementation
         MemoryHeaderButton().Content(box_value(L"内存"));
         IdHeaderButton().Content(box_value(L"PID"));
 
+        auto parseCpu = [](winrt::hstring const& value) mutable -> double {
+            if (value.empty()) return 0.0;
+            try {
+                size_t idx = 0;
+                double result = std::stod(std::wstring(value.c_str()), &idx);
+                return result;
+            }
+            catch (...) {
+                return 0.0;
+            }
+        };
+
         std::vector<winrt::StarlightGUI::ProcessInfo> processes;
         processes.reserve(m_processList.Size());
         for (auto const& process : m_processList) {
@@ -799,14 +811,14 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "CpuUsage") {
             if (isAscending) {
                 CpuHeaderButton().Content(box_value(L"CPU ↓"));
-                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
-                    return std::stod(a.CpuUsage().c_str()) < std::stod(b.CpuUsage().c_str());
+                std::sort(processes.begin(), processes.end(), [&](auto a, auto b) {
+                    return parseCpu(a.CpuUsage()) < parseCpu(b.CpuUsage());
                     });
             }
             else {
                 CpuHeaderButton().Content(box_value(L"CPU ↑"));
-                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
-                    return std::stod(a.CpuUsage().c_str()) > std::stod(b.CpuUsage().c_str());
+                std::sort(processes.begin(), processes.end(), [&](auto a, auto b) {
+                    return parseCpu(a.CpuUsage()) > parseCpu(b.CpuUsage());
                     });
             }
         }
