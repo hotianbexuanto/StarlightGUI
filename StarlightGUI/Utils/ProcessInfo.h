@@ -4,61 +4,61 @@
 
 namespace winrt::StarlightGUI::implementation
 {
-    struct ProcessInfo : ProcessInfoT<ProcessInfo>
-    {
-        ProcessInfo() = default;
+	struct ProcessInfo : ProcessInfoT<ProcessInfo>
+	{
+		ProcessInfo() = default;
 
-        int32_t Id();
-        void Id(int32_t const& value);
+		int32_t Id() { return m_id; }
+		void Id(int32_t value) { m_id = value; }
 
-        hstring Name();
-        void Name(hstring const& value);
+		hstring Name() { return m_name; }
+		void Name(hstring const& value) { m_name = value; }
 
-        hstring Description();
-        void Description(hstring const& value);
+		hstring Description() { return m_description; }
+		void Description(hstring const& value) { m_description = value; }
 
-        hstring MemoryUsage();
-        void MemoryUsage(hstring const& value);
+		hstring MemoryUsage() { return m_memoryUsage; }
+		void MemoryUsage(hstring const& value) { m_memoryUsage = value; }
 
-        uint64_t MemoryUsageByte();
-        void MemoryUsageByte(uint64_t const& value);
+		uint64_t MemoryUsageByte() { return m_memoryUsageByte; }
+		void MemoryUsageByte(uint64_t value) { m_memoryUsageByte = value; }
 
-        hstring CpuUsage();
-        void CpuUsage(hstring const& value);
+		hstring CpuUsage() { return m_cpuUsage; }
+		void CpuUsage(hstring const& value) { m_cpuUsage = value; }
 
-        hstring ExecutablePath();
-        void ExecutablePath(hstring const& value);
+		hstring ExecutablePath() { return m_executablePath; }
+		void ExecutablePath(hstring const& value) { m_executablePath = value; }
 
-        hstring EProcess();
-        void EProcess(hstring const& value);
+		hstring EProcess() { return m_eprocess; }
+		void EProcess(hstring const& value) { m_eprocess = value; }
 
-        ULONG64 EProcessULong();
-        void EProcessULong(ULONG64 const& value);
+		ULONG64 EProcessULong() { return m_eprocessULong; }
+		void EProcessULong(ULONG64 value) { m_eprocessULong = value; }
 
-        hstring Status();
-        void Status(hstring const& value);
+		hstring Status() { return m_status; }
+		void Status(hstring const& value) { m_status = value; }
 
-        winrt::Microsoft::UI::Xaml::Media::ImageSource Icon();
-        void Icon(winrt::Microsoft::UI::Xaml::Media::ImageSource const& value);
+		winrt::Microsoft::UI::Xaml::Media::ImageSource Icon() { return m_icon; }
+		void Icon(winrt::Microsoft::UI::Xaml::Media::ImageSource const& value) { m_icon = value; }
 
-    private:
-        int32_t m_id{ 0 };
-        hstring m_name{ L"" };
-        hstring m_description{ L"" };
-        hstring m_memoryUsage{ L"" };
-        uint64_t m_memoryUsageByte{ 0 };
-        hstring m_cpuUsage{ L"" };
-        hstring m_executablePath{ L"" };
-        hstring m_eprocess{ L"" };
-        ULONG64 m_eprocessULong{ 0 };
-        hstring m_status{ L"" };
-        winrt::Microsoft::UI::Xaml::Media::ImageSource m_icon{ nullptr };
-    };
+	private:
+		int32_t m_id{ 0 };
+		hstring m_name{ L"" };
+		hstring m_description{ L"" };
+		hstring m_memoryUsage{ L"" };
+		uint64_t m_memoryUsageByte{ 0 };
+		hstring m_cpuUsage{ L"" };
+		hstring m_executablePath{ L"" };
+		hstring m_eprocess{ L"" };
+		ULONG64 m_eprocessULong{ 0 };
+		hstring m_status{ L"" };
+		winrt::Microsoft::UI::Xaml::Media::ImageSource m_icon{ nullptr };
+	};
 }
 
 namespace winrt::StarlightGUI::factory_implementation
 {
-    struct ProcessInfo : ProcessInfoT<ProcessInfo, implementation::ProcessInfo>
-    {
-    };
+	struct ProcessInfo : ProcessInfoT<ProcessInfo, implementation::ProcessInfo>
+	{
+	};
 }

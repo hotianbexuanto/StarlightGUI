@@ -18,6 +18,9 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget ModifyToken(ULONG pid);
 
         void ProcessListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void ProcessListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
@@ -31,7 +34,7 @@ namespace winrt::StarlightGUI::implementation
         winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process);
 
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::ProcessInfo> m_processList{
-            winrt::multi_threaded_observable_vector<winrt::StarlightGUI::ProcessInfo>()
+            winrt::single_threaded_observable_vector<winrt::StarlightGUI::ProcessInfo>()
         };
 
         bool m_isLoadingProcesses = false;

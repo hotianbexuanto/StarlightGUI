@@ -37,12 +37,9 @@ namespace winrt::StarlightGUI::implementation
 {
     static std::vector<winrt::StarlightGUI::KernelModuleInfo> fullRecordedKernelModules;
     static int safeAcceptedImage = -1;
-    static bool loaded;
 
     KernelModulePage::KernelModulePage() {
         InitializeComponent();
-
-        loaded = false;
 
         KernelModuleListView().ItemsSource(m_kernelModuleList);
         if (!list_animation) KernelModuleListView().ItemContainerTransitions().Clear();
@@ -57,7 +54,6 @@ namespace winrt::StarlightGUI::implementation
         else {
             this->Loaded([this](auto&&, auto&&) {
                 LoadKernelModuleList();
-                loaded = true;
                 });
         }
 
@@ -81,10 +77,14 @@ namespace winrt::StarlightGUI::implementation
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         // 选项1.1
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\uec91"));
         item1_1.Text(L"卸载模块");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -98,6 +98,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.2
         MenuFlyoutItem item1_2;
+        item1_2.Style(style);
         item1_2.Icon(CreateFontIcon(L"\ued1a"));
         item1_2.Text(L"隐藏模块");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -114,9 +115,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutSubItem item2_1;
+        item2_1.Style(styleSub);
         item2_1.Icon(CreateFontIcon(L"\ue8c8"));
         item2_1.Text(L"复制信息");
         MenuFlyoutItem item2_1_sub1;
+        item2_1_sub1.Style(style);
         item2_1_sub1.Icon(CreateFontIcon(L"\ue943"));
         item2_1_sub1.Text(L"名称");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -128,6 +131,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
+        item2_1_sub2.Style(style);
         item2_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
         item2_1_sub2.Text(L"路径");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -139,6 +143,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub2);
         MenuFlyoutItem item2_1_sub3;
+        item2_1_sub3.Style(style);
         item2_1_sub3.Icon(CreateFontIcon(L"\ueb19"));
         item2_1_sub3.Text(L"基址");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -150,6 +155,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub3);
         MenuFlyoutItem item2_1_sub4;
+        item2_1_sub4.Style(style);
         item2_1_sub4.Icon(CreateFontIcon(L"\ueb1d"));
         item2_1_sub4.Text(L"驱动对象");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -169,6 +175,18 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
 
+    void KernelModulePage::KernelModuleListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
+    }
+
     winrt::Windows::Foundation::IAsyncAction KernelModulePage::LoadKernelModuleList()
     {
         if (!KernelInstance::IsRunningAsAdmin()) {
@@ -180,7 +198,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingKernelModules = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading kernel module list...");
-
+        m_kernelModuleList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -201,7 +219,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_kernelModuleList.Clear();
         for (const auto& kernelModule : kernelModules) {
             bool shouldRemove = query.empty() ? false : ApplyFilter(kernelModule, query);
             if (shouldRemove) continue;
@@ -258,10 +275,16 @@ namespace winrt::StarlightGUI::implementation
         SizeHeaderButton().Content(box_value(L"大小"));
         LoadOrderHeaderButton().Content(box_value(L"加载顺序"));
 
+        std::vector<winrt::StarlightGUI::KernelModuleInfo> sortedKernelModules;
+
+        for (auto& kernelModule : m_kernelModuleList) {
+            sortedKernelModules.push_back(kernelModule);
+        }
+
         if (column == "Name") {
             if (isAscending) {
                 NameHeaderButton().Content(box_value(L"模块 ↓"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -273,7 +296,7 @@ namespace winrt::StarlightGUI::implementation
             }
             else {
                 NameHeaderButton().Content(box_value(L"模块 ↑"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -286,13 +309,13 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "Size") {
             if (isAscending) {
                 SizeHeaderButton().Content(box_value(L"大小 ↓"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.SizeULong() < b.SizeULong();
                     });
             }
             else {
                 SizeHeaderButton().Content(box_value(L"大小 ↑"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.SizeULong() > b.SizeULong();
                     });
             }
@@ -300,20 +323,20 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "LoadOrder") {
             if (isAscending) {
                 LoadOrderHeaderButton().Content(box_value(L"加载顺序 ↓"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.LoadOrderULong() < b.LoadOrderULong();
                     });
             }
             else {
                 LoadOrderHeaderButton().Content(box_value(L"加载顺序 ↑"));
-                std::sort(fullRecordedKernelModules.begin(), fullRecordedKernelModules.end(), [](auto a, auto b) {
+                std::sort(sortedKernelModules.begin(), sortedKernelModules.end(), [](auto a, auto b) {
                     return a.LoadOrderULong() > b.LoadOrderULong();
                     });
             }
         }
 
         m_kernelModuleList.Clear();
-        for (auto& kernelModule : fullRecordedKernelModules) {
+        for (auto& kernelModule : sortedKernelModules) {
             m_kernelModuleList.Append(kernelModule);
         }
 
@@ -326,7 +349,7 @@ namespace winrt::StarlightGUI::implementation
 
     void KernelModulePage::KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 
         WaitAndReloadAsync(200);
     }

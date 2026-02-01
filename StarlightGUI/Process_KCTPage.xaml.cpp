@@ -65,9 +65,13 @@ namespace winrt::StarlightGUI::implementation
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::KCTInfo>();
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem itemRefresh;
+        itemRefresh.Style(style);
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
         itemRefresh.Text(L"刷新");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -79,9 +83,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.1
         MenuFlyoutSubItem item1_1;
+        item1_1.Style(styleSub);
         item1_1.Icon(CreateFontIcon(L"\ue8c8"));
         item1_1.Text(L"复制信息");
         MenuFlyoutItem item1_1_sub1;
+        item1_1_sub1.Style(style);
         item1_1_sub1.Icon(CreateFontIcon(L"\ue943"));
         item1_1_sub1.Text(L"名称");
         item1_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -93,6 +99,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item1_1.Items().Append(item1_1_sub1);
         MenuFlyoutItem item1_1_sub2;
+        item1_1_sub2.Style(style);
         item1_1_sub2.Icon(CreateFontIcon(L"\ueb1d"));
         item1_1_sub2.Text(L"地址");
         item1_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -111,6 +118,18 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
 
+    void Process_KCTPage::KCTListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
+    }
+
     winrt::Windows::Foundation::IAsyncAction Process_KCTPage::LoadKCTList()
     {
         if (!processForInfoWindow) co_return;
@@ -121,7 +140,7 @@ namespace winrt::StarlightGUI::implementation
         }
 
         LOG_INFO(__WFUNCTION__, L"Loading kernel callback table list... (pid=%d)", processForInfoWindow.Id());
-
+        m_kctList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -143,7 +162,6 @@ namespace winrt::StarlightGUI::implementation
             CreateInfoBarAndDisplay(L"警告", L"该进程持有过多内核回调表记录，程序无法完整显示，将显示前1000条！", InfoBarSeverity::Warning, g_infoWindowInstance);
         }
 
-        m_kctList.Clear();
         for (const auto& kct : kcts) {
             if (kct.Name().empty()) kct.Name(L"(未知)");
             if (kct.Address().empty()) kct.Address(L"(未知)");

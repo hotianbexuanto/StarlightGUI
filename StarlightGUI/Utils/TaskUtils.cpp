@@ -66,45 +66,34 @@ namespace winrt::StarlightGUI::implementation {
 	* 获取进程私有工作集
 	*/
 	SIZE_T TaskUtils::GetProcessWorkingSet(HANDLE hProc) {
-		PSAPI_WORKING_SET_INFORMATION workSetInfo{};
-		PBYTE pByte = NULL;
-		PSAPI_WORKING_SET_BLOCK* pWorkSetBlock = workSetInfo.WorkingSetInfo;
+		std::vector<BYTE> buffer(sizeof(PSAPI_WORKING_SET_INFORMATION) + sizeof(PSAPI_WORKING_SET_BLOCK) * 1024);
+		PSAPI_WORKING_SET_INFORMATION* workSetInfo = nullptr;
+		PSAPI_WORKING_SET_BLOCK* pWorkSetBlock = nullptr;
 
-		if (!K32QueryWorkingSet(hProc, &workSetInfo, sizeof(workSetInfo))) {
-			if (GetLastError() == ERROR_BAD_LENGTH)
-			{
-				DWORD realSize = sizeof(workSetInfo.NumberOfEntries)
-					+ workSetInfo.NumberOfEntries * sizeof(PSAPI_WORKING_SET_BLOCK);
-				try
-				{
-					pByte = new BYTE[realSize];
-					memset(pByte, 0, realSize);
-					pWorkSetBlock = (PSAPI_WORKING_SET_BLOCK*)(pByte + sizeof(workSetInfo.NumberOfEntries));
-					if (!K32QueryWorkingSet(hProc, pByte, realSize))
-					{
-						delete[] pByte;
-						return 0;
-					}
-				}
-				catch (char* e)
-				{
-					return 0;
-				}
+		for (int attempt = 0; attempt < 6; ++attempt) {
+			if (K32QueryWorkingSet(hProc, buffer.data(), static_cast<DWORD>(buffer.size()))) {
+				workSetInfo = reinterpret_cast<PSAPI_WORKING_SET_INFORMATION*>(buffer.data());
+				pWorkSetBlock = workSetInfo->WorkingSetInfo;
+				break;
 			}
-			else {
+			if (GetLastError() != ERROR_BAD_LENGTH) {
 				return 0;
 			}
+			buffer.resize(buffer.size() * 2);
+		}
+
+		if (!workSetInfo || !pWorkSetBlock) {
+			return 0;
 		}
 		PERFORMANCE_INFORMATION performanceInfo{};
 		if (!K32GetPerformanceInfo(&performanceInfo, sizeof(performanceInfo))) return 0;
 		SIZE_T pageSize = performanceInfo.PageSize;
 		SIZE_T privateWorkingSet = 0;
-		for (ULONG_PTR i = 0; i < workSetInfo.NumberOfEntries; ++i)
+		for (ULONG_PTR i = 0; i < workSetInfo->NumberOfEntries; ++i)
 		{
 			if (!pWorkSetBlock[i].Shared) // Remove shared pages
 				privateWorkingSet += pageSize;
 		}
-		if (pByte) delete[] pByte;
 		return privateWorkingSet;
 	}
 
@@ -123,11 +112,13 @@ namespace winrt::StarlightGUI::implementation {
 
 		ULONG len = 0;
 		std::vector<BYTE> buffer(0x10000);
-		NTSTATUS status = _NtQuerySystemInformation(SystemProcessInformation, buffer.data(), len, &len);
+		NTSTATUS status = _NtQuerySystemInformation(SystemProcessInformation, buffer.data(),
+			static_cast<ULONG>(buffer.size()), &len);
 
-		if (NT_ERROR(status)) {
+		if (NT_ERROR(status) && len > 0) {
 			buffer.resize(len);
-			status = _NtQuerySystemInformation(SystemProcessInformation, buffer.data(), len, &len);
+			status = _NtQuerySystemInformation(SystemProcessInformation, buffer.data(),
+				static_cast<ULONG>(buffer.size()), &len);
 		}
 
 		if (!NT_SUCCESS(status)) co_return;
@@ -258,25 +249,18 @@ namespace winrt::StarlightGUI::implementation {
 		return 0;
 	}
 
-	// =====================================================
-	// Private --- Starting here
-	// =====================================================
-	BOOL CALLBACK TaskUtils::EndTaskByWindow(HWND hwnd, LPARAM lparam) {
-		DWORD* procPid = (DWORD*)lparam;
-		DWORD windowPid;
-
+	BOOL CALLBACK TaskUtils::EndTaskByWindow(HWND hwnd) {
 		if (_EndTask == nullptr) {
 			_EndTask = (P_EndTask)GetProcAddress(GetModuleHandleW(L"user32.dll"), "EndTask");
 		}
 
-		// Get thread ID
-		GetWindowThreadProcessId(hwnd, &windowPid);
-
-		if (windowPid == *procPid) {
-			_EndTask(hwnd, FALSE, TRUE);
-		}
+		_EndTask(hwnd, FALSE, TRUE);
 		return TRUE;
 	}
+
+	// =====================================================
+// Private --- Starting here
+// =====================================================
 
 	bool TaskUtils::EnableDebugPrivilege() {
 		HANDLE hToken;

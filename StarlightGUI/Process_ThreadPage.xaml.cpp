@@ -67,9 +67,13 @@ namespace winrt::StarlightGUI::implementation
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::ThreadInfo>();
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem itemRefresh;
+        itemRefresh.Style(style);
         itemRefresh.Icon(CreateFontIcon(L"\ue72c"));
         itemRefresh.Text(L"刷新");
         itemRefresh.Click([this](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -81,6 +85,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.1
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\ue711"));
         item1_1.Text(L"结束线程");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -94,6 +99,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.2
         MenuFlyoutItem item1_2;
+        item1_2.Style(style);
         item1_2.Icon(CreateFontIcon(L"\ue8f0"));
         item1_2.Text(L"结束线程 (内核)");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -107,15 +113,16 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.3
         MenuFlyoutItem item1_3;
+        item1_3.Style(style);
         item1_3.Icon(CreateFontIcon(L"\ue945"));
-        item1_3.Text(L"强制结束线程");
+        item1_3.Text(L"结束线程 (内存抹杀)");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
                 if (KernelInstance::MurderThread(item.Id())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功强制结束线程: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_infoWindowInstance);
+                    CreateInfoBarAndDisplay(L"成功", L"成功结束线程: " + item.Address() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_infoWindowInstance);
                     LoadThreadList();
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法强制结束线程: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+                else CreateInfoBarAndDisplay(L"失败", L"无法结束线程: " + item.Address() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
             }
             else {
                 safeAcceptedPID = item.Id();
@@ -129,9 +136,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutSubItem item2_1;
+        item2_1.Style(styleSub);
         item2_1.Icon(CreateFontIcon(L"\ue912"));
         item2_1.Text(L"设置线程状态");
         MenuFlyoutItem item2_1_sub1;
+        item2_1_sub1.Style(style);
         item2_1_sub1.Icon(CreateFontIcon(L"\ue769"));
         item2_1_sub1.Text(L"暂停");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -144,6 +153,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
+        item2_1_sub2.Style(style);
         item2_1_sub2.Icon(CreateFontIcon(L"\ue768"));
         item2_1_sub2.Text(L"恢复");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -161,9 +171,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.1
         MenuFlyoutSubItem item3_1;
+        item3_1.Style(styleSub);
         item3_1.Icon(CreateFontIcon(L"\ue8c8"));
         item3_1.Text(L"复制信息");
         MenuFlyoutItem item3_1_sub1;
+        item3_1_sub1.Style(style);
         item3_1_sub1.Icon(CreateFontIcon(L"\ue943"));
         item3_1_sub1.Text(L"TID");
         item3_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -175,6 +187,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_1.Items().Append(item3_1_sub1);
         MenuFlyoutItem item3_1_sub2;
+        item3_1_sub2.Style(style);
         item3_1_sub2.Icon(CreateFontIcon(L"\ueb19"));
         item3_1_sub2.Text(L"ETHREAD");
         item3_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -186,6 +199,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_1.Items().Append(item3_1_sub2);
         MenuFlyoutItem item3_1_sub3;
+        item3_1_sub3.Style(style);
         item3_1_sub3.Icon(CreateFontIcon(L"\ueb1d"));
         item3_1_sub3.Text(L"地址");
         item3_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -210,12 +224,24 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
 
+    void Process_ThreadPage::ThreadListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
+    }
+
     winrt::Windows::Foundation::IAsyncAction Process_ThreadPage::LoadThreadList()
     {
         if (!processForInfoWindow) co_return;
 
         LOG_INFO(__WFUNCTION__, L"Loading thread list... (pid=%d)", processForInfoWindow.Id());
-
+        m_threadList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -233,7 +259,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_threadList.Clear();
         for (const auto& thread : threads) {
             if (thread.ModuleInfo().empty()) thread.ModuleInfo(L"(未知)");
 

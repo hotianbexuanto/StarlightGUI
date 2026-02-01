@@ -21,7 +21,8 @@
 #include <unordered_set>
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
-#include <Psapi.h>
+#include <psapi.h>
+#include <dwmapi.h>
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -40,12 +41,9 @@ namespace winrt::StarlightGUI::implementation
     static std::chrono::steady_clock::time_point lastRefresh;
     static HDC hdc{ nullptr };
     static int safeAcceptedImage = -1;
-    static bool loaded;
 
     WindowPage::WindowPage() {
         InitializeComponent();
-
-        loaded = false;
 
         WindowListView().ItemsSource(m_windowList);
         WindowListView().ItemContainerTransitions().Clear();
@@ -55,7 +53,6 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             hdc = GetDC(NULL);
             LoadWindowList();
-            loaded = true;
             });
 
         this->Unloaded([this](auto&&, auto&&) {
@@ -81,15 +78,47 @@ namespace winrt::StarlightGUI::implementation
         if (!listView.SelectedItem()) return;
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::WindowInfo>();
+        WINDOWINFO idk{};
+
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
 
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\ue711"));
         item1_1.Text(L"关闭窗口");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SendMessageW((HWND)item.Hwnd(), WM_CLOSE, 0, 0);
-            if (GetLastError() == 0) {
+            if (PostMessageW((HWND)item.Hwnd(), WM_DESTROY, 0, 0)) {
+                CreateInfoBarAndDisplay(L"成功", L"成功关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+
+        MenuFlyoutItem item1_2;
+        item1_2.Style(style);
+        item1_2.Icon(CreateFontIcon(L"\ue8f0"));
+        item1_2.Text(L"关闭窗口 (结束任务)");
+        item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::EndTaskByWindow((HWND)item.Hwnd())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+
+        MenuFlyoutItem item1_3;
+        item1_3.Style(style);
+        item1_3.Icon(CreateFontIcon(L"\ue945"));
+        item1_3.Text(L"关闭窗口 (内核)");
+        item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            DWORD pid;
+			GetWindowThreadProcessId((HWND)item.Hwnd(), &pid);
+            if (KernelInstance::_ZwTerminateProcess(pid)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功关闭窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
@@ -102,9 +131,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutSubItem item2_1;
+        item2_1.Style(styleSub);
         item2_1.Icon(CreateFontIcon(L"\ue912"));
         item2_1.Text(L"设置窗口状态");
         MenuFlyoutItem item2_1_sub1;
+        item2_1_sub1.Style(style);
         item2_1_sub1.Icon(CreateFontIcon(L"\ueb1d"));
         item2_1_sub1.Text(L"显示");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -117,6 +148,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
+        item2_1_sub2.Style(style);
         item2_1_sub2.Icon(CreateFontIcon(L"\ueb19"));
         item2_1_sub2.Text(L"隐藏");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -129,11 +161,11 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub2);
         MenuFlyoutItem item2_1_sub3;
+        item2_1_sub3.Style(style);
         item2_1_sub3.Icon(CreateFontIcon(L"\ue740"));
         item2_1_sub3.Text(L"最大化");
         item2_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SendMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MAXIMIZE, 0);
-            if (GetLastError() == 0) {
+            if (PostMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MAXIMIZE, 0) == ERROR_SUCCESS) {
                 CreateInfoBarAndDisplay(L"成功", L"成功最大化窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
@@ -142,11 +174,11 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub3);
         MenuFlyoutItem item2_1_sub4;
+        item2_1_sub4.Style(style);
         item2_1_sub4.Icon(CreateFontIcon(L"\ue73f"));
         item2_1_sub4.Text(L"最小化");
         item2_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SendMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MINIMIZE, 0);
-            if (GetLastError() == 0) {
+            if (PostMessageW((HWND)item.Hwnd(), WM_SYSCOMMAND, SC_MINIMIZE, 0) == ERROR_SUCCESS) {
                 CreateInfoBarAndDisplay(L"成功", L"成功最小化窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
@@ -157,6 +189,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.2
         MenuFlyoutItem item2_2;
+        item2_2.Style(style);
         item2_2.Icon(CreateFontIcon(L"\ue754"));
         item2_2.Text(L"在任务栏闪烁");
         item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -170,6 +203,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.3
         MenuFlyoutItem item2_3;
+        item2_3.Style(style);
         item2_3.Icon(CreateFontIcon(L"\ue75c"));
         item2_3.Text(L"重绘窗口");
         item2_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -181,42 +215,211 @@ namespace winrt::StarlightGUI::implementation
             co_return;
             });
 
-        // 选项2.4
-        MenuFlyoutSubItem item2_4;
-        item2_4.Icon(CreateFontIcon(L"\ue912"));
-        item2_4.Text(L"设置捕获");
-        MenuFlyoutItem item2_4_sub1;
-        item2_4_sub1.Text(L"开启捕获");
-        item2_4_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            SetCapture((HWND)item.Hwnd());
-            if (GetLastError() == 0) {
-                CreateInfoBarAndDisplay(L"成功", L"成功开启捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+        // 分割线2
+        MenuFlyoutSeparator separator2;
+
+        // 选项3.1
+        MenuFlyoutSubItem item3_1;
+        item3_1.Style(styleSub);
+        item3_1.Icon(CreateFontIcon(L"\uef1f"));
+        item3_1.Text(L"设置窗口样式");
+        MenuFlyoutItem item3_1_sub1;
+        item3_1_sub1.Style(style);
+        item3_1_sub1.Text(L"纯色");
+        item3_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_NONE;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为纯色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法开启捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为纯色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
-        item2_4.Items().Append(item2_4_sub1);
-        MenuFlyoutItem item2_4_sub2;
-        item2_4_sub2.Text(L"释放捕获");
-        item2_4_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (ReleaseCapture()) {
-                CreateInfoBarAndDisplay(L"成功", L"成功释放捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+        item3_1.Items().Append(item3_1_sub1);
+        MenuFlyoutItem item3_1_sub2;
+        item3_1_sub2.Style(style);
+        item3_1_sub2.Text(L"Mica (Base)");
+        item3_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_MAINWINDOW;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为Mica (Base): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法释放捕获窗口: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为Mica (Base): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
-        item2_4.Items().Append(item2_4_sub2);
+        item3_1.Items().Append(item3_1_sub2);
+        MenuFlyoutItem item3_1_sub3;
+        item3_1_sub3.Style(style);
+        item3_1_sub3.Text(L"Mica (BaseAlt)");
+        item3_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_TABBEDWINDOW;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为Mica (BaseAlt): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为Mica (BaseAlt): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub3);
+        MenuFlyoutItem item3_1_sub4;
+        item3_1_sub4.Style(style);
+        item3_1_sub4.Text(L"亚克力");
+        item3_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_TRANSIENTWINDOW;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为亚克力: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为亚克力: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub4);
+        MenuFlyoutItem item3_1_sub5;
+        item3_1_sub5.Style(style);
+        item3_1_sub5.Text(L"自动");
+        item3_1_sub5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_AUTO;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为自动样式: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为自动样式: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub5);
+
+        // 选项3.2
+        MenuFlyoutSubItem item3_2;
+        item3_2.Style(styleSub);
+        item3_2.Icon(CreateFontIcon(L"\ue781"));
+        item3_2.Text(L"设置窗口主题");
+        MenuFlyoutItem item3_2_sub1;
+        item3_2_sub1.Style(style);
+        item3_2_sub1.Text(L"深色");
+        item3_2_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            BOOL val = TRUE;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_USE_IMMERSIVE_DARK_MODE, &val, sizeof(val)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为深色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为深色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_2.Items().Append(item3_2_sub1);
+        MenuFlyoutItem item3_2_sub2;
+        item3_2_sub2.Style(style);
+        item3_2_sub2.Text(L"浅色");
+        item3_2_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            BOOL val = FALSE;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_USE_IMMERSIVE_DARK_MODE, &val, sizeof(val)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为浅色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为浅色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_2.Items().Append(item3_2_sub2);
+
+        // 选项3.3
+        MenuFlyoutSubItem item3_3;
+        item3_3.Style(styleSub);
+        item3_3.Icon(CreateFontIcon(L"\ue746"));
+        item3_3.Text(L"设置窗口圆角");
+        MenuFlyoutItem item3_3_sub1;
+        item3_3_sub1.Style(style);
+        item3_3_sub1.Text(L"无圆角");
+        item3_3_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_DONOTROUND;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为无圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为无圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub1);
+        MenuFlyoutItem item3_3_sub2;
+        item3_3_sub2.Style(style);
+        item3_3_sub2.Text(L"圆角");
+        item3_3_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_ROUND;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub2);
+        MenuFlyoutItem item3_3_sub3;
+        item3_3_sub3.Style(style);
+        item3_3_sub3.Text(L"圆角 (小)");
+        item3_3_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_ROUNDSMALL;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为圆角 (小): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为圆角 (小): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub3);
+        MenuFlyoutItem item3_3_sub4;
+        item3_3_sub4.Style(style);
+        item3_3_sub4.Text(L"自动");
+        item3_3_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_DEFAULT;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为自动圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为自动圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub4);
+
+        // 选项3.4
+        MenuFlyoutItem item3_4;
+        item3_4.Style(style);
+        item3_4.Icon(CreateFontIcon(L"\ue740"));
+        item3_4.Text(L"拓展标题栏至窗体");
+        item3_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            MARGINS margins = { -1 };
+            if (SUCCEEDED(DwmExtendFrameIntoClientArea((HWND)item.Hwnd(), &margins))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功拓展窗口标题栏至窗体: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法拓展窗口标题栏至窗体: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
 
 		menuFlyout.Items().Append(item1_1);
+        menuFlyout.Items().Append(item1_2);
+        menuFlyout.Items().Append(item1_3);
 		menuFlyout.Items().Append(separator1);
         menuFlyout.Items().Append(item2_1);
         menuFlyout.Items().Append(item2_2);
         menuFlyout.Items().Append(item2_3);
-        menuFlyout.Items().Append(item2_4);
+        menuFlyout.Items().Append(separator2);
+        menuFlyout.Items().Append(item3_1);
+        menuFlyout.Items().Append(item3_2);
+        menuFlyout.Items().Append(item3_3);
+        menuFlyout.Items().Append(item3_4);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
+    }
+
+    void WindowPage::WindowListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
     }
 
     winrt::Windows::Foundation::IAsyncAction WindowPage::LoadWindowList()
@@ -227,7 +430,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingWindows = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading window list...");
-
+        m_windowList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -248,7 +451,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_windowList.Clear();
         for (const auto& window : windows) {
             bool shouldRemove = query.empty() ? false : ApplyFilter(window, query);
             if (shouldRemove) continue;
@@ -507,20 +709,14 @@ namespace winrt::StarlightGUI::implementation
 
     void WindowPage::ShowVisibleOnlyCheckBox_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 		m_showVisibleOnly = ShowVisibleOnlyCheckBox().IsChecked().GetBoolean();
-        if (m_showVisibleOnly) {
-            LOG_INFO(__WFUNCTION__, L"Show visible only is checked.");
-        }
-        else {
-            LOG_INFO(__WFUNCTION__, L"Show visible only is unchecked.");
-		}
         LoadWindowList();
     }
 
     void WindowPage::SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 
         WaitAndReloadAsync(200);
     }

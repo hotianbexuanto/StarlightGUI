@@ -67,8 +67,9 @@ namespace winrt::StarlightGUI::implementation {
 		static bool OpenFileProperties(std::wstring filePath);
 
 		static DWORD GetWindowsBuildNumber();
+
+		static BOOL CALLBACK EndTaskByWindow(HWND hwnd);
 	private:
-		static BOOL CALLBACK EndTaskByWindow(HWND hwnd, LPARAM lparam);
 
 		static bool EnableDebugPrivilege();
 	};

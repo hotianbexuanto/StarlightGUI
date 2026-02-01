@@ -15,6 +15,9 @@ namespace winrt::StarlightGUI::implementation
         winrt::fire_and_forget UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void KernelModuleListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void KernelModuleListView_ContainerContentChanging(
+            winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+            winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
@@ -26,7 +29,7 @@ namespace winrt::StarlightGUI::implementation
         winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);
 
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::KernelModuleInfo> m_kernelModuleList{
-            winrt::multi_threaded_observable_vector<winrt::StarlightGUI::KernelModuleInfo>()
+            winrt::single_threaded_observable_vector<winrt::StarlightGUI::KernelModuleInfo>()
         };
 
         bool m_isLoadingKernelModules = false;

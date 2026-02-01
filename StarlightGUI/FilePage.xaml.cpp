@@ -18,12 +18,9 @@ namespace winrt::StarlightGUI::implementation
 	hstring currentDirectory = L"C:\\";
     static std::unordered_map<std::wstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static HDC hdc{ nullptr };
-    static bool loaded;
 
     FilePage::FilePage() {
         InitializeComponent();
-
-        loaded = false;
 
         hdc = GetDC(NULL);
         FileListView().ItemsSource(m_fileList);
@@ -38,7 +35,6 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             m_scrollCheckTimer.Start();
             LoadFileList();
-            loaded = true;
             });
 
         this->Unloaded([this](auto&&, auto&&) {
@@ -80,6 +76,9 @@ namespace winrt::StarlightGUI::implementation
             selectedFiles.push_back(item);
         }
 
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
+
         MenuFlyout menuFlyout;
 
         /*
@@ -87,6 +86,7 @@ namespace winrt::StarlightGUI::implementation
         */
         // 选项1.1
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\ue8e5"));
         item1_1.Text(L"打开");
         item1_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -112,6 +112,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutItem item2_1;
+        item2_1.Style(style);
         item2_1.Icon(CreateFontIcon(L"\ue74d"));
         item2_1.Text(L"删除");
         item2_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -126,6 +127,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.2
         MenuFlyoutItem item2_2;
+        item2_2.Style(style);
         item2_2.Icon(CreateFontIcon(L"\ue733"));
         item2_2.Text(L"删除 (内核)");
         item2_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -141,21 +143,23 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.3
         MenuFlyoutItem item2_3;
+        item2_3.Style(style);
         item2_3.Icon(CreateFontIcon(L"\uf5ab"));
-        item2_3.Text(L"强制删除");
+        item2_3.Text(L"删除 (内存抹杀)");
         item2_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
             for (const auto& item : selectedFiles) {
                 if (KernelInstance::MurderFileAuto(item.Path().c_str())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);
 
         // 选项2.4
         MenuFlyoutItem item2_4;
+        item2_4.Style(style);
         item2_4.Icon(CreateFontIcon(L"\ue72e"));
         item2_4.Text(L"锁定");
         item2_4.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -171,6 +175,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.5
         MenuFlyoutItem item2_5;
+        item2_5.Style(style);
         item2_5.Icon(CreateFontIcon(L"\ue8c8"));
         item2_5.Text(L"复制");
         item2_5.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
@@ -182,9 +187,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.1
         MenuFlyoutSubItem item3_1;
+        item3_1.Style(styleSub);
         item3_1.Icon(CreateFontIcon(L"\ue8c8"));
         item3_1.Text(L"复制信息");
         MenuFlyoutItem item3_1_sub1;
+        item3_1_sub1.Style(style);
         item3_1_sub1.Icon(CreateFontIcon(L"\ue8ac"));
         item3_1_sub1.Text(L"名称");
         item3_1_sub1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -196,6 +203,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_1.Items().Append(item3_1_sub1);
         MenuFlyoutItem item3_1_sub2;
+        item3_1_sub2.Style(style);
         item3_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
         item3_1_sub2.Text(L"路径");
         item3_1_sub2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -207,6 +215,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_1.Items().Append(item3_1_sub2);
         MenuFlyoutItem item3_1_sub3;
+        item3_1_sub3.Style(style);
         item3_1_sub3.Icon(CreateFontIcon(L"\uec92"));
         item3_1_sub3.Text(L"修改日期");
         item3_1_sub3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -220,6 +229,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.2
         MenuFlyoutItem item3_2;
+        item3_2.Style(style);
         item3_2.Icon(CreateFontIcon(L"\uec50"));
         item3_2.Text(L"在文件管理器内打开");
         item3_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -233,6 +243,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.3
         MenuFlyoutItem item3_3;
+        item3_3.Style(style);
         item3_3.Icon(CreateFontIcon(L"\ue8ec"));
         item3_3.Text(L"属性");
         item3_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -284,6 +295,18 @@ namespace winrt::StarlightGUI::implementation
         }
 	}
 
+    void FilePage::FileListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
+    }
+
     void FilePage::CheckAndLoadMoreItems() {
         if (!m_listScrollViewer && !FindScrollViewer(FileListView())) return;
         if (m_isLoadingMore || !m_hasMoreFiles) return;
@@ -333,7 +356,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingFiles = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading file list...");
-
+        ResetState();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -347,12 +370,13 @@ namespace winrt::StarlightGUI::implementation
 
         // 简单判断根目录
         PreviousButton().IsEnabled(path.length() > 3);
-        ResetState();
-        m_allFiles.clear();
 
         co_await winrt::resume_background();
 
-        if (KernelInstance::IsRunningAsAdmin()) {
+        m_allFiles.clear();
+
+        bool useKernelEnum = KernelInstance::IsRunningAsAdmin();
+        if (useKernelEnum) {
             KernelInstance::QueryFile(path, m_allFiles);
             LOG_INFO(__WFUNCTION__, L"Enumerated files (kernel mode), %d entry(s).", m_allFiles.size());
         }
@@ -361,10 +385,16 @@ namespace winrt::StarlightGUI::implementation
             LOG_INFO(__WFUNCTION__, L"Enumerated files (user mode), %d entry(s).", m_allFiles.size());
         }
 
-
-        for (const auto& file : m_allFiles) {
-            co_await GetFileInfoAsync(file);
-            file.Path(FixBackSplash(file.Path()));
+        if (useKernelEnum) {
+            for (const auto& file : m_allFiles) {
+                co_await GetFileInfoAsync(file);
+                file.Path(FixBackSplash(file.Path()));
+            }
+        }
+        else {
+            for (const auto& file : m_allFiles) {
+                file.Path(FixBackSplash(file.Path()));
+            }
         }
 
         co_await wil::resume_foreground(DispatcherQueue());
@@ -488,7 +518,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     void FilePage::SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 
         WaitAndReloadAsync(200);
     }
@@ -727,6 +757,36 @@ namespace winrt::StarlightGUI::implementation
             fileInfo.Directory((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
             fileInfo.Flag((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 ? MFT_RECORD_FLAG_FILE : MFT_RECORD_FLAG_DIRECTORY);
             fileInfo.Path(path + L"\\" + findFileData.cFileName);
+
+            // 直接用枚举数据填充大小和修改时间，避免逐文件 stat IO
+            if (!fileInfo.Directory()) {
+                ULONG64 size = (static_cast<ULONG64>(findFileData.nFileSizeHigh) << 32) | findFileData.nFileSizeLow;
+                fileInfo.SizeULong(size);
+                fileInfo.Size(FormatMemorySize(size));
+            }
+            else {
+                fileInfo.Size(L"");
+            }
+
+            fileInfo.ModifyTimeULong((static_cast<ULONG64>(findFileData.ftLastAccessTime.dwHighDateTime) << 32)
+                | findFileData.ftLastAccessTime.dwLowDateTime);
+
+            SYSTEMTIME st;
+            if (FileTimeToSystemTime(&findFileData.ftLastAccessTime, &st))
+            {
+                std::wstringstream ss;
+                ss << std::setw(4) << std::setfill(L'0') << st.wYear << L"/"
+                    << std::setw(2) << std::setfill(L'0') << st.wMonth << L"/"
+                    << std::setw(2) << std::setfill(L'0') << st.wDay << L" "
+                    << std::setw(2) << std::setfill(L'0') << st.wHour << L":"
+                    << std::setw(2) << std::setfill(L'0') << st.wMinute << L":"
+                    << std::setw(2) << std::setfill(L'0') << st.wSecond;
+                fileInfo.ModifyTime(ss.str());
+            }
+            else
+            {
+                fileInfo.ModifyTime(L"(未知)");
+            }
 
             files.push_back(fileInfo);
 

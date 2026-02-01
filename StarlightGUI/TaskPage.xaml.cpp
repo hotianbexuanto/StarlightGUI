@@ -48,12 +48,9 @@ namespace winrt::StarlightGUI::implementation
     static std::mutex safelock;
     static int safeAcceptedPID = -1;
     static bool infoWindowOpen = false;
-    static bool loaded;
 
     TaskPage::TaskPage() {
         InitializeComponent();
-
-        loaded = false;
 
         ProcessListView().ItemsSource(m_processList);
         if (!list_animation) ProcessListView().ItemContainerTransitions().Clear();
@@ -63,7 +60,6 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             hdc = GetDC(NULL);
             LoadProcessList();
-            loaded = true;
 			});
 
         this->Unloaded([this](auto&&, auto&&) {
@@ -90,11 +86,14 @@ namespace winrt::StarlightGUI::implementation
         if (!listView.SelectedItem()) return;
 
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::ProcessInfo>();
+        auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
+        auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
 
         MenuFlyout menuFlyout;
 
         // 选项1.1
         MenuFlyoutItem item1_1;
+        item1_1.Style(style);
         item1_1.Icon(CreateFontIcon(L"\ue711"));
         item1_1.Text(L"结束进程");
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -108,6 +107,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.2
         MenuFlyoutItem item1_2;
+        item1_2.Style(style);
         item1_2.Icon(CreateFontIcon(L"\ue8f0"));
         item1_2.Text(L"结束进程 (内核)");
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -124,15 +124,16 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.3
         MenuFlyoutItem item1_3;
+        item1_3.Style(style);
         item1_3.Icon(CreateFontIcon(L"\ue945"));
-        item1_3.Text(L"强制结束进程");
+        item1_3.Text(L"结束进程 (内存抹杀)");
         item1_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
                 if (KernelInstance::MurderProcess(item.Id())) {
-                    CreateInfoBarAndDisplay(L"成功", L"成功强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                    CreateInfoBarAndDisplay(L"成功", L"成功结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
-                else CreateInfoBarAndDisplay(L"失败", L"无法强制结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                else CreateInfoBarAndDisplay(L"失败", L"无法结束进程: " + item.Name() + L" (" + to_hstring(item.Id()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
             else {
                 safeAcceptedPID = item.Id();
@@ -147,9 +148,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.1
         MenuFlyoutSubItem item2_1;
+        item2_1.Style(styleSub);
         item2_1.Icon(CreateFontIcon(L"\ue912"));
         item2_1.Text(L"设置进程状态");
         MenuFlyoutItem item2_1_sub1;
+        item2_1_sub1.Style(style);
         item2_1_sub1.Icon(CreateFontIcon(L"\ue769"));
         item2_1_sub1.Text(L"暂停");
         item2_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -162,6 +165,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub1);
         MenuFlyoutItem item2_1_sub2;
+        item2_1_sub2.Style(style);
         item2_1_sub2.Icon(CreateFontIcon(L"\ue768"));
         item2_1_sub2.Text(L"恢复");
         item2_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -177,6 +181,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.2
         MenuFlyoutItem item2_2;
+        item2_2.Style(style);
         item2_2.Icon(CreateFontIcon(L"\ued1a"));
         item2_2.Text(L"隐藏进程");
         item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -191,11 +196,13 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.3
         MenuFlyoutSubItem item2_3;
+        item2_3.Style(styleSub);
         item2_3.Icon(CreateFontIcon(L"\uea18"));
         item2_3.Text(L"设置PPL等级");
-        MenuFlyoutItem item2_3_sub1;
-
+        
         // PPL等级
+        MenuFlyoutItem item2_3_sub1;
+        item2_3_sub1.Style(style);
         item2_3_sub1.Text(L"None");
         item2_3_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_None)) {
@@ -207,6 +214,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_3.Items().Append(item2_3_sub1);
         MenuFlyoutItem item2_3_sub2;
+        item2_3_sub2.Style(style);
         item2_3_sub2.Text(L"Authenticode");
         item2_3_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Authenticode)) {
@@ -218,6 +226,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_3.Items().Append(item2_3_sub2);
         MenuFlyoutItem item2_3_sub3;
+        item2_3_sub3.Style(style);
         item2_3_sub3.Text(L"Codegen");
         item2_3_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Codegen)) {
@@ -229,6 +238,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_3.Items().Append(item2_3_sub3);
         MenuFlyoutItem item2_3_sub4;
+        item2_3_sub4.Style(style);
         item2_3_sub4.Text(L"Antimalware");
         item2_3_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Antimalware)) {
@@ -240,6 +250,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_3.Items().Append(item2_3_sub4);
         MenuFlyoutItem item2_3_sub5;
+        item2_3_sub5.Style(style);
         item2_3_sub5.Text(L"Lsa");
         item2_3_sub5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Lsa)) {
@@ -251,6 +262,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_3.Items().Append(item2_3_sub5);
         MenuFlyoutItem item2_3_sub6;
+        item2_3_sub6.Style(style);
         item2_3_sub6.Text(L"Windows");
         item2_3_sub6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_Windows)) {
@@ -262,6 +274,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_3.Items().Append(item2_3_sub6);
         MenuFlyoutItem item2_3_sub7;
+        item2_3_sub7.Style(style);
         item2_3_sub7.Text(L"WinTcb");
         item2_3_sub7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_WinTcb)) {
@@ -273,6 +286,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_3.Items().Append(item2_3_sub7);
         MenuFlyoutItem item2_3_sub8;
+        item2_3_sub8.Style(style);
         item2_3_sub8.Text(L"WinSystem");
         item2_3_sub8.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::SetPPL(item.Id(), PPL_WinSystem)) {
@@ -287,6 +301,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.4
         MenuFlyoutItem item2_4;
+        item2_4.Style(style);
         item2_4.Icon(CreateFontIcon(L"\ue8c9"));
         item2_4.Text(L"设置为关键进程");
         item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -307,6 +322,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.5
         MenuFlyoutItem item2_5;
+        item2_5.Style(style);
         item2_5.Icon(CreateFontIcon(L"\uebe8"));
         item2_5.Text(L"注入DLL");
         item2_5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -317,6 +333,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.6
         MenuFlyoutItem item2_6;
+        item2_6.Style(style);
         item2_6.Icon(CreateFontIcon(L"\ue70f"));
         item2_6.Text(L"修改令牌");
         item2_6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -327,6 +344,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项2.7
         MenuFlyoutItem item2_7;
+        item2_7.Style(style);
         item2_7.Icon(CreateFontIcon(L"\uf1e8"));
         item2_7.Text(L"效率模式");
         item2_7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -343,6 +361,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.1
         MenuFlyoutItem item3_1;
+        item3_1.Style(style);
         item3_1.Icon(CreateFontIcon(L"\ue946"));
         item3_1.Text(L"更多信息");
         item3_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -355,9 +374,11 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.2
         MenuFlyoutSubItem item3_2;
+        item3_2.Style(styleSub);
         item3_2.Icon(CreateFontIcon(L"\ue8c8"));
         item3_2.Text(L"复制信息");
         MenuFlyoutItem item3_2_sub1;
+        item3_2_sub1.Style(style);
         item3_2_sub1.Icon(CreateFontIcon(L"\ue8ac"));
         item3_2_sub1.Text(L"名称");
         item3_2_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -369,6 +390,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_2.Items().Append(item3_2_sub1);
         MenuFlyoutItem item3_2_sub2;
+        item3_2_sub2.Style(style);
         item3_2_sub2.Icon(CreateFontIcon(L"\ue943"));
         item3_2_sub2.Text(L"PID");
         item3_2_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -380,6 +402,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_2.Items().Append(item3_2_sub2);
         MenuFlyoutItem item3_2_sub3;
+        item3_2_sub3.Style(style);
         item3_2_sub3.Icon(CreateFontIcon(L"\uec6c"));
         item3_2_sub3.Text(L"文件路径");
         item3_2_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -391,6 +414,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_2.Items().Append(item3_2_sub3);
         MenuFlyoutItem item3_2_sub4;
+        item3_2_sub4.Style(style);
         item3_2_sub4.Icon(CreateFontIcon(L"\ueb19"));
         item3_2_sub4.Text(L"EPROCESS");
         item3_2_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -405,6 +429,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.3
         MenuFlyoutItem item3_3;
+        item3_3.Style(style);
         item3_3.Icon(CreateFontIcon(L"\uec50"));
         item3_3.Text(L"打开文件所在位置");
         item3_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -417,6 +442,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.4
         MenuFlyoutItem item3_4;
+        item3_4.Style(style);
         item3_4.Icon(CreateFontIcon(L"\ue8ec"));
         item3_4.Text(L"属性");
         item3_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
@@ -447,6 +473,18 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
 
+    void TaskPage::ProcessListView_ContainerContentChanging(
+        winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
+        winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args)
+    {
+        if (args.InRecycleQueue())
+            return;
+
+        // 将 Tag 设到容器上，便于 ListViewItemPresenter 通过 TemplatedParent 绑定
+        if (auto itemContainer = args.ItemContainer())
+            itemContainer.Tag(sender.Tag());
+    }
+
     winrt::Windows::Foundation::IAsyncAction TaskPage::LoadProcessList()
     {
         if (m_isLoadingProcesses) {
@@ -455,6 +493,7 @@ namespace winrt::StarlightGUI::implementation
         m_isLoadingProcesses = true;
 
         LOG_INFO(__WFUNCTION__, L"Loading process list...");
+        m_processList.Clear();
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -516,7 +555,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        m_processList.Clear();
         winrt::StarlightGUI::ProcessInfo& selectedTarget = winrt::make<winrt::StarlightGUI::implementation::ProcessInfo>();
         for (const auto& process : processes) {
             bool shouldRemove = query.empty() ? false : ApplyFilter(process, query);
@@ -723,10 +761,28 @@ namespace winrt::StarlightGUI::implementation
         MemoryHeaderButton().Content(box_value(L"内存"));
         IdHeaderButton().Content(box_value(L"PID"));
 
+        auto parseCpu = [](winrt::hstring const& value) mutable -> double {
+            if (value.empty()) return 0.0;
+            try {
+                size_t idx = 0;
+                double result = std::stod(std::wstring(value.c_str()), &idx);
+                return result;
+            }
+            catch (...) {
+                return 0.0;
+            }
+        };
+
+        std::vector<winrt::StarlightGUI::ProcessInfo> processes;
+        processes.reserve(m_processList.Size());
+        for (auto const& process : m_processList) {
+            processes.push_back(process);
+        }
+
         if (column == "Name") {
             if (isAscending) {
                 NameHeaderButton().Content(box_value(L"进程 ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -738,7 +794,7 @@ namespace winrt::StarlightGUI::implementation
             }
             else {
                 NameHeaderButton().Content(box_value(L"进程 ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     std::wstring aName = a.Name().c_str();
                     std::wstring bName = b.Name().c_str();
                     std::transform(aName.begin(), aName.end(), aName.begin(), ::towlower);
@@ -751,27 +807,27 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "CpuUsage") {
             if (isAscending) {
                 CpuHeaderButton().Content(box_value(L"CPU ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
-                    return std::stod(a.CpuUsage().c_str()) < std::stod(b.CpuUsage().c_str());
+                std::sort(processes.begin(), processes.end(), [&](auto a, auto b) {
+                    return parseCpu(a.CpuUsage()) < parseCpu(b.CpuUsage());
                     });
             }
             else {
                 CpuHeaderButton().Content(box_value(L"CPU ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
-                    return std::stod(a.CpuUsage().c_str()) > std::stod(b.CpuUsage().c_str());
+                std::sort(processes.begin(), processes.end(), [&](auto a, auto b) {
+                    return parseCpu(a.CpuUsage()) > parseCpu(b.CpuUsage());
                     });
             }
         }
         else if (column == "MemoryUsage") {
             if (isAscending) {
                 MemoryHeaderButton().Content(box_value(L"内存 ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() < b.MemoryUsageByte();
                     });
             }
             else {
                 MemoryHeaderButton().Content(box_value(L"内存 ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.MemoryUsageByte() > b.MemoryUsageByte();
                     });
             }
@@ -779,20 +835,20 @@ namespace winrt::StarlightGUI::implementation
         else if (column == "Id") {
             if (isAscending) {
                 IdHeaderButton().Content(box_value(L"PID ↓"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.Id() < b.Id();
                     });
             }
             else {
                 IdHeaderButton().Content(box_value(L"PID ↑"));
-                std::sort(fullRecordedProcesses.begin(), fullRecordedProcesses.end(), [](auto a, auto b) {
+                std::sort(processes.begin(), processes.end(), [](auto a, auto b) {
                     return a.Id() > b.Id();
                     });
             }
         }
 
         m_processList.Clear();
-        for (auto& process : fullRecordedProcesses) {
+        for (auto& process : processes) {
             m_processList.Append(process);
         }
 
@@ -805,7 +861,7 @@ namespace winrt::StarlightGUI::implementation
 
     void TaskPage::ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 		// 每次搜索都清空之前缓存的过滤结果
         filteredPids.clear();
 

@@ -10,10 +10,10 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "pdh.lib")
 #pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "nvidia/nvml.lib")
 
-// Undefine GetCurrentTime macro to prevent
-// conflict with Storyboard::GetCurrentTime
+// 取消定义 GetCurrentTime 宏，避免与 Storyboard::GetCurrentTime 冲突
 #undef GetCurrentTime
 
 #include <Unknwn.h>
@@ -54,7 +54,7 @@
 #include <Utils/WindowInfo.h>
 
 #include <Utils/ObjectEntry.h>
-#include <Utils/CallbackEntry.h>
+#include <Utils/GeneralEntry.h>
 
 #include <Utils/TaskUtils.h>
 #include <Utils/Utils.h>
@@ -62,23 +62,21 @@
 #include <Utils/Elevator.h>
 #include <Utils/Config.h>
 #include <Utils/CppUtils.h>
-#include <ConsoleLogger.h>
+#include <Console.h>
 
 #define __WFUNCTION__ ExtractFunctionName(__FUNCTION__)
-#define LOG_DEBUG(source, message, ...)    ConsoleLogger::GetInstance().Debug(source, message, __VA_ARGS__)
-#define LOG_INFO(source, message, ...)     ConsoleLogger::GetInstance().Info(source, message, __VA_ARGS__)
-#define LOG_WARNING(source, message, ...)  ConsoleLogger::GetInstance().Warning(source, message, __VA_ARGS__)
-#define LOG_ERROR(source, message, ...)    ConsoleLogger::GetInstance().Error(source, message, __VA_ARGS__)
-#define LOG_CRITICAL(source, message, ...) ConsoleLogger::GetInstance().Critical(source, message, __VA_ARGS__)
-#define LOG_SUCCESS(source, message, ...)  ConsoleLogger::GetInstance().Success(source, message, __VA_ARGS__)
-#define LOGGER_INIT()			ConsoleLogger::GetInstance().Initialize()
-#define LOGGER_TOGGLE()			ConsoleLogger::GetInstance().ToggleConsole()
-#define LOGGER_OPEN()			ConsoleLogger::GetInstance().OpenConsole()
-#define LOGGER_CLOSE()			ConsoleLogger::GetInstance().CloseConsole()
-#define LOGGER_SHUTDOWN()		ConsoleLogger::GetInstance().ShutdownConsole()
-#define LOGGER_CLEAR()			ConsoleLogger::GetInstance().ClearConsole()
-#define LOGGER_SET_TITLE(title) ConsoleLogger::GetInstance().SetTitle(title)
-#define LOGGER_SET_LEVEL(level) ConsoleLogger::GetInstance().SetMinLogLevel(level)
+#define LOG_INFO(source, message, ...)     Console::GetInstance().Info(source, message, __VA_ARGS__)
+#define LOG_WARNING(source, message, ...)  Console::GetInstance().Warning(source, message, __VA_ARGS__)
+#define LOG_ERROR(source, message, ...)    Console::GetInstance().Error(source, message, __VA_ARGS__)
+#define LOG_OTHER(source, message, ...)	   Console::GetInstance().Other(source, message, __VA_ARGS__)
+#define LOGGER_INIT()			Console::GetInstance().Initialize()
+#define LOGGER_TOGGLE()			Console::GetInstance().ToggleConsole()
+#define LOGGER_OPEN()			Console::GetInstance().OpenConsole()
+#define LOGGER_CLOSE()			Console::GetInstance().CloseConsole()
+#define LOGGER_SHUTDOWN()		Console::GetInstance().ShutdownConsole()
+#define LOGGER_CLEAR()			Console::GetInstance().ClearConsole()
+#define LOGGER_SET_TITLE(title) Console::GetInstance().SetTitle(title)
+#define LOGGER_SET_LEVEL(level) Console::GetInstance().SetMinLogLevel(level)
 
 extern winrt::hstring kernelPath, astralPath, axBandPath;
 extern std::wstring unused;

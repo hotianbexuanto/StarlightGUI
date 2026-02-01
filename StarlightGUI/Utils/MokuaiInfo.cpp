@@ -12,45 +12,4 @@ using namespace Microsoft::UI::Xaml::Media;
 */
 namespace winrt::StarlightGUI::implementation
 {
-
-
-    hstring MokuaiInfo::Name()
-    {
-        return m_name;
-    }
-
-    void MokuaiInfo::Name(hstring const& value)
-    {
-        m_name = value;
-    }
-
-    hstring MokuaiInfo::Address()
-    {
-        return m_address;
-    }
-
-    void MokuaiInfo::Address(hstring const& value)
-    {
-        m_address = value;
-    }
-
-    hstring MokuaiInfo::Size()
-    {
-        return m_size;
-    }
-
-    void MokuaiInfo::Size(hstring const& value)
-    {
-        m_size = value;
-    }
-
-    hstring MokuaiInfo::Path()
-    {
-        return m_path;
-    }
-
-    void MokuaiInfo::Path(hstring const& value)
-    {
-        m_path = value;
-    }
 }

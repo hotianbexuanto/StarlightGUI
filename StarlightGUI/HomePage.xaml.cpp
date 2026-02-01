@@ -162,7 +162,14 @@ namespace winrt::StarlightGUI::implementation
 
                     // 异步获取随机词条
                     HttpClient client;
-                    Uri uri(L"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=i&c=k");
+                    /*
+                    * 移除：
+                    * a	动画
+                    * b	漫画
+                    * c	游戏
+                    * 因为太唐了受不了了 为什么说的话都那么逆天
+                    */
+                    Uri uri(L"https://v1.hitokoto.cn/?c=d&c=e&c=i&c=j&c=k");
 
                     LOG_INFO(__WFUNCTION__, L"Sending hitokoto request...");
                     auto& result = co_await client.GetStringAsync(uri);
@@ -171,7 +178,7 @@ namespace winrt::StarlightGUI::implementation
                     auto json = Windows::Data::Json::JsonObject::Parse(result);
                     hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
 
-                    LOG_INFO(__WFUNCTION__, L"Hitokoto result: %s", hitokoto.c_str());
+                    LOG_INFO(__WFUNCTION__, L"Hitokoto json result: %s", result.c_str());
                 }
             }
         }
@@ -199,8 +206,15 @@ namespace winrt::StarlightGUI::implementation
 
     void HomePage::OnClockTick(IInspectable const&, IInspectable const&)
     {
-        UpdateClock();
-        UpdateGauges();
+        auto weak_this = get_weak();
+
+        if (auto strong_this = weak_this.get()) {
+            UpdateClock();
+            UpdateGauges();
+        }
+        else {
+			clockTimer.Stop();
+        }
     }
 
     /*
@@ -307,7 +321,7 @@ namespace winrt::StarlightGUI::implementation
 
                             char name[NVML_DEVICE_NAME_BUFFER_SIZE];
                             nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
-                            gpu_manufacture = to_hstring(name);
+                            gpu_manufacture = StringToWideString(name);
 
                             LOG_INFO(L"MonitorInstance", L"Initialized NVML.");
                         }

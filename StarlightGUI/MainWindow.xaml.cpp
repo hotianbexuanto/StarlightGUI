@@ -38,11 +38,11 @@ using namespace Microsoft::UI::Composition::SystemBackdrops;
 namespace winrt::StarlightGUI::implementation
 {
     MainWindow* g_mainWindowInstance = nullptr;
-    static HWND globalHWND;
 
     MainWindow::MainWindow()
     {
         InitializeComponent();
+
 
         auto windowNative{ this->try_as<::IWindowNative>() };
         HWND hWnd{ 0 };
@@ -66,7 +66,7 @@ namespace winrt::StarlightGUI::implementation
 
         g_mainWindowInstance = this;
 
-        // Home page
+        // 进入主页
         MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
         RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
 
@@ -108,7 +108,7 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
+    void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
     {
         if (args.IsSettingsInvoked())
         {
@@ -368,6 +368,7 @@ namespace winrt::StarlightGUI::implementation
 
                     LOG_INFO(L"DriverUtils", L"Kernel.sys path [%s], load it.", kernelPath.c_str());
                     DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
+                    LOG_INFO(L"DriverUtils", L"Kernel.sys load result: %s, GetLastError() = %d", unused.c_str(), GetLastError());
                 }
 
                 if (astralFile && KernelInstance::IsRunningAsAdmin()) {
@@ -375,6 +376,7 @@ namespace winrt::StarlightGUI::implementation
 
                     LOG_INFO(L"DriverUtils", L"AstralX.sys path [%s], load it.", astralPath.c_str());
                     DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
+                    LOG_INFO(L"DriverUtils", L"AstralX.sys load result: %s, GetLastError() = %d", unused.c_str(), GetLastError());
                 }
 
                 if (axBandFile) {

@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
-#include "ObjectEntry.h"
-#if __has_include("ObjectEntry.g.cpp")
-#include "ObjectEntry.g.cpp"
+#include "GeneralEntry.h"
+#if __has_include("GeneralEntry.g.cpp")
+#include "GeneralEntry.g.cpp"
 #endif
 
 using namespace winrt;

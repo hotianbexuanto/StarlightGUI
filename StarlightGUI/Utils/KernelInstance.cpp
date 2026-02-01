@@ -4,7 +4,7 @@
 
 typedef struct _PROCESS_INPUT {
 	ULONG PID;
-} PROCESS_INPUT, *PPROCESS_INPUT;
+} PROCESS_INPUT, * PPROCESS_INPUT;
 
 typedef struct _DRIVER_INPUT {
 	PVOID DriverObj;
@@ -25,7 +25,7 @@ namespace winrt::StarlightGUI::implementation {
 	}
 
 	BOOL KernelInstance::MurderProcess(ULONG pid) noexcept {
-        if (pid == 0) return FALSE;
+		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
 		PROCESS_INPUT in = { pid };
@@ -75,7 +75,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		INPUT in = { pid, level };
 
-		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d, level=%d]", IOCTL_TERMINATE_PROCESS, __WFUNCTION__.c_str(), pid, level);
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d, level=%d]", IOCTL_SET_PPL, __WFUNCTION__.c_str(), pid, level);
 		return DeviceIoControl(driverDevice, IOCTL_SET_PPL, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -991,7 +991,7 @@ namespace winrt::StarlightGUI::implementation {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		if (color == -1) {
-			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [color=-1]", IOCTL_BLUESCREEN, __WFUNCTION__, color);
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [color=-1]", IOCTL_BLUESCREEN, __WFUNCTION__);
 			return DeviceIoControl(driverDevice, IOCTL_BLUESCREEN, NULL, 0, NULL, 0, NULL, NULL);
 		}
 		else {
@@ -1029,7 +1029,7 @@ namespace winrt::StarlightGUI::implementation {
 
 	BOOL KernelInstance::EnumObjectsByDirectory(std::wstring objectPath, std::vector<winrt::StarlightGUI::ObjectEntry>& objectList) noexcept {
 		if (!NtQueryDirectoryObject || !NtQuerySymbolicLinkObject || !NtQueryEvent || !NtQueryMutant || !NtQuerySemaphore || !NtQuerySection || !NtQueryTimer || !NtQueryIoCompletion
-			|| !NtOpenDirectoryObject || !NtOpenSymbolicLinkObject || !NtOpenEvent || !NtOpenMutant || !NtOpenSemaphore || !NtOpenSection || !NtOpenTimer || !NtOpenFile 
+			|| !NtOpenDirectoryObject || !NtOpenSymbolicLinkObject || !NtOpenEvent || !NtOpenMutant || !NtOpenSemaphore || !NtOpenSection || !NtOpenTimer || !NtOpenFile
 			|| !NtOpenSession || !NtOpenCpuPartition || !NtOpenJobObject || !NtOpenIoCompletion || !NtOpenPartition) {
 			HMODULE hModule = GetModuleHandleW(L"ntdll.dll");
 			if (!hModule) return FALSE;
@@ -1276,7 +1276,7 @@ namespace winrt::StarlightGUI::implementation {
 		return NT_SUCCESS(status);
 	}
 
-	BOOL KernelInstance::EnumCallbacks(std::vector<winrt::StarlightGUI::CallbackEntry>& callbackList) noexcept {
+	BOOL KernelInstance::EnumCallbacks(std::vector<winrt::StarlightGUI::GeneralEntry>& callbackList) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		struct INPUT {
@@ -1325,13 +1325,13 @@ namespace winrt::StarlightGUI::implementation {
 				pProcessInfo = (PDATA_INFO)inputs.pBuffer;
 				for (ULONG i = 0; i < nRet; i++) {
 					DATA_INFO data = pProcessInfo[i];
-					auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
-					callback.Module(to_hstring(data.Module));
-					callback.Type(cbType.type);
-					callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
-					callback.EntryULong((ULONG64)data.pvoidaddressdata1);
-					callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
-					callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+					auto callback = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+					callback.String1(to_hstring(data.Module));
+					callback.String2(cbType.type);
+					callback.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+					callback.ULongLong1((ULONG64)data.pvoidaddressdata1);
+					callback.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+					callback.ULongLong2((ULONG64)data.pvoidaddressdata2);
 					callbackList.push_back(callback);
 				}
 			}
@@ -1355,13 +1355,13 @@ namespace winrt::StarlightGUI::implementation {
 				for (ULONG i = 0; i < nRet; i++) {
 					DATA_INFO data = pProcessInfo[i];
 					if (data.pvoidaddressdata1 != NULL) {
-						auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
-						callback.Module(to_hstring(data.Module));
-						callback.Type(L"ObCallback-PsProcessType");
-						callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
-						callback.EntryULong((ULONG64)data.pvoidaddressdata1);
-						callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
-						callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+						auto callback = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+						callback.String1(to_hstring(data.Module));
+						callback.String2(L"ObCallback-PsProcessType");
+						callback.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+						callback.ULongLong1((ULONG64)data.pvoidaddressdata1);
+						callback.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+						callback.ULongLong2((ULONG64)data.pvoidaddressdata2);
 						callbackList.push_back(callback);
 					}
 				}
@@ -1386,13 +1386,13 @@ namespace winrt::StarlightGUI::implementation {
 				for (ULONG i = 0; i < nRet; i++) {
 					DATA_INFO data = pProcessInfo[i];
 					if (data.pvoidaddressdata1 != NULL) {
-						auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
-						callback.Module(to_hstring(data.Module));
-						callback.Type(L"ObCallback-PsThreadType");
-						callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
-						callback.EntryULong((ULONG64)data.pvoidaddressdata1);
-						callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
-						callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+						auto callback = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+						callback.String1(to_hstring(data.Module));
+						callback.String2(L"ObCallback-PsThreadType");
+						callback.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+						callback.ULongLong1((ULONG64)data.pvoidaddressdata1);
+						callback.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+						callback.ULongLong2((ULONG64)data.pvoidaddressdata2);
 						callbackList.push_back(callback);
 					}
 				}
@@ -1417,13 +1417,13 @@ namespace winrt::StarlightGUI::implementation {
 				for (ULONG i = 0; i < nRet; i++) {
 					DATA_INFO data = pProcessInfo[i];
 					if (data.pvoidaddressdata1 != NULL) {
-						auto callback = winrt::make<winrt::StarlightGUI::implementation::CallbackEntry>();
-						callback.Module(to_hstring(data.Module));
-						callback.Type(L"ObCallback-Desktop");
-						callback.Entry(ULongToHexString((ULONG64)data.pvoidaddressdata1));
-						callback.EntryULong((ULONG64)data.pvoidaddressdata1);
-						callback.Handle(ULongToHexString((ULONG64)data.pvoidaddressdata2));
-						callback.HandleULong((ULONG64)data.pvoidaddressdata2);
+						auto callback = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+						callback.String1(to_hstring(data.Module));
+						callback.String2(L"ObCallback-Desktop");
+						callback.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+						callback.ULongLong1((ULONG64)data.pvoidaddressdata1);
+						callback.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+						callback.ULongLong2((ULONG64)data.pvoidaddressdata2);
 						callbackList.push_back(callback);
 					}
 				}
@@ -1435,6 +1435,531 @@ namespace winrt::StarlightGUI::implementation {
 		return TRUE;
 	}
 
+	BOOL KernelInstance::EnumMiniFilter(std::vector<winrt::StarlightGUI::GeneralEntry>& filterList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_MINIFILTER, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_MINIFILTER, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.String2(to_hstring(GetMiniFilterMajorFunction(data.ulongdata1)));
+				entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+				entry.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+				entry.String5(ULongToHexString((ULONG64)data.pvoidaddressdata3));
+				entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+				entry.ULongLong2((ULONG64)data.pvoidaddressdata2);
+				entry.ULongLong3((ULONG64)data.pvoidaddressdata3);
+				filterList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumStandardFilter(std::vector<winrt::StarlightGUI::GeneralEntry>& filterList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_STANDARD_FILTER, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_STANDARD_FILTER, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				if (pProcessInfo[i].ulongdata1 == ft_Unknown)
+				{
+					entry.String1(L"Unknown");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_File)
+				{
+					entry.String1(L"File");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Disk)
+				{
+					entry.String1(L"Disk");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Volume)
+				{
+					entry.String1(L"Volume");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Keyboard)
+				{
+					entry.String1(L"Keyboard");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Mouse)
+				{
+					entry.String1(L"Mouse");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_I8042prt)
+				{
+					entry.String1(L"I8042prt");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Tcpip)
+				{
+					entry.String1(L"Tcpip");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Ndis)
+				{
+					entry.String1(L"Ndis");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_PnpManager)
+				{
+					entry.String1(L"PnpManager");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Tdx)
+				{
+					entry.String1(L"Tdx");
+				}
+				else if (pProcessInfo[i].ulongdata1 == ft_Raw)
+				{
+					entry.String1(L"Raw (ntoskrnl)");
+				}
+				entry.String2(to_hstring(data.wcstr) + L" -> " + to_hstring(data.wcstr1));
+				entry.String3(data.wcstr2);
+				entry.String4(ULongToHexString(data.ulong64data1));
+				entry.String5(ULongToHexString(data.ulong64data2));
+				entry.ULongLong1(data.ulong64data1);
+				entry.ULongLong2(data.ulong64data2);
+				entry.ULong1(data.ulongdata1);
+
+				filterList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumSSDT(std::vector<winrt::StarlightGUI::GeneralEntry>& ssdtList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_SSDT, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_SSDT, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				if (data.pvoidaddressdata1 != NULL) {
+					auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+					entry.String1(to_hstring(data.Module));
+					entry.String2(to_hstring(data.Module1));
+					entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+					entry.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+
+					std::wstring hookType = L"-";
+					if (data.pvoidaddressdata2 != NULL) {
+						if (data.pvoidaddressdata1 != data.pvoidaddressdata2) {
+							hookType = L"SSDT-Hook";
+						}
+						else if (data.ulongdata2 == TRUE) {
+							hookType = L"Inline-Hook";
+						}
+						else if (data.ulongdata4 == TRUE) {
+							hookType = L"EPT/NPTHook";
+						}
+					}
+					else {
+						hookType = L"Unknown";
+					}
+
+					entry.String5(hookType);
+					entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+					entry.ULongLong2((ULONG64)data.pvoidaddressdata2);
+					entry.ULong1(data.ulongdata1);
+					entry.Bool1(data.ulongdata2 == TRUE);
+					ssdtList.push_back(entry);
+				}
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumSSSDT(std::vector<winrt::StarlightGUI::GeneralEntry>& sssdtList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 3000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_SSSDT, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_SSSDT, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 3000) nRet = 3000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				if (data.pvoidaddressdata1 != NULL) {
+					auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+					entry.String1(to_hstring(data.Module1));
+					entry.String2(to_hstring(data.Module));
+					entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+					entry.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+
+					std::wstring hookType = L"-";
+					if (data.pvoidaddressdata2 == NULL) {
+						hookType = L"Unknown";
+					}
+					else if (data.ulongdata2 == TRUE) {
+						hookType = L"Inline-Hook";
+					}
+					else if (data.pvoidaddressdata1 != data.pvoidaddressdata2) {
+						hookType = L"SSSDT-Hook";
+					}
+
+					entry.String5(hookType);
+					entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+					entry.ULongLong2((ULONG64)data.pvoidaddressdata2);
+					entry.ULong1(data.ulongdata1);
+					entry.Bool1(data.ulongdata2 == TRUE);
+					sssdtList.push_back(entry);
+				}
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumIoTimer(std::vector<winrt::StarlightGUI::GeneralEntry>& timerList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_IO_TIMER, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_IO_TIMER, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.String2(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+				entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+				entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+				entry.ULongLong2((ULONG64)data.pvoidaddressdata2);
+				timerList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumExCallback(std::vector<winrt::StarlightGUI::GeneralEntry>& callbackList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_EXCALLBACK, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_EXCALLBACK, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.String2(to_hstring(data.Module1));
+				entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+				entry.String4(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+				entry.String5(ULongToHexString((ULONG64)data.pvoidaddressdata3));
+				entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+				entry.ULongLong2((ULONG64)data.pvoidaddressdata2);
+				entry.ULongLong3((ULONG64)data.pvoidaddressdata3);
+				callbackList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumIDT(std::vector<winrt::StarlightGUI::GeneralEntry>& idtList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_IDT, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_IDT, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.String2(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+				entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+				entry.ULong1(data.ulongdata1);
+				entry.ULong2(data.ulongdata2);
+				idtList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumGDT(std::vector<winrt::StarlightGUI::GeneralEntry>& gdtList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_GDT, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_GDT, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.String2(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+				entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata2));
+				entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+				entry.ULongLong2((ULONG64)data.pvoidaddressdata2);
+				entry.ULong1(data.ulongdata1);
+				entry.ULong2(data.ulongdata2);
+				entry.ULong3(data.ulongdata3);
+				gdtList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumPiDDBCacheTable(std::vector<winrt::StarlightGUI::GeneralEntry>& piddbList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_PIDDBCACHE_TABLE, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_PIDDBCACHE_TABLE, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.ULong1(data.ulongdata1);
+				entry.ULong2(data.ulongdata2);
+				piddbList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumHalDispatchTable(std::vector<winrt::StarlightGUI::GeneralEntry>& halList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_HALDISPATCHTABLE, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_HALDISPATCHTABLE, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.String2(to_hstring(data.Module1));
+				entry.String3(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+				entry.ULongLong1((ULONG64)data.pvoidaddressdata1);
+				halList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumHalPrivateDispatchTable(std::vector<winrt::StarlightGUI::GeneralEntry>& halPrivateList) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT {
+			ULONG_PTR nSize;
+			PVOID MiniFilterInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.nSize = sizeof(DATA_INFO) * 1000;
+		input.MiniFilterInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
+
+		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_HALPRIVATEDISPATCHTABLE, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_HALPRIVATEDISPATCHTABLE, &input, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) nRet = 1000;
+
+		if (status && nRet > 0 && input.MiniFilterInfo) {
+			pProcessInfo = (PDATA_INFO)input.MiniFilterInfo;
+			for (ULONG i = 0; i < nRet; i++) {
+				DATA_INFO data = pProcessInfo[i];
+				auto entry = winrt::make<winrt::StarlightGUI::implementation::GeneralEntry>();
+				entry.String1(to_hstring(data.Module));
+				entry.String2(to_hstring(data.Module1));
+				entry.String3(ULongToHexString(data.ulong64data1));
+				entry.ULongLong1(data.ulong64data1);
+				halPrivateList.push_back(entry);
+			}
+		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, input.MiniFilterInfo);
+		return status && bRet;
+	}
 
 	// =================================
 	//				PRIVATE
@@ -1495,6 +2020,155 @@ namespace winrt::StarlightGUI::implementation {
 		}
 		else {
 			return flag == 1;
+		}
+	}
+
+	std::string KernelInstance::GetMiniFilterMajorFunction(ULONG64 Index) noexcept
+	{
+		std::string funciton_name;
+		switch (Index)
+		{
+		case 0:
+			funciton_name = "IRP_MJ_CREATE";
+			break;
+		case 1:
+			funciton_name = "IRP_MJ_CREATE_NAMED_PIPE";
+			break;
+		case 2:
+			funciton_name = "IRP_MJ_CLOSE";
+			break;
+		case 3:
+			funciton_name = "IRP_MJ_READ";
+			break;
+		case 4:
+			funciton_name = "IRP_MJ_WRITE";
+			break;
+		case 5:
+			funciton_name = "IRP_MJ_QUERY_INFORMATION";
+			break;
+		case 6:
+			funciton_name = "IRP_MJ_SET_INFORMATION";
+			break;
+		case 7:
+			funciton_name = "IRP_MJ_QUERY_EA";
+			break;
+		case 8:
+			funciton_name = "IRP_MJ_SET_EA";
+			break;
+		case 9:
+			funciton_name = "IRP_MJ_FLUSH_BUFFERS";
+			break;
+		case 10:
+			funciton_name = "IRP_MJ_QUERY_VOLUME_INFORMATION";
+			break;
+		case 11:
+			funciton_name = "IRP_MJ_SET_VOLUME_INFORMATION";
+			break;
+		case 12:
+			funciton_name = "IRP_MJ_DIRECTORY_CONTROL";
+			break;
+		case 13:
+			funciton_name = "IRP_MJ_FILE_SYSTEM_CONTROL";
+			break;
+		case 14:
+			funciton_name = "IRP_MJ_DEVICE_CONTROL";
+			break;
+		case 15:
+			funciton_name = "IRP_MJ_INTERNAL_DEVICE_CONTROL";
+			break;
+		case 16:
+			funciton_name = "IRP_MJ_SHUTDOWN";
+			break;
+		case 17:
+			funciton_name = "IRP_MJ_LOCK_CONTROL";
+			break;
+		case 18:
+			funciton_name = "IRP_MJ_CLEANUP";
+			break;
+		case 19:
+			funciton_name = "IRP_MJ_CREATE_MAILSLOT";
+			break;
+		case 20:
+			funciton_name = "IRP_MJ_QUERY_SECURITY";
+			break;
+		case 21:
+			funciton_name = "IRP_MJ_SET_SECURITY";
+			break;
+		case 22:
+			funciton_name = "IRP_MJ_POWER";
+			break;
+		case 23:
+			funciton_name = "IRP_MJ_SYSTEM_CONTROL";
+			break;
+		case 24:
+			funciton_name = "IRP_MJ_DEVICE_CHANGE";
+			break;
+		case 25:
+			funciton_name = "IRP_MJ_QUERY_QUOTA";
+			break;
+		case 26:
+			funciton_name = "IRP_MJ_SET_QUOTA";
+			break;
+		case 27:
+			funciton_name = "IRP_MJ_PNP";
+			break;
+		case 28:
+			funciton_name = "IRP_MJ_PNP_POWER";
+			break;
+		case 255:
+			funciton_name = "IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION";
+			break;
+		case 254:
+			funciton_name = "IRP_MJ_RELEASE_FOR_SECTION_SYNCHRONIZATION";
+			break;
+		case 253:
+			funciton_name = "IRP_MJ_ACQUIRE_FOR_MOD_WRITE";
+			break;
+		case 252:
+			funciton_name = "IRP_MJ_RELEASE_FOR_MOD_WRITE";
+			break;
+		case 251:
+			funciton_name = "IRP_MJ_ACQUIRE_FOR_CC_FLUSH";
+			break;
+		case 250:
+			funciton_name = "IRP_MJ_RELEASE_FOR_CC_FLUSH";
+			break;
+		case 249:
+			funciton_name = "IRP_MJ_QUERY_OPEN";
+			break;
+		case 243:
+			funciton_name = "IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE";
+			break;
+		case 242:
+			funciton_name = "IRP_MJ_NETWORK_QUERY_OPEN";
+			break;
+		case 241:
+			funciton_name = "IRP_MJ_MDL_READ";
+			break;
+		case 240:
+			funciton_name = "IRP_MJ_MDL_READ_COMPLETE";
+			break;
+		case 239:
+			funciton_name = "IRP_MJ_PREPARE_MDL_WRITE";
+			break;
+		case 238:
+			funciton_name = "IRP_MJ_MDL_WRITE_COMPLETE";
+			break;
+		case 237:
+			funciton_name = "IRP_MJ_VOLUME_MOUNT";
+			break;
+		case 236:
+			funciton_name = "IRP_MJ_VOLUME_DISMOUN";
+			break;
+		case 128:
+			funciton_name = "IRP_MJ_OPERATION_END";
+			break;
+		}
+		if (funciton_name.size() > 0) {
+			return funciton_name;
+		}
+		else {
+			return "UNKNOWN(" + std::to_string(Index) + ")";
 		}
 	}
 }

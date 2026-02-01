@@ -48,7 +48,7 @@ namespace winrt::StarlightGUI::implementation {
 
         // Auto close timer
         auto timer = DispatcherTimer();
-        timer.Interval(std::chrono::seconds(3));
+        timer.Interval(std::chrono::milliseconds(1500));
         timer.Tick([infobar, parent, timer](auto&&, auto&&) {
             // Run fade out animation first
             Storyboard storyboard;
@@ -73,31 +73,6 @@ namespace winrt::StarlightGUI::implementation {
             timer.Stop();
             });
         timer.Start();
-
-        // Manual close animation
-        infobar.Closing([infobar, parent, timer](auto&&, auto&&) {
-            infobar.IsOpen(true);
-            timer.Stop();
-
-            // Run fade out animation first
-            Storyboard storyboard;
-            auto fadeOutAnimation = FadeOutThemeAnimation();
-            Storyboard::SetTarget(fadeOutAnimation, infobar);
-            storyboard.Children().Append(fadeOutAnimation.as<Timeline>());
-            storyboard.Begin();
-
-            auto timer2 = DispatcherTimer();
-            timer2.Interval(std::chrono::milliseconds(300));
-            timer2.Tick([infobar, parent, timer2](auto&&, auto&&) {
-                infobar.IsOpen(false);
-                uint32_t index;
-                if (parent.Children().IndexOf(infobar, index)) {
-                    parent.Children().RemoveAt(index);
-                }
-                timer2.Stop();
-                });
-            timer2.Start();
-            });
     }
 
     void CreateInfoBarAndDisplay(hstring title, hstring message, InfoBarSeverity severity, XamlRoot xamlRoot, Panel parent) {
