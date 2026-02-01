@@ -37,12 +37,9 @@ namespace winrt::StarlightGUI::implementation
 {
     static std::vector<winrt::StarlightGUI::KernelModuleInfo> fullRecordedKernelModules;
     static int safeAcceptedImage = -1;
-    static bool loaded;
 
     KernelModulePage::KernelModulePage() {
         InitializeComponent();
-
-        loaded = false;
 
         KernelModuleListView().ItemsSource(m_kernelModuleList);
         if (!list_animation) KernelModuleListView().ItemContainerTransitions().Clear();
@@ -57,7 +54,6 @@ namespace winrt::StarlightGUI::implementation
         else {
             this->Loaded([this](auto&&, auto&&) {
                 LoadKernelModuleList();
-                loaded = true;
                 });
         }
 
@@ -353,7 +349,7 @@ namespace winrt::StarlightGUI::implementation
 
     void KernelModulePage::KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 
         WaitAndReloadAsync(200);
     }

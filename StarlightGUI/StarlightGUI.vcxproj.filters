@@ -127,7 +127,7 @@
     <ClCompile Include="Utils\CppUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleLogger.cpp">
+    <ClCompile Include="Console.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Utils\Utils.cpp">
@@ -214,7 +214,7 @@
     <ClInclude Include="Utils\FileInfo.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleLogger.h">
+    <ClInclude Include="Console.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\WindowInfo.h">

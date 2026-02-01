@@ -77,18 +77,31 @@ namespace winrt::StarlightGUI::implementation {
         return parent.wstring();
     }
 
-    std::string WideStringToString(const hstring& hstr)
+    std::string WideStringToString(const std::wstring& wstr)
     {
-        const wchar_t* wstr = hstr.c_str();
-        int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
+        const wchar_t* cstr = wstr.c_str();
+        int size_needed = WideCharToMultiByte(CP_UTF8, 0, cstr, -1, nullptr, 0, nullptr, nullptr);
 
         std::string str(size_needed, 0);
-        WideCharToMultiByte(CP_UTF8, 0, wstr, -1, &str[0], size_needed, nullptr, nullptr);
+        WideCharToMultiByte(CP_UTF8, 0, cstr, -1, &str[0], size_needed, nullptr, nullptr);
 
         str.erase(std::find(str.begin(), str.end(), '\0'), str.end());
 
         return str;
     }
+
+    std::wstring StringToWideString(const std::string& str)
+    {
+        const char* cstr = str.c_str();
+        int size_needed = MultiByteToWideChar(CP_UTF8, 0, cstr, -1, nullptr, 0);
+
+        std::wstring widestr(size_needed, 0);
+        MultiByteToWideChar(CP_UTF8, 0, cstr, -1, &widestr[0], size_needed);
+
+        widestr.erase(std::find(widestr.begin(), widestr.end(), L'\0'), widestr.end());
+
+        return widestr;
+	}
 
     std::wstring ULongToHexString(ULONG64 value)
     {

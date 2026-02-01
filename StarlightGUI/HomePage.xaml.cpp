@@ -321,7 +321,7 @@ namespace winrt::StarlightGUI::implementation
 
                             char name[NVML_DEVICE_NAME_BUFFER_SIZE];
                             nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
-                            gpu_manufacture = to_hstring(name);
+                            gpu_manufacture = StringToWideString(name);
 
                             LOG_INFO(L"MonitorInstance", L"Initialized NVML.");
                         }

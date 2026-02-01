@@ -16,7 +16,9 @@ namespace winrt::StarlightGUI::implementation {
 
     std::wstring GetParentDirectory(const hstring& path);
 
-    std::string WideStringToString(const hstring& hstr);
+    std::string WideStringToString(const std::wstring& str);
+
+    std::wstring StringToWideString(const std::string& str);
 
     std::wstring ULongToHexString(ULONG64 value);
 

@@ -18,12 +18,9 @@ namespace winrt::StarlightGUI::implementation
 	hstring currentDirectory = L"C:\\";
     static std::unordered_map<std::wstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static HDC hdc{ nullptr };
-    static bool loaded;
 
     FilePage::FilePage() {
         InitializeComponent();
-
-        loaded = false;
 
         hdc = GetDC(NULL);
         FileListView().ItemsSource(m_fileList);
@@ -38,7 +35,6 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             m_scrollCheckTimer.Start();
             LoadFileList();
-            loaded = true;
             });
 
         this->Unloaded([this](auto&&, auto&&) {
@@ -522,7 +518,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     void FilePage::SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 
         WaitAndReloadAsync(200);
     }

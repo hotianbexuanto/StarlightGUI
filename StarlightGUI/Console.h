@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include <windows.h>
 #include <string>
 #include <vector>
@@ -12,17 +13,15 @@
 #include <iomanip>
 #include <chrono>
 #include <map>
-#include <functional>
 #include <fstream>
+
 #undef ERROR
 
 enum class LogLevel {
-    DEBUG,
     INFO,
     WARNING,
     ERROR,
-    CRITICAL,
-    SUCCESS
+    OTHER
 };
 
 struct LogEntry {
@@ -32,57 +31,50 @@ struct LogEntry {
     std::wstring source;
 };
 
-class ConsoleLogger {
+class Console {
 public:
-    static ConsoleLogger& GetInstance();
+    static Console& GetInstance();
+    static void Destroy();
 
     bool Initialize();
 
     bool OpenConsole();
-
     bool CloseConsole();
-
     void ToggleConsole();
 
-    void ShutdownConsole();
+    // 彻底停止：线程退出、刷队列、关闭文件、释放控制台
+    void Shutdown();
 
     void SetTitle(const std::wstring& title);
+    void SetBackdropByConfig();
 
     void SetShowTimestamp(bool show);
-
     void SetShowLogLevel(bool show);
-
     void SetShowSource(bool show);
 
     template<typename... Args>
     void Log(LogLevel level, const std::wstring& source, const std::wstring& message, Args&&... args) {
-        wchar_t buffer[2048];
-        swprintf_s(buffer, _countof(buffer), message.c_str(), args...);
+        wchar_t buffer[2048]{};
+        int n = swprintf_s(buffer, _countof(buffer), message.c_str(), std::forward<Args>(args)...);
+        std::wstring finalMsg = (n < 0) ? message : std::wstring(buffer);
 
         LogEntry entry;
         entry.timestamp = std::chrono::system_clock::now();
         entry.level = level;
-        entry.message = buffer;
+        entry.message = std::move(finalMsg);
         entry.source = source;
 
         {
             std::lock_guard<std::mutex> lock(m_queueMutex);
             m_logQueue.push(entry);
         }
+        m_queueCV.notify_one();
 
-        // 将日志同时放入文件写入队列
         {
             std::lock_guard<std::mutex> lock(m_fileQueueMutex);
-            m_fileLogQueue.push(entry);
+            m_fileLogQueue.push(std::move(entry));
         }
         m_fileQueueCV.notify_one();
-
-        m_queueCV.notify_one();
-    }
-
-    template<typename... Args>
-    void Debug(const std::wstring& source, const std::wstring& message, Args&&... args) {
-        Log(LogLevel::DEBUG, source, message, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
@@ -101,13 +93,8 @@ public:
     }
 
     template<typename... Args>
-    void Critical(const std::wstring& source, const std::wstring& message, Args&&... args) {
-        Log(LogLevel::CRITICAL, source, message, std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    void Success(const std::wstring& source, const std::wstring& message, Args&&... args) {
-        Log(LogLevel::SUCCESS, source, message, std::forward<Args>(args)...);
+    void Other(const std::wstring& source, const std::wstring& message, Args&&... args) {
+        Log(LogLevel::Other, source, message, std::forward<Args>(args)...);
     }
 
     void SetMinLogLevel(LogLevel minLevel);
@@ -122,18 +109,18 @@ public:
 
     HWND GetConsoleHandle();
 
-    static void Destroy();
-
 private:
-    ConsoleLogger();
-    ~ConsoleLogger();
-    ConsoleLogger(const ConsoleLogger&) = delete;
-    ConsoleLogger& operator=(const ConsoleLogger&) = delete;
+    Console();
+    ~Console();
+    Console(const Console&) = delete;
+    Console& operator=(const Console&) = delete;
 
     void ConsoleThreadProc();
     void FileWriteThreadProc();
-    void ProcessLogQueue();
-    void ProcessFileQueue();
+
+    void DrainConsoleQueue(std::queue<LogEntry>& local);
+    void DrainFileQueue(std::queue<LogEntry>& local);
+
     void OutputToConsole(const LogEntry& entry);
     bool InitializeLogFile();
 
@@ -145,11 +132,11 @@ private:
     std::wstring FormatLevel(LogLevel level);
     std::wstring FormatLogEntry(const LogEntry& entry);
 
+private:
     std::atomic<bool> m_consoleOpen{ false };
     std::atomic<bool> m_initialized{ false };
     std::atomic<bool> m_shutdown{ false };
-    std::atomic<LogLevel> m_minLogLevel{ LogLevel::DEBUG };
-    std::atomic<bool> m_fileWriteEnabled{ true };
+    std::atomic<LogLevel> m_minLogLevel{ LogLevel::INFO };
 
     HANDLE m_hConsoleOutput{ INVALID_HANDLE_VALUE };
     HANDLE m_hConsoleInput{ INVALID_HANDLE_VALUE };
@@ -181,11 +168,9 @@ private:
     std::wstring m_consoleTitle{ L"Starlight GUI Logger" };
 
     std::map<LogLevel, WORD> m_colorMap{
-        {LogLevel::DEBUG, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY},
-        {LogLevel::INFO, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY},
-        {LogLevel::WARNING, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY},
-        {LogLevel::ERROR, FOREGROUND_RED | FOREGROUND_INTENSITY},
-        {LogLevel::CRITICAL, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY},
-        {LogLevel::SUCCESS, FOREGROUND_GREEN | FOREGROUND_INTENSITY}
+        {LogLevel::INFO,     FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED},
+        {LogLevel::WARNING,  FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY},
+        {LogLevel::ERROR,    FOREGROUND_RED | FOREGROUND_INTENSITY},
+        {LogLevel::OTHER, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY},
     };
 };

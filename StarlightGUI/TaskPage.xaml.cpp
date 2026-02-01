@@ -48,12 +48,9 @@ namespace winrt::StarlightGUI::implementation
     static std::mutex safelock;
     static int safeAcceptedPID = -1;
     static bool infoWindowOpen = false;
-    static bool loaded;
 
     TaskPage::TaskPage() {
         InitializeComponent();
-
-        loaded = false;
 
         ProcessListView().ItemsSource(m_processList);
         if (!list_animation) ProcessListView().ItemContainerTransitions().Clear();
@@ -63,7 +60,6 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             hdc = GetDC(NULL);
             LoadProcessList();
-            loaded = true;
 			});
 
         this->Unloaded([this](auto&&, auto&&) {
@@ -865,7 +861,7 @@ namespace winrt::StarlightGUI::implementation
 
     void TaskPage::ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 		// 每次搜索都清空之前缓存的过滤结果
         filteredPids.clear();
 

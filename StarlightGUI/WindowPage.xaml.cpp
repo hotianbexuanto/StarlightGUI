@@ -21,7 +21,8 @@
 #include <unordered_set>
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
-#include <Psapi.h>
+#include <psapi.h>
+#include <dwmapi.h>
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -40,12 +41,9 @@ namespace winrt::StarlightGUI::implementation
     static std::chrono::steady_clock::time_point lastRefresh;
     static HDC hdc{ nullptr };
     static int safeAcceptedImage = -1;
-    static bool loaded;
 
     WindowPage::WindowPage() {
         InitializeComponent();
-
-        loaded = false;
 
         WindowListView().ItemsSource(m_windowList);
         WindowListView().ItemContainerTransitions().Clear();
@@ -55,7 +53,6 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             hdc = GetDC(NULL);
             LoadWindowList();
-            loaded = true;
             });
 
         this->Unloaded([this](auto&&, auto&&) {
@@ -218,6 +215,185 @@ namespace winrt::StarlightGUI::implementation
             co_return;
             });
 
+        // 分割线2
+        MenuFlyoutSeparator separator2;
+
+        // 选项3.1
+        MenuFlyoutSubItem item3_1;
+        item3_1.Style(styleSub);
+        item3_1.Icon(CreateFontIcon(L"\uef1f"));
+        item3_1.Text(L"设置窗口样式");
+        MenuFlyoutItem item3_1_sub1;
+        item3_1_sub1.Style(style);
+        item3_1_sub1.Text(L"纯色");
+        item3_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_NONE;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为纯色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为纯色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub1);
+        MenuFlyoutItem item3_1_sub2;
+        item3_1_sub2.Style(style);
+        item3_1_sub2.Text(L"Mica (Base)");
+        item3_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_MAINWINDOW;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为Mica (Base): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为Mica (Base): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub2);
+        MenuFlyoutItem item3_1_sub3;
+        item3_1_sub3.Style(style);
+        item3_1_sub3.Text(L"Mica (BaseAlt)");
+        item3_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_TABBEDWINDOW;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为Mica (BaseAlt): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为Mica (BaseAlt): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub3);
+        MenuFlyoutItem item3_1_sub4;
+        item3_1_sub4.Style(style);
+        item3_1_sub4.Text(L"亚克力");
+        item3_1_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_TRANSIENTWINDOW;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为亚克力: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为亚克力: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub4);
+        MenuFlyoutItem item3_1_sub5;
+        item3_1_sub5.Style(style);
+        item3_1_sub5.Text(L"自动");
+        item3_1_sub5.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMSBT_AUTO;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为自动样式: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为自动样式: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub5);
+
+        // 选项3.2
+        MenuFlyoutSubItem item3_2;
+        item3_2.Style(styleSub);
+        item3_2.Icon(CreateFontIcon(L"\ue781"));
+        item3_2.Text(L"设置窗口主题");
+        MenuFlyoutItem item3_2_sub1;
+        item3_2_sub1.Style(style);
+        item3_2_sub1.Text(L"深色");
+        item3_2_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            BOOL val = TRUE;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_USE_IMMERSIVE_DARK_MODE, &val, sizeof(val)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为深色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为深色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_2.Items().Append(item3_2_sub1);
+        MenuFlyoutItem item3_2_sub2;
+        item3_2_sub2.Style(style);
+        item3_2_sub2.Text(L"浅色");
+        item3_2_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            BOOL val = FALSE;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_USE_IMMERSIVE_DARK_MODE, &val, sizeof(val)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为浅色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为浅色: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_2.Items().Append(item3_2_sub2);
+
+        // 选项3.3
+        MenuFlyoutSubItem item3_3;
+        item3_3.Style(styleSub);
+        item3_3.Icon(CreateFontIcon(L"\ue746"));
+        item3_3.Text(L"设置窗口圆角");
+        MenuFlyoutItem item3_3_sub1;
+        item3_3_sub1.Style(style);
+        item3_3_sub1.Text(L"无圆角");
+        item3_3_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_DONOTROUND;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为无圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为无圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub1);
+        MenuFlyoutItem item3_3_sub2;
+        item3_3_sub2.Style(style);
+        item3_3_sub2.Text(L"圆角");
+        item3_3_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_ROUND;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub2);
+        MenuFlyoutItem item3_3_sub3;
+        item3_3_sub3.Style(style);
+        item3_3_sub3.Text(L"圆角 (小)");
+        item3_3_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_ROUNDSMALL;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为圆角 (小): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为圆角 (小): " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub3);
+        MenuFlyoutItem item3_3_sub4;
+        item3_3_sub4.Style(style);
+        item3_3_sub4.Text(L"自动");
+        item3_3_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto type = DWMWCP_DEFAULT;
+            if (SUCCEEDED(DwmSetWindowAttribute((HWND)item.Hwnd(), DWMWA_WINDOW_CORNER_PREFERENCE, &type, sizeof(type)))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功设置窗口为自动圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法设置窗口为自动圆角: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+        item3_3.Items().Append(item3_3_sub4);
+
+        // 选项3.4
+        MenuFlyoutItem item3_4;
+        item3_4.Style(style);
+        item3_4.Icon(CreateFontIcon(L"\ue740"));
+        item3_4.Text(L"拓展标题栏至窗体");
+        item3_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            MARGINS margins = { -1 };
+            if (SUCCEEDED(DwmExtendFrameIntoClientArea((HWND)item.Hwnd(), &margins))) {
+                CreateInfoBarAndDisplay(L"成功", L"成功拓展窗口标题栏至窗体: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L")", InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法拓展窗口标题栏至窗体: " + item.Name() + L" (" + to_hstring(item.Hwnd()) + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            co_return;
+            });
+
 		menuFlyout.Items().Append(item1_1);
         menuFlyout.Items().Append(item1_2);
         menuFlyout.Items().Append(item1_3);
@@ -225,6 +401,11 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item2_1);
         menuFlyout.Items().Append(item2_2);
         menuFlyout.Items().Append(item2_3);
+        menuFlyout.Items().Append(separator2);
+        menuFlyout.Items().Append(item3_1);
+        menuFlyout.Items().Append(item3_2);
+        menuFlyout.Items().Append(item3_3);
+        menuFlyout.Items().Append(item3_4);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
@@ -528,20 +709,14 @@ namespace winrt::StarlightGUI::implementation
 
     void WindowPage::ShowVisibleOnlyCheckBox_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 		m_showVisibleOnly = ShowVisibleOnlyCheckBox().IsChecked().GetBoolean();
-        if (m_showVisibleOnly) {
-            LOG_INFO(__WFUNCTION__, L"Show visible only is checked.");
-        }
-        else {
-            LOG_INFO(__WFUNCTION__, L"Show visible only is unchecked.");
-		}
         LoadWindowList();
     }
 
     void WindowPage::SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) return;
+        if (!IsLoaded()) return;
 
         WaitAndReloadAsync(200);
     }
