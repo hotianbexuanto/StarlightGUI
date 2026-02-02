@@ -299,7 +299,7 @@
                                     <TextBlock
                                         FontSize="14"
                                         Foreground="LightGray"
-                                        Text="本项目的技术支持、宣传、思路指导，Windows 用户层大师级开发者" />
+                                        Text="本项目的技术支持、宣传、思路指导，Windows 用户层大师级开发者。" />
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
