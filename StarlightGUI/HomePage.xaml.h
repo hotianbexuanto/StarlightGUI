@@ -21,14 +21,14 @@ namespace winrt::StarlightGUI::implementation
 
         winrt::Microsoft::UI::Xaml::DispatcherTimer clockTimer;
 
-        inline static winrt::hstring greeting;
-        inline static winrt::hstring username;
-        inline static winrt::hstring hitokoto;
+        inline static hstring greeting = L"";
+        inline static hstring username;
+        inline static hstring hitokoto;
         inline static winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage avatar{ nullptr };
 
         // 性能显示
         inline static std::unordered_map<int, hstring> adpt_name_map;
-        inline static hstring cpu_manufacture, disk_manufacture, gpu_manufacture, netadpt_manufacture;
+        inline static hstring cpu_manufacture = L"", disk_manufacture = L"", gpu_manufacture = L"", netadpt_manufacture = L"";
         inline static bool initialized, isNvidia, virtualization, isNetSend = false;
         inline static double cache_l1, cache_l2, cache_l3;
         inline static int adptIndex;

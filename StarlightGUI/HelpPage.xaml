@@ -274,6 +274,42 @@
                             </StackPanel>
                         </Grid>
                     </Button>
+                    <!--  Wormwaker  -->
+                    <Button
+                        Margin="0,10,0,0"
+                        Padding="0"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}">
+                        <Grid>
+                            <StackPanel Margin="8,0,0,0" Orientation="Horizontal">
+                                <Ellipse
+                                    Width="36"
+                                    Height="36"
+                                    Margin="12,0,0,0">
+                                    <Ellipse.Fill>
+                                        <ImageBrush ImageSource="/Assets/wormwaker.jpg" Stretch="UniformToFill" />
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <StackPanel Margin="16">
+                                    <TextBlock
+                                        FontSize="20"
+                                        FontWeight="SemiBold"
+                                        Text="Wormwaker" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="LightGray"
+                                        Text="本项目的技术支持、宣传、思路指导，Windows 用户层大师级开发者" />
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                <Button
+                                    Margin="0,0,16,0"
+                                    Click="Bilibili2Button_Click"
+                                    Content="查看用户" />
+                            </StackPanel>
+                        </Grid>
+                    </Button>
                     <Grid Padding="10">
                         <TextBlock
                             Margin="0,10,0,0"

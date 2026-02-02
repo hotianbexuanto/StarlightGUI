@@ -66,6 +66,11 @@ namespace winrt::StarlightGUI::implementation
         LaunchURI(L"https://space.bilibili.com/670866766");
     }
 
+    void HelpPage::Bilibili2Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        LaunchURI(L"https://space.bilibili.com/3494361276877525");
+    }
+
     void HelpPage::SponsorButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         LaunchURI(L"https://afdian.com/a/StarsAzusa");
