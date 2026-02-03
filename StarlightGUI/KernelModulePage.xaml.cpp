@@ -269,7 +269,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     // 排序切换
-    winrt::fire_and_forget KernelModulePage::ApplySort(bool& isAscending, const std::string& column)
+    slg::coroutine KernelModulePage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"模块"));
         SizeHeaderButton().Content(box_value(L"大小"));
@@ -368,7 +368,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
 
-    winrt::fire_and_forget KernelModulePage::RefreshKernelModuleListButton_Click(IInspectable const&, RoutedEventArgs const&)
+    slg::coroutine KernelModulePage::RefreshKernelModuleListButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
         RefreshKernelModuleListButton().IsEnabled(false);
         co_await LoadKernelModuleList();
@@ -376,7 +376,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget KernelModulePage::LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+    slg::coroutine KernelModulePage::LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         try {
             auto dialog = winrt::make<winrt::StarlightGUI::implementation::LoadDriverDialog>();
             dialog.XamlRoot(this->XamlRoot());
@@ -417,7 +417,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget KernelModulePage::UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+    slg::coroutine KernelModulePage::UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         if (KernelModuleListView().SelectedItem()) {
             auto item = KernelModuleListView().SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
 

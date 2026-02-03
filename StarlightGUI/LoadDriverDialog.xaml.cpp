@@ -37,7 +37,7 @@ namespace winrt::StarlightGUI::implementation
         deferral.Complete();
     }
 
-    winrt::fire_and_forget LoadDriverDialog::ExploreButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    slg::coroutine LoadDriverDialog::ExploreButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         HWND hWnd = g_mainWindowInstance->GetWindowHandle();
 

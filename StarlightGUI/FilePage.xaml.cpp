@@ -313,7 +313,7 @@ namespace winrt::StarlightGUI::implementation
         LoadMoreFiles();
     }
 
-    winrt::fire_and_forget FilePage::LoadMoreFiles() {
+    slg::coroutine FilePage::LoadMoreFiles() {
         if (m_isLoadingMore || m_loadedCount >= m_allFiles.size()) {
             m_hasMoreFiles = false;
             co_return;
@@ -580,7 +580,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     // 排序切换
-    winrt::fire_and_forget FilePage::ApplySort(bool& isAscending, const std::string& column)
+    slg::coroutine FilePage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"文件"));
         ModifyTimeHeaderButton().Content(box_value(L"修改时间"));
@@ -647,7 +647,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget FilePage::RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    slg::coroutine FilePage::RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         RefreshButton().IsEnabled(false);
         co_await LoadFileList();
@@ -655,7 +655,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget FilePage::NextDriveButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    slg::coroutine FilePage::NextDriveButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         static std::vector<std::wstring> drives;
         static int currentIndex = 1;
@@ -795,7 +795,7 @@ namespace winrt::StarlightGUI::implementation
         FindClose(hFind);
     }
 
-    winrt::fire_and_forget FilePage::CopyFiles() {
+    slg::coroutine FilePage::CopyFiles() {
         auto dialog = winrt::make<winrt::StarlightGUI::implementation::CopyFileDialog>();
         dialog.XamlRoot(this->XamlRoot());
 

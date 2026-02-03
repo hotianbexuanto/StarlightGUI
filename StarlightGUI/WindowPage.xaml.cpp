@@ -644,7 +644,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     // 排序切换
-    winrt::fire_and_forget WindowPage::ApplySort(bool& isAscending, const std::string& column)
+    slg::coroutine WindowPage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"窗口"));
 
@@ -735,7 +735,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
 
-    winrt::fire_and_forget WindowPage::RefreshButton_Click(IInspectable const&, RoutedEventArgs const&)
+    slg::coroutine WindowPage::RefreshButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
         RefreshButton().IsEnabled(false);
         co_await LoadWindowList();

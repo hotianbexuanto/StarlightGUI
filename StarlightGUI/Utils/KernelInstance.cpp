@@ -2008,7 +2008,7 @@ namespace winrt::StarlightGUI::implementation {
 			result = result && elevation.TokenIsElevated;
 
 			if (result) {
-				LOG_WARNING(L"KernelInstance", L"Admin privilege detected, enabling driver loading stage and related features.");
+				LOG_INFO(L"KernelInstance", L"Admin privilege detected, enabling driver loading stage and related features.");
 				flag = 1;
 			}
 			else {

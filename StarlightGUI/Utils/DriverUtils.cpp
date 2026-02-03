@@ -52,7 +52,7 @@ namespace winrt::StarlightGUI::implementation {
 			}
 
 			// Start the service
-			LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
+			LOG_INFO(L"Driver", L"Loading driver: %s", kernelPath);
 			if (!StartServiceW(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
@@ -116,7 +116,7 @@ namespace winrt::StarlightGUI::implementation {
 			}
 
 			// Start the service
-			LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
+			LOG_INFO(L"Driver", L"Loading driver: %s", kernelPath);
 			if (!StartServiceW(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);

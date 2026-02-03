@@ -21,7 +21,7 @@ namespace winrt::StarlightGUI::implementation
         winrt::Windows::Foundation::IAsyncAction GetSponsorListFromCloud();
         void SetSponsorList();
 
-        winrt::fire_and_forget LaunchURI(hstring uri);
+        slg::coroutine LaunchURI(hstring uri);
 
         inline static hstring sponsorList = L"";
     };

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "MainWindow.g.h"
+#include <SLG.h>
 #include <winrt/Microsoft.UI.Composition.SystemBackdrops.h>
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.h>
@@ -17,13 +18,13 @@ namespace winrt::StarlightGUI::implementation
         HWND GetWindowHandle();
 
         // 外观
-        winrt::fire_and_forget LoadBackdrop();
-        winrt::fire_and_forget LoadBackground();
-        winrt::fire_and_forget LoadNavigation();
+        slg::coroutine LoadBackdrop();
+        slg::coroutine LoadBackground();
+        slg::coroutine LoadNavigation();
 
         // 驱动和模块
-        winrt::fire_and_forget LoadModules();
-        winrt::fire_and_forget CheckUpdate();
+        winrt::Windows::Foundation::IAsyncAction LoadModules();
+        winrt::Windows::Foundation::IAsyncAction CheckUpdate();
 
         // 窗口
         static LRESULT CALLBACK MainWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);

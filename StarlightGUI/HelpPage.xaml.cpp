@@ -81,7 +81,7 @@ namespace winrt::StarlightGUI::implementation
         LaunchURI(L"https://aka.ms/windev");
     }
 
-    winrt::fire_and_forget HelpPage::LaunchURI(hstring uri) {
+    slg::coroutine HelpPage::LaunchURI(hstring uri) {
         Uri target(uri);
         LOG_INFO(__WFUNCTION__, L"Launching URI link: %s", uri.c_str());
         auto result = co_await Launcher::LaunchUriAsync(target);

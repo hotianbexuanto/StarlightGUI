@@ -11,11 +11,11 @@ namespace winrt::StarlightGUI::implementation
     {
         TaskPage();
 
-        winrt::fire_and_forget RefreshProcessListButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget CreateProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget InjectDLL(ULONG pid);
-        winrt::fire_and_forget ModifyToken(ULONG pid);
+        slg::coroutine RefreshProcessListButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine CreateProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine InjectDLL(ULONG pid);
+        slg::coroutine ModifyToken(ULONG pid);
 
         void ProcessListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
         void ProcessListView_ContainerContentChanging(
@@ -24,7 +24,7 @@ namespace winrt::StarlightGUI::implementation
 
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
-        winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
+        slg::coroutine ApplySort(bool& isAscending, const std::string& column);
         void ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         bool ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query);
 

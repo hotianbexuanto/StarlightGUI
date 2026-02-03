@@ -10,18 +10,19 @@ namespace winrt::StarlightGUI::implementation
     {
         HomePage();
 
-        void SetGreetingText();
-        winrt::fire_and_forget SetUserProfile();
-        winrt::fire_and_forget FetchHitokoto();
-        void SetupClock();
-        void OnClockTick(IInspectable const&, IInspectable const&);
-        void UpdateClock();
+        slg::coroutine SetGreetingText();
+        slg::coroutine SetUserProfile();
+        slg::coroutine FetchHitokoto();
+        slg::coroutine SetupClock();
+        slg::coroutine OnClockTick(IInspectable const&, IInspectable const&);
+        slg::coroutine UpdateClock();
 
-        winrt::fire_and_forget UpdateGauges();
+        slg::coroutine UpdateGauges();
 
         winrt::Microsoft::UI::Xaml::DispatcherTimer clockTimer;
 
-        inline static hstring greeting = L"";
+        inline static bool infoInitialized;
+        inline static hstring greeting;
         inline static hstring username;
         inline static hstring hitokoto;
         inline static winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage avatar{ nullptr };

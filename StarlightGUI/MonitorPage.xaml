@@ -36,7 +36,6 @@
                         Grid.Column="0"
                         HorizontalAlignment="Left"
                         essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel}"
-                        SelectedIndex="0"
                         SelectionChanged="MainSegmented_SelectionChanged">
                         <essential:SegmentedItem>
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -198,6 +197,14 @@
             VerticalAlignment="Center"
             IsActive="False" />
 
+        <TextBlock
+            x:Name="DefaultText"
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="选择一个板块。"
+            Visibility="Visible" />
+
         <!--  每个 ListView 单独包裹 RevealFocusPanel，Tag 绑定到对应 panel  -->
         <Grid
             x:Name="ObjectGrid"
@@ -226,7 +233,6 @@
                             essential:RevealFocusPanel.AttachToPanel="{x:Bind RevealFocusPanel2}"
                             BorderThickness="0"
                             CornerRadius="0"
-                            SelectedIndex="0"
                             SelectionChanged="ObjectTreeView_SelectionChanged"
                             Style="{StaticResource ButtonSegmentedStyle}">
                             <essential:Segmented.ItemsPanel>

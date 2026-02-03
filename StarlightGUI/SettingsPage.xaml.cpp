@@ -241,7 +241,7 @@ namespace winrt::StarlightGUI::implementation
         g_mainWindowInstance->LoadBackground();
     }
 
-    winrt::fire_and_forget SettingsPage::SetImageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+    slg::coroutine SettingsPage::SetImageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         HWND hWnd = g_mainWindowInstance->GetWindowHandle();
 
         FileOpenPicker picker = FileOpenPicker(winrt::Microsoft::UI::GetWindowIdFromWindow(hWnd));

@@ -754,7 +754,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     // 排序切换
-    winrt::fire_and_forget TaskPage::ApplySort(bool& isAscending, const std::string& column)
+    slg::coroutine TaskPage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"进程"));
         CpuHeaderButton().Content(box_value(L"CPU"));
@@ -905,7 +905,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
 
-    winrt::fire_and_forget TaskPage::RefreshProcessListButton_Click(IInspectable const&, RoutedEventArgs const&)
+    slg::coroutine TaskPage::RefreshProcessListButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
         RefreshProcessListButton().IsEnabled(false);
 
@@ -917,7 +917,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget TaskPage::CreateProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+    slg::coroutine TaskPage::CreateProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         try {
             auto dialog = winrt::make<winrt::StarlightGUI::implementation::RunProcessDialog>();
             dialog.XamlRoot(this->XamlRoot());
@@ -982,7 +982,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget TaskPage::InjectDLL(ULONG pid) {
+    slg::coroutine TaskPage::InjectDLL(ULONG pid) {
         try {
             auto dialog = winrt::make<winrt::StarlightGUI::implementation::InjectDLLDialog>();
             dialog.XamlRoot(this->XamlRoot());
@@ -1030,7 +1030,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget TaskPage::ModifyToken(ULONG pid) {
+    slg::coroutine TaskPage::ModifyToken(ULONG pid) {
         try {
             auto dialog = winrt::make<winrt::StarlightGUI::implementation::ModifyTokenDialog>();
             dialog.XamlRoot(this->XamlRoot());
@@ -1064,7 +1064,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget TaskPage::TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+    slg::coroutine TaskPage::TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         if (ProcessListView().SelectedItem()) {
             auto item = ProcessListView().SelectedItem().as<winrt::StarlightGUI::ProcessInfo>();
 

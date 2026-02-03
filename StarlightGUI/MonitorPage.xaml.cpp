@@ -51,24 +51,21 @@ namespace winrt::StarlightGUI::implementation
 			HALPDPTListView().ItemContainerTransitions().Clear();
 		}
 
-		if (!KernelInstance::IsRunningAsAdmin()) {
-			CallbackSegmentedItem().IsEnabled(false);
-			MiniFilterSegmentedItem().IsEnabled(false);
-			StdFilterSegmentedItem().IsEnabled(false);
-			SSDTSegmentedItem().IsEnabled(false);
-			SSSDTSegmentedItem().IsEnabled(false);
-			IoTimerSegmentedItem().IsEnabled(false);
-			ExCallbackSegmentedItem().IsEnabled(false);
-			IDTSegmentedItem().IsEnabled(false);
-			GDTSegmentedItem().IsEnabled(false);
-			PiDDBSegmentedItem().IsEnabled(false);
-			HALDPTSegmentedItem().IsEnabled(false);
-			HALPDPTSegmentedItem().IsEnabled(false);
-		}
-
-		// SelectionChanged 会在进入时触发一次，特么的不知道为啥，不管他
 		Loaded([this](auto&&, auto&&) {
-			HandleSegmentedChange(0, true);
+			if (!KernelInstance::IsRunningAsAdmin()) {
+				CallbackSegmentedItem().IsEnabled(false);
+				MiniFilterSegmentedItem().IsEnabled(false);
+				StdFilterSegmentedItem().IsEnabled(false);
+				SSDTSegmentedItem().IsEnabled(false);
+				SSSDTSegmentedItem().IsEnabled(false);
+				IoTimerSegmentedItem().IsEnabled(false);
+				ExCallbackSegmentedItem().IsEnabled(false);
+				IDTSegmentedItem().IsEnabled(false);
+				GDTSegmentedItem().IsEnabled(false);
+				PiDDBSegmentedItem().IsEnabled(false);
+				HALDPTSegmentedItem().IsEnabled(false);
+				HALPDPTSegmentedItem().IsEnabled(false);
+			}
 			});
 
 		Unloaded([this](auto&&, auto&&) {
@@ -507,7 +504,7 @@ namespace winrt::StarlightGUI::implementation
 		return result;
 	}
 
-	winrt::fire_and_forget MonitorPage::RefreshButton_Click(IInspectable const&, RoutedEventArgs const&)
+	slg::coroutine MonitorPage::RefreshButton_Click(IInspectable const&, RoutedEventArgs const&)
 	{
 		RefreshButton().IsEnabled(false);
 		HandleSegmentedChange(segmentedIndex, true);
@@ -515,7 +512,7 @@ namespace winrt::StarlightGUI::implementation
 		co_return;
 	}
 
-	winrt::fire_and_forget MonitorPage::DbgViewButton_Click(IInspectable const&, RoutedEventArgs const&)
+	slg::coroutine MonitorPage::DbgViewButton_Click(IInspectable const&, RoutedEventArgs const&)
 	{
 		isDbgViewEnabled = !isDbgViewEnabled;
 		DbgViewButton().Content(isDbgViewEnabled ? box_value(L"关闭") : box_value(L"开启"));
@@ -523,7 +520,7 @@ namespace winrt::StarlightGUI::implementation
 		co_return;
 	}
 
-	winrt::fire_and_forget MonitorPage::DbgViewGlobalCheckBox_Click(IInspectable const&, RoutedEventArgs const&)
+	slg::coroutine MonitorPage::DbgViewGlobalCheckBox_Click(IInspectable const&, RoutedEventArgs const&)
 	{
 		isDbgViewGlobalEnabled = DbgViewGlobalCheckBox().IsChecked().GetBoolean();
 		InitializeDbgView();
@@ -621,8 +618,11 @@ namespace winrt::StarlightGUI::implementation
 		HandleSegmentedChange(MainSegmented().SelectedIndex(), false);
 	}
 
-	winrt::fire_and_forget MonitorPage::HandleSegmentedChange(int index, bool force) {
+	slg::coroutine MonitorPage::HandleSegmentedChange(int index, bool force) {
 		if (!IsLoaded() || m_isLoading) co_return;
+
+		LOG_INFO(__WFUNCTION__, L"Handling segmented change: %d", index);
+
 		LoadingRing().IsActive(true);
 
 		auto weak_this = get_weak();
@@ -638,6 +638,7 @@ namespace winrt::StarlightGUI::implementation
 		m_generalList.Clear();
 		windbgTimer.Stop();
 
+		DefaultText().Visibility(Visibility::Collapsed);
 		ObjectGrid().Visibility(Visibility::Collapsed);
 		DbgViewGrid().Visibility(Visibility::Collapsed);
 		CallbackGrid().Visibility(Visibility::Collapsed);

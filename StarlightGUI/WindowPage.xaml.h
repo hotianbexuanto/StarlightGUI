@@ -8,7 +8,7 @@ namespace winrt::StarlightGUI::implementation
     {
         WindowPage();
 
-        winrt::fire_and_forget RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
         void WindowListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
         void WindowListView_ContainerContentChanging(
@@ -17,7 +17,7 @@ namespace winrt::StarlightGUI::implementation
         void ShowVisibleOnlyCheckBox_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
+        slg::coroutine ApplySort(bool& isAscending, const std::string& column);
 
         void SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         bool ApplyFilter(const winrt::StarlightGUI::WindowInfo& window, hstring& query);

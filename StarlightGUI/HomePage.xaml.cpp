@@ -44,29 +44,25 @@ namespace winrt::StarlightGUI::implementation
     {
         InitializeComponent();
 
-        SetGreetingText();
-        SetUserProfile();
-        try {
+
+        this->Loaded([this](auto&&, auto&&) -> IAsyncAction {
+            SetGreetingText();
+            SetUserProfile();
             FetchHitokoto();
-        }
-        catch (hresult_error) {
-            hitokoto = L"无法加载内容... :(";
-        }
-        SetupClock();
+            SetupClock();
+            infoInitialized = true;
+
+            co_return;
+            });
 
         this->Unloaded([this](auto&&, auto&&) {
             clockTimer.Stop();
             });
 
-        TotalLineGraph().AddSeries(L"CPU", Colors::LightSkyBlue());
-        TotalLineGraph().AddSeries(L"内存", Colors::DodgerBlue());
-        TotalLineGraph().AddSeries(L"磁盘", Colors::LimeGreen());
-        TotalLineGraph().AddSeries(L"GPU", Colors::MediumPurple());
-
         LOG_INFO(L"HomePage", L"HomePage initialized.");
     }
 
-    void HomePage::SetGreetingText()
+    slg::coroutine HomePage::SetGreetingText()
     {
         if (greeting.empty()) {
             std::vector<hstring> greetings = {
@@ -83,7 +79,7 @@ namespace winrt::StarlightGUI::implementation
             int currentHour = calendar.Hour();
 
             if (greeting == L"TimeFormat") {
-                if (currentHour < 12)
+                if (currentHour >= 4 && currentHour < 12)
                 {
                     greeting = L"上午好";
                 }
@@ -91,7 +87,7 @@ namespace winrt::StarlightGUI::implementation
                 {
                     greeting = L"下午好";
                 }
-                else if (currentHour >= 18)
+                else if (currentHour < 4 || currentHour >= 18)
                 {
                     greeting = L"晚上好";
                 }
@@ -99,121 +95,137 @@ namespace winrt::StarlightGUI::implementation
         }
 
         AppIntroduction().Text(L"欢迎使用 Starlight GUI！");
+        co_return;
     }
 
-    winrt::fire_and_forget HomePage::SetUserProfile()
+    slg::coroutine HomePage::SetUserProfile()
     {
         auto weak_this = get_weak();
 
-        if (username.empty() || avatar == nullptr) {
-            co_await winrt::resume_background();
-
-            auto users = co_await User::FindAllAsync(UserType::LocalUser, UserAuthenticationStatus::LocallyAuthenticated);
-
-            if (users != nullptr && users.Size() > 0)
-            {
-                auto user = users.GetAt(0);
-                auto picture = co_await user.GetPictureAsync(UserPictureSize::Size64x64);
-
-                if (picture != nullptr)
-                {
-                    auto stream = co_await picture.OpenReadAsync();
-
-                    if (stream != nullptr)
-                    {
-                        co_await wil::resume_foreground(DispatcherQueue());
-
-                        BitmapImage bitmapImage;
-                        co_await bitmapImage.SetSourceAsync(stream);
-                        avatar = bitmapImage;
-
-                        LOG_INFO(__WFUNCTION__, L"Got user account picture.");
-                    }
-                }
-
+        try {
+            if (!infoInitialized) {
                 co_await winrt::resume_background();
 
-                auto displayName = co_await user.GetPropertyAsync(KnownUserProperties::DisplayName());
+                LOG_INFO(__WFUNCTION__, L"Retrieving user profile...");
 
-                if (displayName != nullptr && !displayName.as<winrt::hstring>().empty())
+                auto& users = co_await User::FindAllAsync(UserType::LocalUser, UserAuthenticationStatus::LocallyAuthenticated);
+
+                if (users && users.Size() > 0)
                 {
-                    username = displayName.as<winrt::hstring>();
-                    LOG_INFO(__WFUNCTION__, L"Got user account name.");
+                    LOG_INFO(__WFUNCTION__, L"Retrieved user list.");
+                    auto user = users.GetAt(0);
+                    auto& picture = co_await user.GetPictureAsync(UserPictureSize::Size64x64);
+
+                    if (picture)
+                    {
+                        LOG_INFO(__WFUNCTION__, L"Retrieved user picture.");
+                        auto& stream = co_await picture.OpenReadAsync();
+
+                        if (stream)
+                        {
+                            co_await wil::resume_foreground(DispatcherQueue());
+
+                            BitmapImage bitmapImage;
+                            co_await bitmapImage.SetSourceAsync(stream);
+                            avatar = bitmapImage;
+
+                            LOG_INFO(__WFUNCTION__, L"Retrieved user account picture successfully.");
+                        }
+                    }
+
+                    co_await winrt::resume_background();
+
+                    auto& displayName = co_await user.GetPropertyAsync(KnownUserProperties::DisplayName());
+
+                    if (displayName && !displayName.as<winrt::hstring>().empty())
+                    {
+                        username = displayName.as<winrt::hstring>();
+                        LOG_INFO(__WFUNCTION__, L"Retrieved user account name successfully.");
+                    }
                 }
             }
+
+            if (auto strong_this = weak_this.get()) {
+                co_await wil::resume_foreground(DispatcherQueue());
+                UserAvatar().ImageSource(avatar.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>());
+                WelcomeText().Text(greeting + L", " + username + L"！");
+            }
         }
-
-
-        if (auto strong_this = weak_this.get()) {
-            co_await wil::resume_foreground(DispatcherQueue());
-            UserAvatar().ImageSource(avatar.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>());
-            WelcomeText().Text(greeting + L", " + username + L"！");
+        catch (const hresult_error& e) {
+            LOG_ERROR(__WFUNCTION__, L"Failed to retrieve user profile! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
+            WelcomeText().Text(greeting + L"！");
         }
     }
 
-    winrt::fire_and_forget HomePage::FetchHitokoto()
+    slg::coroutine HomePage::FetchHitokoto()
     {
         auto weak_this = get_weak();
         try {
+            if (!infoInitialized) {
+                co_await winrt::resume_background();
 
-            if (hitokoto.empty()) {
-                if (auto strong_this = weak_this.get()) {
-                    co_await winrt::resume_background();
+                LOG_INFO(__WFUNCTION__, L"Sending hitokoto request...");
 
-                    // 异步获取随机词条
-                    HttpClient client;
-                    /*
-                    * 移除：
-                    * a	动画
-                    * b	漫画
-                    * c	游戏
-                    * 因为太唐了受不了了 为什么说的话都那么逆天
-                    */
-                    Uri uri(L"https://v1.hitokoto.cn/?c=d&c=e&c=i&c=j&c=k");
+                // 异步获取随机词条
+                HttpClient client;
+                /*
+                * 移除：
+                * a	动画
+                * b	漫画
+                * c	游戏
+                * 因为太唐了受不了了 为什么说的话都那么逆天
+                */
+                Uri uri(L"https://v1.hitokoto.cn/?c=d&c=e&c=i&c=j&c=k");
+                auto& result = co_await client.GetStringAsync(uri);
 
-                    LOG_INFO(__WFUNCTION__, L"Sending hitokoto request...");
-                    auto& result = co_await client.GetStringAsync(uri);
+                // 读取 json 内容
+                auto json = Windows::Data::Json::JsonObject::Parse(result);
+                hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
 
-                    // 读取 json 内容
-                    auto json = Windows::Data::Json::JsonObject::Parse(result);
-                    hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
+                LOG_INFO(__WFUNCTION__, L"Hitokoto json result: %s", result.c_str());
+            }
 
-                    LOG_INFO(__WFUNCTION__, L"Hitokoto json result: %s", result.c_str());
-                }
+            if (auto strong_this = weak_this.get()) {
+                co_await wil::resume_foreground(DispatcherQueue());
+                HitokotoText().Text(hitokoto);
             }
         }
         catch (const hresult_error& e) {
             LOG_ERROR(__WFUNCTION__, L"Failed to fetch hitokoto! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
-            hitokoto = L"获取失败... :(";
-        }
-
-        if (auto strong_this = weak_this.get()) {
-            co_await wil::resume_foreground(DispatcherQueue());
-            HitokotoText().Text(hitokoto);
+            HitokotoText().Text(L"获取失败... :(");
         }
     }
 
-    void HomePage::SetupClock()
+    slg::coroutine HomePage::SetupClock()
     {
+        UpdateClock();
+        UpdateGauges();
+
         // 每秒更新一次
         clockTimer.Interval(std::chrono::seconds(1));
         clockTimer.Tick({ this, &HomePage::OnClockTick });
         clockTimer.Start();
 
-        UpdateClock();
-        UpdateGauges();
+        co_return;
     }
 
-    void HomePage::OnClockTick(IInspectable const&, IInspectable const&)
+    slg::coroutine HomePage::OnClockTick(IInspectable const&, IInspectable const&)
     {
+        if (!IsLoaded()) co_return;
         auto weak_this = get_weak();
 
-        if (auto strong_this = weak_this.get()) {
-            UpdateClock();
-            UpdateGauges();
+        try {
+            if (auto strong_this = weak_this.get()) {
+                UpdateClock();
+                UpdateGauges();
+            }
+            else {
+                clockTimer.Stop();
+            }
         }
-        else {
-			clockTimer.Stop();
+        catch (const hresult_error& e) {
+            LOG_ERROR(__WFUNCTION__, L"Error while clock ticking! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
+            HitokotoText().Text(L"获取失败... :(");
         }
     }
 
@@ -221,8 +233,10 @@ namespace winrt::StarlightGUI::implementation
     * ! 至尊答辩代码 !
     * @Author Stars
     */
-    winrt::fire_and_forget HomePage::UpdateGauges() {
+    slg::coroutine HomePage::UpdateGauges() {
+        if (!IsLoaded()) co_return;
         auto weak_this = get_weak();
+
         co_await winrt::resume_background();
 
         // 初始化性能计数器
@@ -510,8 +524,10 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    void HomePage::UpdateClock()
+    slg::coroutine HomePage::UpdateClock()
     {
+        if (!IsLoaded()) co_return;
+
         Calendar calendar;
         calendar.SetToNow();
 
@@ -536,6 +552,8 @@ namespace winrt::StarlightGUI::implementation
         auto secondDigits = splitDigits(second);
         Second1().Text(secondDigits.first);
         Second2().Text(secondDigits.second);
+
+        co_return;
     }
 
     void HomePage::NextAdapterName_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)

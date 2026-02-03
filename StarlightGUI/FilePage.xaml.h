@@ -8,8 +8,8 @@ namespace winrt::StarlightGUI::implementation
     {
         FilePage();
 
-        winrt::fire_and_forget RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget NextDriveButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine NextDriveButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
         void FileListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
         void FileListView_DoubleTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs const& e);
@@ -18,7 +18,7 @@ namespace winrt::StarlightGUI::implementation
             winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         void ColumnHeader_Click(IInspectable const& sender, RoutedEventArgs const& e);
-        winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
+        slg::coroutine ApplySort(bool& isAscending, const std::string& column);
 
         void PathBox_KeyDown(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e);
         void SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
@@ -34,10 +34,10 @@ namespace winrt::StarlightGUI::implementation
             winrt::multi_threaded_observable_vector<winrt::StarlightGUI::FileInfo>()
         };
 
-        winrt::fire_and_forget CopyFiles();
+        slg::coroutine CopyFiles();
 
         void AddPreviousItem();
-        winrt::fire_and_forget LoadMoreFiles();
+        slg::coroutine LoadMoreFiles();
         void CheckAndLoadMoreItems();
         void ResetState();
         bool FindScrollViewer(DependencyObject parent);

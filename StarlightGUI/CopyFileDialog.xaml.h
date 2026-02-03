@@ -12,7 +12,7 @@ namespace winrt::StarlightGUI::implementation
 
         void OnPrimaryButtonClick(winrt::Microsoft::UI::Xaml::Controls::ContentDialog const& sender,
             winrt::Microsoft::UI::Xaml::Controls::ContentDialogButtonClickEventArgs const& args);
-        winrt::fire_and_forget ExploreButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine ExploreButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
     private:
         hstring m_copyPath{ L"" };

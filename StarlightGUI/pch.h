@@ -16,6 +16,22 @@
 // 取消定义 GetCurrentTime 宏，避免与 Storyboard::GetCurrentTime 冲突
 #undef GetCurrentTime
 
+// 控制台相关
+#include <Console.h>
+#define __WFUNCTION__ ExtractFunctionName(__FUNCTION__)
+#define LOG_INFO(source, message, ...)     Console::GetInstance().Info(source, message, __VA_ARGS__)
+#define LOG_WARNING(source, message, ...)  Console::GetInstance().Warning(source, message, __VA_ARGS__)
+#define LOG_ERROR(source, message, ...)    Console::GetInstance().Error(source, message, __VA_ARGS__)
+#define LOG_OTHER(source, message, ...)	   Console::GetInstance().Other(source, message, __VA_ARGS__)
+#define LOGGER_INIT()			Console::GetInstance().Initialize()
+#define LOGGER_TOGGLE()			Console::GetInstance().ToggleConsole()
+#define LOGGER_OPEN()			Console::GetInstance().OpenConsole()
+#define LOGGER_CLOSE()			Console::GetInstance().CloseConsole()
+#define LOGGER_SHUTDOWN()		Console::GetInstance().ShutdownConsole()
+#define LOGGER_CLEAR()			Console::GetInstance().ClearConsole()
+#define LOGGER_SET_TITLE(title) Console::GetInstance().SetTitle(title)
+#define LOGGER_SET_LEVEL(level) Console::GetInstance().SetMinLogLevel(level)
+
 #include <Unknwn.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -62,21 +78,7 @@
 #include <Utils/Elevator.h>
 #include <Utils/Config.h>
 #include <Utils/CppUtils.h>
-#include <Console.h>
-
-#define __WFUNCTION__ ExtractFunctionName(__FUNCTION__)
-#define LOG_INFO(source, message, ...)     Console::GetInstance().Info(source, message, __VA_ARGS__)
-#define LOG_WARNING(source, message, ...)  Console::GetInstance().Warning(source, message, __VA_ARGS__)
-#define LOG_ERROR(source, message, ...)    Console::GetInstance().Error(source, message, __VA_ARGS__)
-#define LOG_OTHER(source, message, ...)	   Console::GetInstance().Other(source, message, __VA_ARGS__)
-#define LOGGER_INIT()			Console::GetInstance().Initialize()
-#define LOGGER_TOGGLE()			Console::GetInstance().ToggleConsole()
-#define LOGGER_OPEN()			Console::GetInstance().OpenConsole()
-#define LOGGER_CLOSE()			Console::GetInstance().CloseConsole()
-#define LOGGER_SHUTDOWN()		Console::GetInstance().ShutdownConsole()
-#define LOGGER_CLEAR()			Console::GetInstance().ClearConsole()
-#define LOGGER_SET_TITLE(title) Console::GetInstance().SetTitle(title)
-#define LOGGER_SET_LEVEL(level) Console::GetInstance().SetMinLogLevel(level)
+#include <SLG.h>
 
 extern winrt::hstring kernelPath, astralPath, axBandPath;
 extern std::wstring unused;
