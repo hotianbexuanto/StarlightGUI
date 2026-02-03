@@ -26,8 +26,8 @@ namespace winrt::StarlightGUI::implementation
 
     void App::OnLaunched(LaunchActivatedEventArgs const&)
     {
-        InitializeLogger();
         InitializeConfig();
+        InitializeLogger();
         window = make<MainWindow>();
         window.Activate();
     }
