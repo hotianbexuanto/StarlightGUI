@@ -44,7 +44,7 @@
                 ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
                 SelectedIndex="0"
                 Text="进程权限">
-                <ComboBoxItem Content="User" />
+                <ComboBoxItem x:Name="UserComboBoxItem" Content="User" />
                 <ComboBoxItem Content="Administator" />
                 <ComboBoxItem x:Name="TIComboBoxItem" Content="TrustedInstaller" />
             </ComboBox>
