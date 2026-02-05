@@ -42,7 +42,7 @@
                 x:Name="PermissionComboBox"
                 essential:ComboBoxHelper.AcrylicWorkaround="True"
                 ItemContainerStyle="{StaticResource ComboBoxItemStyle}"
-                SelectedIndex="0"
+                SelectedIndex="1"
                 Text="进程权限">
                 <ComboBoxItem x:Name="UserComboBoxItem" Content="User" />
                 <ComboBoxItem Content="Administator" />

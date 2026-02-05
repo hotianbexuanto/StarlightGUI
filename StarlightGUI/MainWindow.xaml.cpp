@@ -68,6 +68,7 @@ namespace winrt::StarlightGUI::implementation
 
         Activated([this](auto&&, auto&&) -> IAsyncAction {
             if (!loaded) {
+                RootNavigation().IsEnabled(false);
                 // 加载模块
                 CreateInfoBarAndDisplay(L"信息", L"正在加载模块，这可能需要一点时间...", InfoBarSeverity::Informational, g_mainWindowInstance);
                 co_await LoadModules();
@@ -80,6 +81,7 @@ namespace winrt::StarlightGUI::implementation
                 // 检查更新
                 co_await CheckUpdate();
                 
+                RootNavigation().IsEnabled(true);
                 loaded = true;
                 LOG_INFO(L"MainWindow", L"Completed all loading-stage tasks.");
             }
@@ -354,8 +356,6 @@ namespace winrt::StarlightGUI::implementation
     }
 
     IAsyncAction MainWindow::LoadModules() {
-        RootNavigation().IsEnabled(false);
-
         if (kernelPath.empty() || astralPath.empty() || axBandPath.empty()) {
             try {
                 co_await winrt::resume_background();
@@ -398,9 +398,6 @@ namespace winrt::StarlightGUI::implementation
                 CreateInfoBarAndDisplay(L"警告", L"一个或多个模块文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, g_mainWindowInstance);
             }
         }
-
-        co_await wil::resume_foreground(DispatcherQueue());
-        RootNavigation().IsEnabled(true);
     }
 
     HWND MainWindow::GetWindowHandle()
