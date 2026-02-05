@@ -83,6 +83,11 @@ namespace winrt::StarlightGUI::implementation
         auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
         auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
 
+        if (item.Description() == L"StarlightGUI.exe / WinUIDesktopWin32WindowClass" || item.Description() == L"StarlightGUI.exe / ConsoleWindowClass") {
+            CreateInfoBarAndDisplay(L"警告", L"你要干什么？", InfoBarSeverity::Warning, g_mainWindowInstance);
+            return;
+        }
+
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem item1_1;

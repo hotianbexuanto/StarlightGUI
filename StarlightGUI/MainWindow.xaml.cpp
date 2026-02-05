@@ -111,7 +111,10 @@ namespace winrt::StarlightGUI::implementation
 
     void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
     {
-        if (!loaded) return;
+        if (!loaded) {
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
+            return;
+        }
         if (args.IsSettingsInvoked())
         {
             MainFrame().Navigate(xaml_typename<StarlightGUI::SettingsPage>());

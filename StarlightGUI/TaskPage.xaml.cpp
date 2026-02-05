@@ -89,6 +89,11 @@ namespace winrt::StarlightGUI::implementation
         auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
         auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
 
+        if (item.Name() == L"StarlightGUI.exe") {
+            CreateInfoBarAndDisplay(L"警告", L"你要干什么？", InfoBarSeverity::Warning, g_mainWindowInstance);
+            return;
+        }
+
         MenuFlyout menuFlyout;
 
         // 选项1.1
@@ -1067,6 +1072,11 @@ namespace winrt::StarlightGUI::implementation
     slg::coroutine TaskPage::TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         if (ProcessListView().SelectedItem()) {
             auto item = ProcessListView().SelectedItem().as<winrt::StarlightGUI::ProcessInfo>();
+
+            if (item.Name() == L"StarlightGUI.exe") {
+                CreateInfoBarAndDisplay(L"警告", L"你要干什么？", InfoBarSeverity::Warning, g_mainWindowInstance);
+                co_return;
+            }
 
             if (KernelInstance::IsRunningAsAdmin()) {
                 // 管理员权限时，尝试使用内核结束

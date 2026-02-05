@@ -16,6 +16,7 @@ using namespace Microsoft::UI::Xaml;
 namespace winrt::StarlightGUI::implementation
 {
 	hstring currentDirectory = L"C:\\";
+    static hstring safeAcceptedName = L"";
     static std::unordered_map<std::wstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static HDC hdc{ nullptr };
 
@@ -73,8 +74,16 @@ namespace winrt::StarlightGUI::implementation
             auto item = file.as<winrt::StarlightGUI::FileInfo>();
             // 跳过"上个文件夹"选项
             if (item.Flag() == 999) continue;
+            if ((item.Name() == L"Windows" || item.Name() == L"Boot" || item.Name() == L"System32" || item.Name() == L"SysWOW64" || item.Name() == L"Microsoft") && 
+                (safeAcceptedName != L"Windows" && safeAcceptedName != L"Boot" && safeAcceptedName != L"System32" && safeAcceptedName != L"SysWOW64" && safeAcceptedName != L"Microsoft")) {
+                safeAcceptedName = item.Name();
+                CreateInfoBarAndDisplay(L"警告", L"该文件可能为重要文件，如果确认继续请再次点击！", InfoBarSeverity::Warning, g_mainWindowInstance);
+                return;
+            }
             selectedFiles.push_back(item);
         }
+
+        safeAcceptedName = L"";
 
         auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
         auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
@@ -82,7 +91,7 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyout menuFlyout;
 
         /*
-        * 注意，由于这里是磁盘IO，我们不要使用异步，否则刷新时可能会出问题
+        * 注意，由于这里是磁盘 IO，我们不要使用异步，否则刷新时可能会出问题
         */
         // 选项1.1
         MenuFlyoutItem item1_1;
