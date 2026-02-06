@@ -423,9 +423,10 @@ namespace winrt::StarlightGUI::implementation
             graphX += 1;
 
             std::wstringstream ss;
-            CpuGauge().Value(GetValueFromCounter(counter_cpu_time));
-            ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_time) << "%";
+            auto cpu_value = GetValueFromCounter(counter_cpu_time);
+            ss << std::fixed << std::setprecision(1) << cpu_value << "%";
             CpuPercent().Text(ss.str());
+            CpuGaugeText().Text(ss.str());
             CpuManufacture().Text(to_hstring(cpu_manufacture));
             ss = std::wstringstream{};
             ss << std::fixed << std::setprecision(2) << GetValueFromCounter(counter_cpu_freq) / 1024.0 << " GHz";
@@ -443,8 +444,8 @@ namespace winrt::StarlightGUI::implementation
             CpuCacheL3().Text(to_hstring(cache_l3) + L" MB");
             TotalLineGraph().AddDataPoint(L"CPU", graphX, GetValueFromCounter(counter_cpu_time));
 
-            MemGauge().Value(memInfo.dwMemoryLoad);
             MemPercent().Text(to_hstring((int)memInfo.dwMemoryLoad) + L"%");
+            MemGaugeText().Text(to_hstring((int)memInfo.dwMemoryLoad) + L"%");
             MemSize().Text(FormatMemorySize(memInfo.ullTotalPhys));
             MemUsing().Text(FormatMemorySize(memInfo.ullTotalPhys - memInfo.ullAvailPhys));
             MemUsable().Text(FormatMemorySize(memInfo.ullAvailPhys));
@@ -456,11 +457,11 @@ namespace winrt::StarlightGUI::implementation
             MemPageOutput().Text(FormatMemorySize(GetValueFromCounter(counter_mem_output)) + L"/s");
             TotalLineGraph().AddDataPoint(L"内存", graphX, memInfo.dwMemoryLoad);
 
-            DiskGauge().Value(GetValueFromCounter(counter_disk_time));
             DiskManufacture().Text(disk_manufacture);
             ss = std::wstringstream{};
             ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_disk_time) << "%";
             DiskPercent().Text(ss.str());
+            DiskGaugeText().Text(ss.str());
             DiskRead().Text(FormatMemorySize(GetValueFromCounter(counter_disk_read)) + L"/s");
             DiskWrite().Text(FormatMemorySize(GetValueFromCounter(counter_disk_write)) + L"/s");
             ss = std::wstringstream{};
@@ -497,20 +498,22 @@ namespace winrt::StarlightGUI::implementation
                 GpuClockGraphics().Text(L"NaN");
                 GpuClockMem().Text(L"NaN");
             }
-            GpuGauge().Value(gpu_time);
             ss = std::wstringstream{};
             ss << std::fixed << std::setprecision(1) << gpu_time << "%";
             GpuPercent().Text(ss.str());
+            GpuGaugeText().Text(ss.str());
             GpuManufacture().Text(gpu_manufacture);
             TotalLineGraph().AddDataPoint(L"GPU", graphX, gpu_time);
 
             if (isNetSend) {
-                NetGauge().Value(GetValueFromCounterArray(counter_net_send) / (1024 * 1024));
-                NetGauge().ValueStringFormat(L"↑ {0} MB/s");
+                ss = std::wstringstream{};
+                ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_send) / (1024.0 * 1024.0);
+                NetGaugeText().Text(L"↑ " + to_hstring(ss.str()) + L" MB/s");
             }
             else {
-                NetGauge().Value(GetValueFromCounterArray(counter_net_receive) / (1024 * 1024));
-                NetGauge().ValueStringFormat(L"↓ {0} MB/s");
+                ss = std::wstringstream{};
+                ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_receive) / (1024.0 * 1024.0);
+                NetGaugeText().Text(L"↓ " + to_hstring(ss.str()) + L" MB/s");
             }
             NetManufacture().Text(netadpt_manufacture);
             NetReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_receive)) + L"/s");
