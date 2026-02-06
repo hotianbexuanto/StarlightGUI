@@ -507,13 +507,13 @@ namespace winrt::StarlightGUI::implementation
 
             if (isNetSend) {
                 ss = std::wstringstream{};
-                ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_send) / (1024.0 * 1024.0);
-                NetGaugeText().Text(L"↑ " + to_hstring(ss.str()) + L" MB/s");
+                ss << L"↑ " << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_send) / (1024.0 * 1024.0) << L" MB/s";
+                NetGaugeText().Text(ss.str());
             }
             else {
                 ss = std::wstringstream{};
-                ss << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_receive) / (1024.0 * 1024.0);
-                NetGaugeText().Text(L"↓ " + to_hstring(ss.str()) + L" MB/s");
+                ss << L"↓ " << std::fixed << std::setprecision(1) << GetValueFromCounterArray(counter_net_receive) / (1024.0 * 1024.0) << L" MB/s";
+                NetGaugeText().Text(ss.str());
             }
             NetManufacture().Text(netadpt_manufacture);
             NetReceive().Text(FormatMemorySize(GetValueFromCounterArray(counter_net_receive)) + L"/s");
