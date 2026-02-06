@@ -80,6 +80,11 @@ namespace winrt::StarlightGUI::implementation
         auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
         auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
 
+        if (item.Name() == L"AstralX.sys" || item.Name() == L"kernel.sys") {
+            CreateInfoBarAndDisplay(L"警告", L"你要干什么？", InfoBarSeverity::Warning, g_mainWindowInstance);
+            return;
+        }
+
         MenuFlyout menuFlyout;
 
         // 选项1.1
@@ -269,7 +274,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     // 排序切换
-    winrt::fire_and_forget KernelModulePage::ApplySort(bool& isAscending, const std::string& column)
+    slg::coroutine KernelModulePage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"模块"));
         SizeHeaderButton().Content(box_value(L"大小"));
@@ -368,7 +373,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
 
-    winrt::fire_and_forget KernelModulePage::RefreshKernelModuleListButton_Click(IInspectable const&, RoutedEventArgs const&)
+    slg::coroutine KernelModulePage::RefreshKernelModuleListButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
         RefreshKernelModuleListButton().IsEnabled(false);
         co_await LoadKernelModuleList();
@@ -376,7 +381,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget KernelModulePage::LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+    slg::coroutine KernelModulePage::LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         try {
             auto dialog = winrt::make<winrt::StarlightGUI::implementation::LoadDriverDialog>();
             dialog.XamlRoot(this->XamlRoot());
@@ -417,9 +422,14 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget KernelModulePage::UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+    slg::coroutine KernelModulePage::UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         if (KernelModuleListView().SelectedItem()) {
             auto item = KernelModuleListView().SelectedItem().as<winrt::StarlightGUI::KernelModuleInfo>();
+
+            if (item.Name() == L"AstralX.sys" || item.Name() == L"kernel.sys") {
+                CreateInfoBarAndDisplay(L"警告", L"你要干什么？", InfoBarSeverity::Warning, g_mainWindowInstance);
+                co_return;
+            }
 
             if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, g_mainWindowInstance);

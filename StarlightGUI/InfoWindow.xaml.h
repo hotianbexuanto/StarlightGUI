@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "InfoWindow.g.h"
+#include <SLG.h>
 #include <Utils/ProcessInfo.h>
 
 namespace winrt::StarlightGUI::implementation
@@ -14,9 +15,9 @@ namespace winrt::StarlightGUI::implementation
         void RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args);
 
         // 外观
-        winrt::fire_and_forget LoadBackdrop();
-        winrt::fire_and_forget LoadBackground();
-        winrt::fire_and_forget LoadNavigation();
+        slg::coroutine LoadBackdrop();
+        slg::coroutine LoadBackground();
+        slg::coroutine LoadNavigation();
 
         // 窗口
         static LRESULT CALLBACK InfoWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);

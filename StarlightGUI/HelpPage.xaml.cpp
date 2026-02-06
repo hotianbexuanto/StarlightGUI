@@ -66,6 +66,11 @@ namespace winrt::StarlightGUI::implementation
         LaunchURI(L"https://space.bilibili.com/670866766");
     }
 
+    void HelpPage::Bilibili2Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        LaunchURI(L"https://space.bilibili.com/3494361276877525");
+    }
+
     void HelpPage::SponsorButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         LaunchURI(L"https://afdian.com/a/StarsAzusa");
@@ -76,7 +81,7 @@ namespace winrt::StarlightGUI::implementation
         LaunchURI(L"https://aka.ms/windev");
     }
 
-    winrt::fire_and_forget HelpPage::LaunchURI(hstring uri) {
+    slg::coroutine HelpPage::LaunchURI(hstring uri) {
         Uri target(uri);
         LOG_INFO(__WFUNCTION__, L"Launching URI link: %s", uri.c_str());
         auto result = co_await Launcher::LaunchUriAsync(target);

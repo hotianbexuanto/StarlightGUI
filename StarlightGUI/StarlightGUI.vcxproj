@@ -251,6 +251,7 @@
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SLG.h" />
     <ClInclude Include="TaskPage.xaml.h">
       <DependentUpon>TaskPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -633,6 +634,7 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
     <Image Include="Assets\Wide310x150Logo.scale-400.png" />
     <Image Include="Assets\winui.png" />
+    <Image Include="Assets\wormwaker.jpg" />
   </ItemGroup>
   <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging

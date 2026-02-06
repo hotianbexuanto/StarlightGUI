@@ -11,16 +11,16 @@ namespace winrt::StarlightGUI::implementation
     {
         KernelModulePage();
 
-        winrt::fire_and_forget RefreshKernelModuleListButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine RefreshKernelModuleListButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine UnloadModuleButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine LoadDriverButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void KernelModuleListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
         void KernelModuleListView_ContainerContentChanging(
             winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
             winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
 
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
+        slg::coroutine ApplySort(bool& isAscending, const std::string& column);
 
         void KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         bool ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query);

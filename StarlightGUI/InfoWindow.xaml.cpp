@@ -103,7 +103,7 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    winrt::fire_and_forget InfoWindow::LoadBackdrop()
+    slg::coroutine InfoWindow::LoadBackdrop()
     {
         std::string option = "*";
 
@@ -145,7 +145,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget InfoWindow::LoadBackground()
+    slg::coroutine InfoWindow::LoadBackground()
     {
         if (background_image.empty()) {
             SolidColorBrush brush;
@@ -196,7 +196,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget InfoWindow::LoadNavigation()
+    slg::coroutine InfoWindow::LoadNavigation()
     {
         if (navigation_style == "Left") {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);

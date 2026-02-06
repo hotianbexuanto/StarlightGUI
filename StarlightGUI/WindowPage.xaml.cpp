@@ -83,6 +83,11 @@ namespace winrt::StarlightGUI::implementation
         auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
         auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
 
+        if (item.Description() == L"StarlightGUI.exe / WinUIDesktopWin32WindowClass" || item.Description() == L"StarlightGUI.exe / ConsoleWindowClass") {
+            CreateInfoBarAndDisplay(L"警告", L"你要干什么？", InfoBarSeverity::Warning, g_mainWindowInstance);
+            return;
+        }
+
         MenuFlyout menuFlyout;
 
         MenuFlyoutItem item1_1;
@@ -644,7 +649,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     // 排序切换
-    winrt::fire_and_forget WindowPage::ApplySort(bool& isAscending, const std::string& column)
+    slg::coroutine WindowPage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"窗口"));
 
@@ -735,7 +740,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
 
-    winrt::fire_and_forget WindowPage::RefreshButton_Click(IInspectable const&, RoutedEventArgs const&)
+    slg::coroutine WindowPage::RefreshButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
         RefreshButton().IsEnabled(false);
         co_await LoadWindowList();

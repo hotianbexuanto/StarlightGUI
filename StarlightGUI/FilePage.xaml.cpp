@@ -16,6 +16,7 @@ using namespace Microsoft::UI::Xaml;
 namespace winrt::StarlightGUI::implementation
 {
 	hstring currentDirectory = L"C:\\";
+    static hstring safeAcceptedName = L"";
     static std::unordered_map<std::wstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static HDC hdc{ nullptr };
 
@@ -73,8 +74,16 @@ namespace winrt::StarlightGUI::implementation
             auto item = file.as<winrt::StarlightGUI::FileInfo>();
             // 跳过"上个文件夹"选项
             if (item.Flag() == 999) continue;
+            if ((item.Name() == L"Windows" || item.Name() == L"Boot" || item.Name() == L"System32" || item.Name() == L"SysWOW64" || item.Name() == L"Microsoft") && 
+                (safeAcceptedName != L"Windows" && safeAcceptedName != L"Boot" && safeAcceptedName != L"System32" && safeAcceptedName != L"SysWOW64" && safeAcceptedName != L"Microsoft")) {
+                safeAcceptedName = item.Name();
+                CreateInfoBarAndDisplay(L"警告", L"该文件可能为重要文件，如果确认继续请再次点击！", InfoBarSeverity::Warning, g_mainWindowInstance);
+                return;
+            }
             selectedFiles.push_back(item);
         }
+
+        safeAcceptedName = L"";
 
         auto style = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutItemStyle")));
         auto styleSub = unbox_value<Microsoft::UI::Xaml::Style>(Application::Current().Resources().TryLookup(box_value(L"MenuFlyoutSubItemStyle")));
@@ -82,7 +91,7 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyout menuFlyout;
 
         /*
-        * 注意，由于这里是磁盘IO，我们不要使用异步，否则刷新时可能会出问题
+        * 注意，由于这里是磁盘 IO，我们不要使用异步，否则刷新时可能会出问题
         */
         // 选项1.1
         MenuFlyoutItem item1_1;
@@ -313,7 +322,7 @@ namespace winrt::StarlightGUI::implementation
         LoadMoreFiles();
     }
 
-    winrt::fire_and_forget FilePage::LoadMoreFiles() {
+    slg::coroutine FilePage::LoadMoreFiles() {
         if (m_isLoadingMore || m_loadedCount >= m_allFiles.size()) {
             m_hasMoreFiles = false;
             co_return;
@@ -580,7 +589,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     // 排序切换
-    winrt::fire_and_forget FilePage::ApplySort(bool& isAscending, const std::string& column)
+    slg::coroutine FilePage::ApplySort(bool& isAscending, const std::string& column)
     {
         NameHeaderButton().Content(box_value(L"文件"));
         ModifyTimeHeaderButton().Content(box_value(L"修改时间"));
@@ -647,7 +656,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget FilePage::RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    slg::coroutine FilePage::RefreshButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         RefreshButton().IsEnabled(false);
         co_await LoadFileList();
@@ -655,7 +664,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget FilePage::NextDriveButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    slg::coroutine FilePage::NextDriveButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         static std::vector<std::wstring> drives;
         static int currentIndex = 1;
@@ -795,7 +804,7 @@ namespace winrt::StarlightGUI::implementation
         FindClose(hFind);
     }
 
-    winrt::fire_and_forget FilePage::CopyFiles() {
+    slg::coroutine FilePage::CopyFiles() {
         auto dialog = winrt::make<winrt::StarlightGUI::implementation::CopyFileDialog>();
         dialog.XamlRoot(this->XamlRoot());
 

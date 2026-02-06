@@ -25,7 +25,7 @@ namespace winrt::StarlightGUI::implementation{
 		LOG_INFO(L"UtilityPage", L"UtilityPage initialized.");
 	}
 
-	winrt::fire_and_forget UtilityPage::FindButtonsAndDisable(DependencyObject obj) {
+	slg::coroutine UtilityPage::FindButtonsAndDisable(DependencyObject obj) {
 		if (auto button = obj.try_as<Button>()) {
 			button.IsEnabled(false);
 		}
@@ -37,7 +37,7 @@ namespace winrt::StarlightGUI::implementation{
 		co_return;
 	}
 
-	winrt::fire_and_forget UtilityPage::Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+	slg::coroutine UtilityPage::Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 	{
 		if (!KernelInstance::IsRunningAsAdmin()) {
 			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
@@ -152,7 +152,7 @@ namespace winrt::StarlightGUI::implementation{
 		co_return;
 	}
 
-	winrt::fire_and_forget UtilityPage::Button_Click2(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+	slg::coroutine UtilityPage::Button_Click2(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 	{
 		if (!KernelInstance::IsRunningAsAdmin()) {
 			CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);

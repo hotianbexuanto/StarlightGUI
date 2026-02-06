@@ -43,12 +43,12 @@ namespace winrt::StarlightGUI::implementation
     {
         InitializeComponent();
 
-
         auto windowNative{ this->try_as<::IWindowNative>() };
         HWND hWnd{ 0 };
         windowNative->get_WindowHandle(&hWnd);
         globalHWND = hWnd;
 
+        LOG_INFO(L"MainWindow", L"Initializing AppWindow interface...");
         ExtendsContentIntoTitleBar(true);
         SetTitleBar(AppTitleBar());
         AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
@@ -66,21 +66,24 @@ namespace winrt::StarlightGUI::implementation
 
         g_mainWindowInstance = this;
 
-        // 进入主页
-        MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
-        RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
-
-        Activated([this](auto&&, auto&&) {
+        Activated([this](auto&&, auto&&) -> IAsyncAction {
             if (!loaded) {
-                if (!KernelInstance::IsRunningAsAdmin()) {
-                    CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, g_mainWindowInstance);
-                }
-                else {
-                    CreateInfoBarAndDisplay(L"信息", L"正在加载模块，这可能需要一点时间...", InfoBarSeverity::Informational, g_mainWindowInstance);
-                }
-                LoadModules();
-                CheckUpdate();
-				loaded = true;
+                RootNavigation().IsEnabled(false);
+                // 加载模块
+                CreateInfoBarAndDisplay(L"信息", L"正在加载模块，这可能需要一点时间...", InfoBarSeverity::Informational, g_mainWindowInstance);
+                co_await LoadModules();
+
+                // 进入主页
+                LOG_INFO(L"MainWindow", L"Navigates to StarlightGUI::HomePage because we are initializing MainWindow for the first time.");
+                MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
+                RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
+
+                // 检查更新
+                co_await CheckUpdate();
+                
+                RootNavigation().IsEnabled(true);
+                loaded = true;
+                LOG_INFO(L"MainWindow", L"Completed all loading-stage tasks.");
             }
             });
 
@@ -110,6 +113,10 @@ namespace winrt::StarlightGUI::implementation
 
     void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
     {
+        if (!loaded) {
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
+            return;
+        }
         if (args.IsSettingsInvoked())
         {
             MainFrame().Navigate(xaml_typename<StarlightGUI::SettingsPage>());
@@ -153,7 +160,7 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    winrt::fire_and_forget MainWindow::LoadBackdrop()
+    slg::coroutine MainWindow::LoadBackdrop()
     {
         std::string option = "*";
 
@@ -195,7 +202,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget MainWindow::LoadBackground()
+    slg::coroutine MainWindow::LoadBackground()
     {
         if (background_image.empty()) {
             SolidColorBrush brush;
@@ -247,7 +254,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget MainWindow::LoadNavigation()
+    slg::coroutine MainWindow::LoadNavigation()
     {
         if (navigation_style == "Left") {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);
@@ -264,7 +271,7 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget MainWindow::CheckUpdate()
+    IAsyncAction MainWindow::CheckUpdate()
     {
         try {
             auto weak_this = get_weak();
@@ -348,16 +355,12 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget MainWindow::LoadModules() {
-        auto strong = get_strong();
-
-        RootNavigation().IsEnabled(false);
-
-        LOG_INFO(L"DriverUtils", L"Loading necessary modules...");
-
+    IAsyncAction MainWindow::LoadModules() {
         if (kernelPath.empty() || astralPath.empty() || axBandPath.empty()) {
             try {
                 co_await winrt::resume_background();
+
+                LOG_INFO(L"Driver", L"Loading necessary modules...");
 
                 auto& kernelFile = co_await StorageFile::GetFileFromPathAsync(GetInstalledLocationPath() + L"\\Assets\\kernel.sys");
                 auto& astralFile = co_await StorageFile::GetFileFromPathAsync(GetInstalledLocationPath() + L"\\Assets\\AstralX.sys");
@@ -366,38 +369,35 @@ namespace winrt::StarlightGUI::implementation
                 if (kernelFile && KernelInstance::IsRunningAsAdmin()) {
                     kernelPath = kernelFile.Path();
 
-                    LOG_INFO(L"DriverUtils", L"Kernel.sys path [%s], load it.", kernelPath.c_str());
+                    LOG_INFO(L"Driver", L"Kernel.sys path [%s], load it.", kernelPath.c_str());
                     DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
-                    LOG_INFO(L"DriverUtils", L"Kernel.sys load result: %s, GetLastError() = %d", unused.c_str(), GetLastError());
+                    LOG_INFO(L"Driver", L"Kernel.sys load result: %s, GetLastError() = %d", unused.c_str(), GetLastError());
                 }
 
                 if (astralFile && KernelInstance::IsRunningAsAdmin()) {
                     astralPath = astralFile.Path();
 
-                    LOG_INFO(L"DriverUtils", L"AstralX.sys path [%s], load it.", astralPath.c_str());
+                    LOG_INFO(L"Driver", L"AstralX.sys path [%s], load it.", astralPath.c_str());
                     DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
-                    LOG_INFO(L"DriverUtils", L"AstralX.sys load result: %s, GetLastError() = %d", unused.c_str(), GetLastError());
+                    LOG_INFO(L"Driver", L"AstralX.sys load result: %s, GetLastError() = %d", unused.c_str(), GetLastError());
                 }
 
                 if (axBandFile) {
                     axBandPath = axBandFile.Path();
 
-                    LOG_INFO(L"DriverUtils", L"AxBand.dll path [%s].", axBandPath.c_str());
+                    LOG_INFO(L"Driver", L"AxBand.dll path [%s].", axBandPath.c_str());
                 }
 
-                LOG_INFO(L"DriverUtils", L"Loaded successfully.", kernelPath.c_str());
+                LOG_INFO(L"Driver", L"Loaded successfully.", kernelPath.c_str());
 
                 co_await wil::resume_foreground(DispatcherQueue());
                 CreateInfoBarAndDisplay(L"成功", L"模块加载成功！", InfoBarSeverity::Success, g_mainWindowInstance);
             }
             catch (const hresult_error& e) {
-                LOG_ERROR(L"DriverUtils", L"Failed to load modules! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
+                LOG_ERROR(L"Driver", L"Failed to load modules! winrt::hresult_error: %s (%d)", e.message().c_str(), e.code().value);
                 CreateInfoBarAndDisplay(L"警告", L"一个或多个模块文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, g_mainWindowInstance);
             }
         }
-
-        co_await wil::resume_foreground(DispatcherQueue());
-        RootNavigation().IsEnabled(true);
     }
 
     HWND MainWindow::GetWindowHandle()

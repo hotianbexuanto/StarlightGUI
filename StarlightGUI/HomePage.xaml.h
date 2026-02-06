@@ -10,25 +10,26 @@ namespace winrt::StarlightGUI::implementation
     {
         HomePage();
 
-        void SetGreetingText();
-        winrt::fire_and_forget SetUserProfile();
-        winrt::fire_and_forget FetchHitokoto();
-        void SetupClock();
-        void OnClockTick(IInspectable const&, IInspectable const&);
-        void UpdateClock();
+        slg::coroutine SetGreetingText();
+        slg::coroutine SetUserProfile();
+        slg::coroutine FetchHitokoto();
+        slg::coroutine SetupClock();
+        slg::coroutine OnClockTick(IInspectable const&, IInspectable const&);
+        slg::coroutine UpdateClock();
 
-        winrt::fire_and_forget UpdateGauges();
+        slg::coroutine UpdateGauges();
 
         winrt::Microsoft::UI::Xaml::DispatcherTimer clockTimer;
 
-        inline static winrt::hstring greeting;
-        inline static winrt::hstring username;
-        inline static winrt::hstring hitokoto;
+        inline static bool infoInitialized;
+        inline static hstring greeting;
+        inline static hstring username;
+        inline static hstring hitokoto;
         inline static winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage avatar{ nullptr };
 
         // 性能显示
         inline static std::unordered_map<int, hstring> adpt_name_map;
-        inline static hstring cpu_manufacture, disk_manufacture, gpu_manufacture, netadpt_manufacture;
+        inline static hstring cpu_manufacture = L"", disk_manufacture = L"", gpu_manufacture = L"", netadpt_manufacture = L"";
         inline static bool initialized, isNvidia, virtualization, isNetSend = false;
         inline static double cache_l1, cache_l2, cache_l3;
         inline static int adptIndex;
