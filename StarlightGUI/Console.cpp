@@ -73,8 +73,8 @@ bool Console::Initialize() {
 
     InitializeLogFile();
 
-    BOOL ok = AllocConsole();
-    if (!ok && GetLastError() != ERROR_ACCESS_DENIED) {
+    BOOL result = AllocConsole();
+    if (!result && GetLastError() != ERROR_ACCESS_DENIED) {
         return false;
     }
 
@@ -129,7 +129,7 @@ bool Console::Initialize() {
     m_consoleThread = std::thread(&Console::ConsoleThreadProc, this);
     m_fileWriteThread = std::thread(&Console::FileWriteThreadProc, this);
 
-    Warning(L"", L"Logger initialized. Closing console will terminate the application.");
+    Info(L"", L"Logger initialized. Closing console will terminate the application.");
     Info(L"", L"Log file: %s", m_logFilePath.c_str());
 
     m_shutdown = false;

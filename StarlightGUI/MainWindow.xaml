@@ -126,7 +126,13 @@
                 </NavigationView.FooterMenuItems>
 
                 <!--  内容  -->
-                <Frame x:Name="MainFrame" Grid.Row="1" />
+                <Frame x:Name="MainFrame" Grid.Row="1">
+                    <ProgressRing
+                        x:Name="LoadingRing"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsActive="True" />
+                </Frame>
             </NavigationView>
         </Grid>
         <StackPanel

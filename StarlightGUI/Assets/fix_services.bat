@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 chcp 65001
 title Starlight GUI 服务修复
 echo 删除旧服务中...
