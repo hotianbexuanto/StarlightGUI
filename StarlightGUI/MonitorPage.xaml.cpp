@@ -37,36 +37,7 @@ namespace winrt::StarlightGUI::implementation
 
     void MonitorPage::EnsureHeaderSplitters(winrt::Microsoft::UI::Xaml::Controls::Grid const& headerGrid)
     {
-        if (!headerGrid) return;
-
-        auto columns = headerGrid.ColumnDefinitions();
-        if (columns.Size() < 2) return;
-
-        for (uint32_t column = 0; column + 1 < columns.Size(); ++column) {
-            bool exists = false;
-            for (auto const& child : headerGrid.Children()) {
-                auto splitter = child.try_as<GridSplitter>();
-                if (!splitter) continue;
-                if (Grid::GetColumn(splitter) != static_cast<int>(column)) continue;
-                exists = true;
-                break;
-            }
-
-            if (exists) continue;
-
-            GridSplitter splitter;
-            splitter.Width(9);
-            splitter.Margin(ThicknessHelper::FromLengths(0, 0, -5, 0));
-            splitter.Opacity(0);
-            splitter.HorizontalAlignment(HorizontalAlignment::Right);
-            splitter.VerticalAlignment(VerticalAlignment::Stretch);
-            splitter.Background(SolidColorBrush(Windows::UI::Colors::Transparent()));
-            splitter.ResizeBehavior(GridResizeBehavior::BasedOnAlignment);
-            splitter.ResizeDirection(GridResizeDirection::Columns);
-            Grid::SetColumn(splitter, column);
-
-            headerGrid.Children().Append(splitter);
-        }
+        (void)headerGrid;
     }
 
     void MonitorPage::AttachColumnSyncToSection(winrt::Microsoft::UI::Xaml::Controls::Grid const& sectionRoot, uint32_t rowOffset)
