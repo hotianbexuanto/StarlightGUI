@@ -632,11 +632,9 @@ namespace winrt::StarlightGUI::implementation
 
             if (isNetSend) {
                 NetGauge().Value(sendBytesPerSec / (1024 * 1024));
-                NetGauge().ValueStringFormat(L"↑ {0} MB/s");
             }
             else {
                 NetGauge().Value(receiveBytesPerSec / (1024 * 1024));
-                NetGauge().ValueStringFormat(L"↓ {0} MB/s");
             }
             NetManufacture().Text(netadpt_manufacture.empty() ? t(L"Home.Overview.NoActiveAdapter") : netadpt_manufacture);
             NetReceive().Text(FormatMemorySize(receiveBytesPerSec) + L"/s");
@@ -944,16 +942,13 @@ namespace winrt::StarlightGUI::implementation
         grid.ColumnDefinitions().Append(c3);
         grid.ColumnDefinitions().Append(c4);
 
-        auto gauge = winrt::XamlToolkit::WinUI::Controls::RadialGauge();
+        auto gauge = winrt::Microsoft::UI::Xaml::Controls::ProgressBar();
         gauge.Width(150);
-        gauge.IsInteractive(false);
+        gauge.Height(18);
         gauge.Minimum(0);
         gauge.Maximum(100);
-        gauge.StepSize(1);
-        gauge.TickSpacing(10);
-        gauge.NeedleBrush(winrt::Microsoft::UI::Xaml::Media::SolidColorBrush(Colors::LimeGreen()));
-        gauge.TrailBrush(winrt::Microsoft::UI::Xaml::Media::SolidColorBrush(Colors::LimeGreen()));
-        gauge.ValueStringFormat(L" {0}% ");
+        gauge.Foreground(winrt::Microsoft::UI::Xaml::Media::SolidColorBrush(Colors::LimeGreen()));
+        gauge.Value(0);
         Grid::SetColumn(gauge, 0);
         grid.Children().Append(gauge);
 

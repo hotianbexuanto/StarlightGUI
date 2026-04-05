@@ -3,7 +3,6 @@
 #if __has_include("MonitorPage.g.cpp")
 #include "MonitorPage.g.cpp"
 #endif
-#include <winrt/XamlToolkit.WinUI.Controls.h>
 #include <unordered_set>
 
 using namespace winrt;
@@ -12,7 +11,6 @@ using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Controls::Primitives;
 using namespace Microsoft::UI::Xaml::Media;
 using namespace WinUI3Package;
-using namespace XamlToolkit::WinUI::Controls;
 
 namespace winrt::StarlightGUI::implementation
 {

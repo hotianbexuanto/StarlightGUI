@@ -3,7 +3,6 @@
     x:Class="StarlightGUI.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:ct="using:XamlToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:essential="using:WinUI3Package"
     xmlns:local="using:StarlightGUI"
@@ -295,18 +294,13 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ct:RadialGauge
+                            <ProgressBar
                                 x:Name="CpuGauge"
                                 Grid.Column="0"
                                 Width="150"
-                                IsInteractive="False"
                                 Maximum="100"
                                 Minimum="0"
-                                NeedleBrush="LightSkyBlue"
-                                StepSize="1"
-                                TickSpacing="10"
-                                TrailBrush="LightSkyBlue"
-                                ValueStringFormat=" {0}% " />
+                                Value="0" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     FontSize="20"
@@ -379,18 +373,13 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ct:RadialGauge
+                            <ProgressBar
                                 x:Name="MemGauge"
                                 Grid.Column="0"
                                 Width="150"
-                                IsInteractive="False"
                                 Maximum="100"
                                 Minimum="0"
-                                NeedleBrush="DodgerBlue"
-                                StepSize="1"
-                                TickSpacing="10"
-                                TrailBrush="DodgerBlue"
-                                ValueStringFormat=" {0}% " />
+                                Value="0" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     x:Name="HomeMemTitleUid"
@@ -462,18 +451,13 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ct:RadialGauge
+                            <ProgressBar
                                 x:Name="GpuGauge"
                                 Grid.Column="0"
                                 Width="150"
-                                IsInteractive="False"
                                 Maximum="100"
                                 Minimum="0"
-                                NeedleBrush="MediumPurple"
-                                StepSize="1"
-                                TickSpacing="10"
-                                TrailBrush="MediumPurple"
-                                ValueStringFormat=" {0}% " />
+                                Value="0" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     FontSize="20"
@@ -524,18 +508,13 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ct:RadialGauge
+                            <ProgressBar
                                 x:Name="NetGauge"
                                 Grid.Column="0"
                                 Width="150"
-                                IsInteractive="False"
                                 Maximum="10240"
                                 Minimum="0"
-                                NeedleBrush="DeepPink"
-                                StepSize="1"
-                                TickSpacing="1024"
-                                TrailBrush="DeepPink"
-                                ValueStringFormat="" />
+                                Value="0" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     x:Name="HomeNetTitleUid"

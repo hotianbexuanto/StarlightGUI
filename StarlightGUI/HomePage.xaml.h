@@ -7,7 +7,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <winrt/XamlToolkit.WinUI.Controls.h>
 
 namespace winrt::StarlightGUI::implementation
 {
@@ -15,7 +14,7 @@ namespace winrt::StarlightGUI::implementation
     {
         int index = 0;
         hstring manufacture = L"";
-        winrt::XamlToolkit::WinUI::Controls::RadialGauge gauge{ nullptr };
+        winrt::Microsoft::UI::Xaml::Controls::ProgressBar gauge{ nullptr };
         winrt::Microsoft::UI::Xaml::Controls::TextBlock title{ nullptr };
         winrt::Microsoft::UI::Xaml::Documents::Run read{ nullptr };
         winrt::Microsoft::UI::Xaml::Documents::Run write{ nullptr };

@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "Utils.h"
-#include <winrt/XamlToolkit.WinUI.Controls.h>
 #include <winrt/Microsoft.UI.Composition.SystemBackdrops.h>
 #include <unordered_map>
 #include <unordered_set>
