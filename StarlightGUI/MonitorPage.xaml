@@ -36,7 +36,11 @@
                     x:Name="MainSegmented"
                     Grid.Column="0"
                     HorizontalAlignment="Left"
-                    SelectionChanged="MainSegmented_SelectionChanged">
+                    SelectionChanged="MainSegmented_SelectionChanged"
+                    CornerRadius="8"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
                     <essential:SegmentedItem>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon

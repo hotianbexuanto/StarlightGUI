@@ -298,9 +298,12 @@
                                 x:Name="CpuGauge"
                                 Grid.Column="0"
                                 Width="150"
+                                Height="20"
+                                CornerRadius="10"
                                 Maximum="100"
                                 Minimum="0"
-                                Value="0" />
+                                Value="0"
+                                Foreground="{ThemeResource SystemAccentColor}" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     FontSize="20"
@@ -377,9 +380,12 @@
                                 x:Name="MemGauge"
                                 Grid.Column="0"
                                 Width="150"
+                                Height="20"
+                                CornerRadius="10"
                                 Maximum="100"
                                 Minimum="0"
-                                Value="0" />
+                                Value="0"
+                                Foreground="{ThemeResource SystemAccentColor}" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     x:Name="HomeMemTitleUid"
@@ -455,9 +461,12 @@
                                 x:Name="GpuGauge"
                                 Grid.Column="0"
                                 Width="150"
+                                Height="20"
+                                CornerRadius="10"
                                 Maximum="100"
                                 Minimum="0"
-                                Value="0" />
+                                Value="0"
+                                Foreground="{ThemeResource SystemAccentColor}" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     FontSize="20"
@@ -512,9 +521,12 @@
                                 x:Name="NetGauge"
                                 Grid.Column="0"
                                 Width="150"
+                                Height="20"
+                                CornerRadius="10"
                                 Maximum="10240"
                                 Minimum="0"
-                                Value="0" />
+                                Value="0"
+                                Foreground="{ThemeResource SystemAccentColor}" />
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     x:Name="HomeNetTitleUid"
