@@ -290,20 +290,33 @@
                         <Grid Padding="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ProgressBar
-                                x:Name="CpuGauge"
+                            <Border
                                 Grid.Column="0"
-                                Width="150"
-                                Height="20"
-                                CornerRadius="10"
-                                Maximum="100"
-                                Minimum="0"
-                                Value="0"
-                                Foreground="{ThemeResource SystemAccentColor}" />
+                                Width="120"
+                                Height="120"
+                                Margin="0,0,20,0"
+                                CornerRadius="16"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                BorderThickness="1">
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                    <TextBlock
+                                        x:Name="CpuPercentCard"
+                                        FontSize="36"
+                                        FontWeight="SemiBold"
+                                        Text="0%"
+                                        TextAlignment="Center" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="使用率"
+                                        TextAlignment="Center" />
+                                </StackPanel>
+                            </Border>
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     FontSize="20"
@@ -356,11 +369,6 @@
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
-                            <TextBlock
-                                x:Name="CpuPercent"
-                                Grid.Column="3"
-                                FontSize="24"
-                                FontWeight="SemiBold" />
                         </Grid>
                     </Button>
                     <!--  内存  -->
@@ -372,20 +380,33 @@
                         <Grid Padding="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ProgressBar
-                                x:Name="MemGauge"
+                            <Border
                                 Grid.Column="0"
-                                Width="150"
-                                Height="20"
-                                CornerRadius="10"
-                                Maximum="100"
-                                Minimum="0"
-                                Value="0"
-                                Foreground="{ThemeResource SystemAccentColor}" />
+                                Width="120"
+                                Height="120"
+                                Margin="0,0,20,0"
+                                CornerRadius="16"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                BorderThickness="1">
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                    <TextBlock
+                                        x:Name="MemPercentCard"
+                                        FontSize="36"
+                                        FontWeight="SemiBold"
+                                        Text="0%"
+                                        TextAlignment="Center" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="使用率"
+                                        TextAlignment="Center" />
+                                </StackPanel>
+                            </Border>
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     x:Name="HomeMemTitleUid"
@@ -435,11 +456,6 @@
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
-                            <TextBlock
-                                x:Name="MemPercent"
-                                Grid.Column="3"
-                                FontSize="24"
-                                FontWeight="SemiBold" />
                         </Grid>
                     </Button>
                     <!--  磁盘  -->
@@ -453,20 +469,33 @@
                         <Grid Padding="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ProgressBar
-                                x:Name="GpuGauge"
+                            <Border
                                 Grid.Column="0"
-                                Width="150"
-                                Height="20"
-                                CornerRadius="10"
-                                Maximum="100"
-                                Minimum="0"
-                                Value="0"
-                                Foreground="{ThemeResource SystemAccentColor}" />
+                                Width="120"
+                                Height="120"
+                                Margin="0,0,20,0"
+                                CornerRadius="16"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                BorderThickness="1">
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                    <TextBlock
+                                        x:Name="GpuPercentCard"
+                                        FontSize="36"
+                                        FontWeight="SemiBold"
+                                        Text="0%"
+                                        TextAlignment="Center" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="使用率"
+                                        TextAlignment="Center" />
+                                </StackPanel>
+                            </Border>
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     FontSize="20"
@@ -497,11 +526,6 @@
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
-                            <TextBlock
-                                x:Name="GpuPercent"
-                                Grid.Column="3"
-                                FontSize="24"
-                                FontWeight="SemiBold" />
                         </Grid>
                     </Button>
                     <!--  网络  -->
@@ -513,20 +537,34 @@
                         <Grid Padding="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <ProgressBar
-                                x:Name="NetGauge"
+                            <Border
                                 Grid.Column="0"
-                                Width="150"
-                                Height="20"
-                                CornerRadius="10"
-                                Maximum="10240"
-                                Minimum="0"
-                                Value="0"
-                                Foreground="{ThemeResource SystemAccentColor}" />
+                                Width="120"
+                                Height="120"
+                                Margin="0,0,20,0"
+                                CornerRadius="16"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                BorderThickness="1">
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                    <TextBlock
+                                        x:Name="NetPercentCard"
+                                        FontSize="36"
+                                        FontWeight="SemiBold"
+                                        Text="0%"
+                                        TextAlignment="Center" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="带宽使用率"
+                                        TextAlignment="Center" />
+                                </StackPanel>
+                            </Border>
                             <StackPanel Grid.Column="1" Margin="20,0,0,0">
                                 <TextBlock
                                     x:Name="HomeNetTitleUid"
@@ -559,7 +597,7 @@
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
-                            <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
+                            <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
                                 <Button
                                     x:Name="HomeChangeModeUid"
                                     Click="ChangeMode_Click"
