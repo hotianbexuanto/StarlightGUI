@@ -513,9 +513,9 @@ namespace winrt::StarlightGUI::implementation
             graphX += 1;
 
             std::wstringstream ss;
-            CpuGauge().Value(GetValueFromCounter(counter_cpu_time));
-            ss << std::fixed << std::setprecision(1) << GetValueFromCounter(counter_cpu_time) << "%";
-            CpuPercent().Text(ss.str());
+            double cpuPercent = GetValueFromCounter(counter_cpu_time);
+            ss << std::fixed << std::setprecision(1) << cpuPercent << "%";
+            CpuPercentCard().Text(ss.str());
             CpuManufacture().Text(to_hstring(cpu_manufacture));
             ss = std::wstringstream{};
             ss << std::fixed << std::setprecision(2) << GetValueFromCounter(counter_cpu_freq) / 1024.0 << " GHz";
@@ -532,8 +532,8 @@ namespace winrt::StarlightGUI::implementation
             CpuCacheL3().Text(to_hstring(cache_l3) + L" MB");
             TotalLineGraph().AddDataPoint(L"CPU", graphX, GetValueFromCounter(counter_cpu_time));
 
-            MemGauge().Value(memInfo.dwMemoryLoad);
-            MemPercent().Text(to_hstring((int)memInfo.dwMemoryLoad) + L"%");
+            double memPercent = memInfo.dwMemoryLoad;
+            MemPercentCard().Text(to_hstring((int)memPercent) + L"%");
             MemSize().Text(FormatMemorySize(memInfo.ullTotalPhys));
             MemUsing().Text(FormatMemorySize(memInfo.ullTotalPhys - memInfo.ullAvailPhys));
             MemUsable().Text(FormatMemorySize(memInfo.ullAvailPhys));
@@ -618,10 +618,10 @@ namespace winrt::StarlightGUI::implementation
                 GpuClockGraphics().Text(L"NaN");
                 GpuClockMem().Text(L"NaN");
             }
-            GpuGauge().Value(gpu_time);
-            ss = std::wstringstream{};
-            ss << std::fixed << std::setprecision(1) << gpu_time << "%";
-            GpuPercent().Text(ss.str());
+            double gpuPercent = gpu_time;
+            ss.str(L"");
+            ss << std::fixed << std::setprecision(1) << gpuPercent << "%";
+            GpuPercentCard().Text(ss.str());
             GpuManufacture().Text(gpu_manufacture);
             TotalLineGraph().AddDataPoint(L"GPU", graphX, gpu_time);
 
@@ -630,12 +630,15 @@ namespace winrt::StarlightGUI::implementation
                 TrySelectActiveNetworkAdapter();
             }
 
-            if (isNetSend) {
-                NetGauge().Value(sendBytesPerSec / (1024 * 1024));
-            }
-            else {
-                NetGauge().Value(receiveBytesPerSec / (1024 * 1024));
-            }
+            // 计算网络使用率（相对于 1 Gbps = 125 MB/s）
+            double maxBandwidthMBps = 125.0; // 1 Gbps
+            double currentBandwidthMBps = (isNetSend ? sendBytesPerSec : receiveBytesPerSec) / (1024.0 * 1024.0);
+            double netPercent = (currentBandwidthMBps / maxBandwidthMBps) * 100.0;
+            if (netPercent > 100.0) netPercent = 100.0;
+            if (netPercent < 0.0) netPercent = 0.0;
+            ss.str(L"");
+            ss << std::fixed << std::setprecision(1) << netPercent << "%";
+            NetPercentCard().Text(ss.str());
             NetManufacture().Text(netadpt_manufacture.empty() ? t(L"Home.Overview.NoActiveAdapter") : netadpt_manufacture);
             NetReceive().Text(FormatMemorySize(receiveBytesPerSec) + L"/s");
             NetSend().Text(FormatMemorySize(sendBytesPerSec) + L"/s");
