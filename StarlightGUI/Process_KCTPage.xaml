@@ -103,7 +103,7 @@
 
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid x:Name="KctRowGrid" Height="50">
+                                    <Grid x:Name="KctRowGrid" Height="45">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="150" />
@@ -112,11 +112,11 @@
                                         <!--  函数  -->
                                         <TextBlock
                                             Grid.Column="0"
-                                            Margin="4,0,0,0"
+                                            Margin="16,0,0,0"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            FontSize="14"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                             Text="{Binding Name}" />
 
                                         <!--  地址  -->

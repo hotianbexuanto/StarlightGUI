@@ -300,7 +300,7 @@
                             RightTapped="ObjectListView_RightTapped">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Height="50">
+                                    <Grid Height="45">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="150" />
@@ -1755,10 +1755,10 @@
                                     <!--  名称  -->
                                     <essential:MarqueeText
                                         Grid.Column="0"
-                                        Margin="15,-2,0,0"
+                                        Margin="16,-2,0,0"
                                         VerticalAlignment="Center"
                                         Behavior="Looping"
-                                        FontSize="16"
+                                        FontSize="14"
                                         Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                         Text="{Binding String1}" />
 

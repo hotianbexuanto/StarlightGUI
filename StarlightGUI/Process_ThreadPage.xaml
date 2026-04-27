@@ -155,7 +155,7 @@
 
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid x:Name="ThreadRowGrid" Height="50">
+                                    <Grid x:Name="ThreadRowGrid" Height="45">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="80" />
                                             <ColumnDefinition Width="150" />
@@ -168,61 +168,61 @@
                                         <!--  TID  -->
                                         <TextBlock
                                             Grid.Column="0"
-                                            Margin="-32,0,0,0"
-                                            HorizontalAlignment="Center"
+                                            Margin="16,0,0,0"
+                                            HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            FontSize="14"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                             Text="{Binding Id}" />
 
                                         <!--  ETHREAD  -->
                                         <TextBlock
                                             Grid.Column="1"
-                                            Margin="-32,0,0,0"
-                                            HorizontalAlignment="Center"
+                                            Margin="16,0,0,0"
+                                            HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            FontSize="14"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                             Text="{Binding EThread}" />
 
                                         <!--  地址  -->
                                         <TextBlock
                                             Grid.Column="2"
-                                            Margin="-32,0,0,0"
-                                            HorizontalAlignment="Center"
+                                            Margin="16,0,0,0"
+                                            HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            FontSize="14"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                             Text="{Binding Address}" />
 
                                         <!--  状态  -->
                                         <TextBlock
                                             Grid.Column="3"
-                                            Margin="-32,0,0,0"
-                                            HorizontalAlignment="Center"
+                                            Margin="16,0,0,0"
+                                            HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            FontSize="14"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                             Text="{Binding Status}" />
 
                                         <!--  优先级  -->
                                         <TextBlock
                                             Grid.Column="4"
-                                            Margin="-32,0,0,0"
-                                            HorizontalAlignment="Center"
+                                            Margin="16,0,0,0"
+                                            HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            FontSize="14"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                             Text="{Binding Priority}" />
 
                                         <!--  模块  -->
                                         <TextBlock
                                             Grid.Column="5"
-                                            Margin="4,0,0,0"
+                                            Margin="16,0,0,0"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                            FontSize="14"
+                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
                                             Text="{Binding Module}" />
 
                                     </Grid>
