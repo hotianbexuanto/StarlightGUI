@@ -1,5 +1,8 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "Utils.h"
+#include "Config.h"
+#include "MainWindow.xaml.h"
+#include "InfoWindow.xaml.h"
 #include <winrt/Microsoft.UI.Composition.SystemBackdrops.h>
 #include <unordered_map>
 #include <shellapi.h>
@@ -13,6 +16,7 @@ using namespace Microsoft::UI::Xaml::Input;
 using namespace Microsoft::UI::Xaml::Media;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Composition::SystemBackdrops;
+using namespace winrt::StarlightGUI::implementation;
 
 namespace slg {
     std::unordered_map<std::wstring, ImageSource>& GetShellIconCacheStore()
@@ -198,7 +202,21 @@ namespace slg {
     }
 
     void CreateInfoBarAndDisplay(hstring title, hstring message, InfoBarSeverity severity, StarlightGUI::implementation::InfoWindow* instance, int time) {
+        if (!instance) return;
         DisplayInfoBar(CreateInfoBar(title, message, severity, instance->InfoWindowGrid().XamlRoot()), instance->InfoBarPanel(), time);
+    }
+
+    StarlightGUI::implementation::InfoWindow* GetInfoWindowForXamlRoot(XamlRoot const& xamlRoot)
+    {
+        if (!xamlRoot || !g_mainWindowInstance) return nullptr;
+
+        for (auto const& window : g_mainWindowInstance->m_openWindows) {
+            if (!window) continue;
+            auto instance = winrt::get_self<StarlightGUI::implementation::InfoWindow>(window);
+            if (instance->InfoWindowGrid().XamlRoot() == xamlRoot) return instance;
+        }
+
+        return nullptr;
     }
 
     ContentDialog CreateContentDialog(hstring title, hstring content, hstring closeMessage, XamlRoot xamlRoot) {
@@ -211,6 +229,35 @@ namespace slg {
         dialog.RequestedTheme(GetConfiguredElementTheme());
 
         return dialog;
+    }
+
+    IAsyncOperation<bool> ShowConfirmDialog(hstring title, hstring content, hstring primaryMessage, hstring closeMessage, XamlRoot xamlRoot) {
+        ContentDialog dialog;
+        auto style = Application::Current().Resources().TryLookup(box_value(L"DefaultContentDialogStyle"));
+        if (style) dialog.Style(style.as<Style>());
+
+        dialog.Title(box_value(title));
+        dialog.TitleTemplate(XamlReader::Load(LR"(
+        <DataTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon
+                    Margin="0,5,0,0"
+                    FontFamily="Segoe Fluent Icons"
+                    FontSize="30"
+                    Glyph="&#xe7ba;" />
+                <TextBlock VerticalAlignment="Center" Text="{Binding}" />
+            </StackPanel>
+        </DataTemplate>
+        )").as<DataTemplate>());
+        dialog.Content(box_value(content));
+        dialog.PrimaryButtonText(primaryMessage);
+        dialog.CloseButtonText(closeMessage);
+        dialog.DefaultButton(ContentDialogButton::Primary);
+        dialog.XamlRoot(xamlRoot);
+        dialog.RequestedTheme(GetConfiguredElementTheme());
+
+        auto result = co_await dialog.ShowAsync();
+        co_return result == ContentDialogResult::Primary;
     }
 
     DataTemplate GetContentDialogSuccessTemplate() {
@@ -291,7 +338,7 @@ namespace slg {
     ElementTheme GetConfiguredElementTheme()
     {
         std::string themeValue = theme;
-        std::transform(themeValue.begin(), themeValue.end(), themeValue.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        std::transform(themeValue.begin(), themeValue.end(), themeValue.begin(), [](unsigned char c) { return (char)std::tolower(c); });
 
         if (themeValue == "light") {
             return ElementTheme::Light;
@@ -312,23 +359,33 @@ namespace slg {
         if (g_mainWindowInstance) {
             DwmSetWindowAttribute(g_mainWindowInstance->GetWindowHandle(), DWMWA_USE_IMMERSIVE_DARK_MODE, &isDark, sizeof(isDark));
             g_mainWindowInstance->MainWindowGrid().RequestedTheme(targetTheme);
+            g_mainWindowInstance->RootNavigation().RequestedTheme(targetTheme);
+            g_mainWindowInstance->AppTitleBar().RequestedTheme(targetTheme);
+            g_mainWindowInstance->CaptionButtonThemeWorkaround().RequestedTheme(targetTheme);
             g_mainWindowInstance->LoadBackdrop();
         }
 
-        if (g_infoWindowInstance) {
-            DwmSetWindowAttribute(g_infoWindowInstance->GetWindowHandle(), DWMWA_USE_IMMERSIVE_DARK_MODE, &isDark, sizeof(isDark));
-            g_infoWindowInstance->InfoWindowGrid().RequestedTheme(targetTheme);
-            g_infoWindowInstance->LoadBackdrop();
+        if (g_mainWindowInstance) {
+            for (auto const& window : g_mainWindowInstance->m_openWindows) {
+                if (!window) continue;
+                auto instance = winrt::get_self<StarlightGUI::implementation::InfoWindow>(window);
+                DwmSetWindowAttribute(instance->GetWindowHandle(), DWMWA_USE_IMMERSIVE_DARK_MODE, &isDark, sizeof(isDark));
+                instance->InfoWindowGrid().RequestedTheme(targetTheme);
+                instance->RootNavigation().RequestedTheme(targetTheme);
+                instance->AppTitleBar().RequestedTheme(targetTheme);
+                instance->CaptionButtonThemeWorkaround().RequestedTheme(targetTheme);
+                instance->LoadBackdrop();
+            }
         }
     }
 
-    ImageSource CreateImageSourceFromHIcon(HICON hIcon, int iconSize, bool destroyIcon)
+    ImageSource CreateImageSourceFromHIcon(HICON iconHandle, int iconSize, bool destroyIcon)
     {
-        if (!hIcon || iconSize <= 0) return nullptr;
+        if (!iconHandle || iconSize <= 0) return nullptr;
 
         HDC screenDc = GetDC(nullptr);
         if (!screenDc) {
-            if (destroyIcon) DestroyIcon(hIcon);
+            if (destroyIcon) DestroyIcon(iconHandle);
             return nullptr;
         }
 
@@ -341,34 +398,34 @@ namespace slg {
         bmi.bmiHeader.biCompression = BI_RGB;
 
         void* bits = nullptr;
-        HBITMAP hBitmap = CreateDIBSection(screenDc, &bmi, DIB_RGB_COLORS, &bits, nullptr, 0);
-        if (!hBitmap || !bits) {
+        HBITMAP bitmapHandle = CreateDIBSection(screenDc, &bmi, DIB_RGB_COLORS, &bits, nullptr, 0);
+        if (!bitmapHandle || !bits) {
             ReleaseDC(nullptr, screenDc);
-            if (destroyIcon) DestroyIcon(hIcon);
+            if (destroyIcon) DestroyIcon(iconHandle);
             return nullptr;
         }
 
         HDC memDc = CreateCompatibleDC(screenDc);
         if (!memDc) {
-            DeleteObject(hBitmap);
+            DeleteObject(bitmapHandle);
             ReleaseDC(nullptr, screenDc);
-            if (destroyIcon) DestroyIcon(hIcon);
+            if (destroyIcon) DestroyIcon(iconHandle);
             return nullptr;
         }
 
-        auto oldBitmap = SelectObject(memDc, hBitmap);
+        auto oldBitmap = SelectObject(memDc, bitmapHandle);
         std::memset(bits, 0, iconSize * iconSize * 4);
-        DrawIconEx(memDc, 0, 0, hIcon, iconSize, iconSize, 0, nullptr, DI_NORMAL);
+        DrawIconEx(memDc, 0, 0, iconHandle, iconSize, iconSize, 0, nullptr, DI_NORMAL);
 
         Imaging::WriteableBitmap bitmap(iconSize, iconSize);
         std::memcpy(bitmap.PixelBuffer().data(), bits, iconSize * iconSize * 4);
 
         SelectObject(memDc, oldBitmap);
         DeleteDC(memDc);
-        DeleteObject(hBitmap);
+        DeleteObject(bitmapHandle);
         ReleaseDC(nullptr, screenDc);
 
-        if (destroyIcon) DestroyIcon(hIcon);
+        if (destroyIcon) DestroyIcon(iconHandle);
         return bitmap.as<ImageSource>();
     }
 
@@ -387,24 +444,24 @@ namespace slg {
         auto cacheIt = cache.find(key);
         if (cacheIt != cache.end()) return cacheIt->second;
 
-        SHFILEINFO shfi{};
+        SHFILEINFO shellFileInfo{};
         UINT flags = SHGFI_ICON | SHGFI_SMALLICON;
         DWORD attrs = isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
 
         bool status = false;
         if (useFileAttributes) {
-            status = SHGetFileInfoW(path.c_str(), attrs, &shfi, sizeof(shfi), flags | SHGFI_USEFILEATTRIBUTES) != 0;
-            if (!status) status = SHGetFileInfoW(L".", FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(shfi), flags | SHGFI_USEFILEATTRIBUTES) != 0;
+            status = SHGetFileInfoW(path.c_str(), attrs, &shellFileInfo, sizeof(shellFileInfo), flags | SHGFI_USEFILEATTRIBUTES) != 0;
+            if (!status) status = SHGetFileInfoW(L".", FILE_ATTRIBUTE_NORMAL, &shellFileInfo, sizeof(shellFileInfo), flags | SHGFI_USEFILEATTRIBUTES) != 0;
         }
         else {
-            status = SHGetFileInfoW(path.c_str(), 0, &shfi, sizeof(shfi), flags) != 0;
-            if (!status) status = SHGetFileInfoW(path.c_str(), attrs, &shfi, sizeof(shfi), flags | SHGFI_USEFILEATTRIBUTES) != 0;
-            if (!status) status = SHGetFileInfoW(L".", FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(shfi), flags | SHGFI_USEFILEATTRIBUTES) != 0;
+            status = SHGetFileInfoW(path.c_str(), 0, &shellFileInfo, sizeof(shellFileInfo), flags) != 0;
+            if (!status) status = SHGetFileInfoW(path.c_str(), attrs, &shellFileInfo, sizeof(shellFileInfo), flags | SHGFI_USEFILEATTRIBUTES) != 0;
+            if (!status) status = SHGetFileInfoW(L".", FILE_ATTRIBUTE_NORMAL, &shellFileInfo, sizeof(shellFileInfo), flags | SHGFI_USEFILEATTRIBUTES) != 0;
         }
 
-        if (!status || !shfi.hIcon) return nullptr;
+        if (!status || !shellFileInfo.hIcon) return nullptr;
 
-        auto source = CreateImageSourceFromHIcon(shfi.hIcon, iconSize, true);
+        auto source = CreateImageSourceFromHIcon(shellFileInfo.hIcon, iconSize, true);
         if (source) cache.insert_or_assign(key, source);
         return source;
     }
@@ -457,7 +514,7 @@ namespace slg {
         if (headerColumns.Size() == 0 || bodyColumns.Size() < headerColumns.Size()) return;
 
         static std::unordered_map<uint64_t, std::vector<double>> cachedHeaderWidths;
-        uint64_t key = reinterpret_cast<uint64_t>(get_abi(headerGrid));
+        uint64_t key = (uint64_t)get_abi(headerGrid);
         auto& lastWidths = cachedHeaderWidths[key];
         if (lastWidths.size() != headerColumns.Size()) {
             lastWidths.assign(headerColumns.Size(), -1.0);
@@ -481,11 +538,21 @@ namespace slg {
             lastWidths[i] = headerColumn.ActualWidth();
         }
 
-        auto itemCount = listView.Items().Size();
-        for (uint32_t i = 0; i < itemCount; ++i) {
-            auto itemContainer = listView.ContainerFromIndex(i).try_as<ListViewItem>();
-            if (!itemContainer) continue;
-            ApplyHeaderColumnWidthsToContainer(headerGrid, itemContainer, rowOffset);
+        std::vector<DependencyObject> pending{ listView };
+        while (!pending.empty()) {
+            auto parent = pending.back();
+            pending.pop_back();
+
+            int childCount = VisualTreeHelper::GetChildrenCount(parent);
+            for (int i = 0; i < childCount; ++i) {
+                auto child = VisualTreeHelper::GetChild(parent, i);
+                if (auto itemContainer = child.try_as<ListViewItem>()) {
+                    ApplyHeaderColumnWidthsToContainer(headerGrid, itemContainer, rowOffset);
+                }
+                else {
+                    pending.push_back(child);
+                }
+            }
         }
     }
 }

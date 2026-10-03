@@ -111,13 +111,12 @@
     <Midl Include="Utils\GeneralEntry.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
+    <Midl Include="Utils\DisplayValueConverter.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="Utils\KernelBase.cpp">
-      <Filter>Utils\Advanced</Filter>
-    </ClCompile>
     <ClCompile Include="Utils\DriverUtils.cpp">
       <Filter>Utils\Advanced</Filter>
     </ClCompile>
@@ -130,6 +129,12 @@
     <ClCompile Include="Utils\CppUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\DisplayValueConverter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\Diagnostics.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
     <ClCompile Include="Console.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
@@ -139,14 +144,17 @@
     <ClCompile Include="Utils\Config.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\I18n.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
     <ClCompile Include="Utils\FileInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\GeneralEntry.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
     <ClCompile Include="Utils\HandleInfo.cpp">
       <Filter>Utils\Types</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\I18n.cpp">
-      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Utils\KCTInfo.cpp">
       <Filter>Utils\Types</Filter>
@@ -169,16 +177,24 @@
     <ClCompile Include="Utils\WindowInfo.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\GeneralEntry.cpp">
-      <Filter>Utils\Types</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Generated Files\module.g.cpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="BuildConfig.h" />
     <ClInclude Include="Utils\Config.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\Coroutine.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
     <ClInclude Include="Utils\CppUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\DisplayValueConverter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Diagnostics.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Elevator.h">
@@ -193,17 +209,11 @@
     <ClInclude Include="Utils\TaskUtils.h">
       <Filter>Utils\Advanced</Filter>
     </ClInclude>
-    <ClInclude Include="IOBase.h">
-      <Filter>Utils\Advanced</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\ProcessInfo.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
     <ClInclude Include="Utils\ThreadInfo.h">
       <Filter>Utils\Types</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\AstralIO.h">
-      <Filter>Utils\Advanced</Filter>
     </ClInclude>
     <ClInclude Include="Utils\HandleInfo.h">
       <Filter>Utils\Types</Filter>
@@ -259,7 +269,6 @@
     <Image Include="Assets\StarlightGUI.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\Starlight.ico" />
     <Image Include="Assets\Starlight.png">
       <Filter>Assets</Filter>
     </Image>
@@ -269,6 +278,7 @@
     <Image Include="Assets\StarlightNew.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\Starlight.ico" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">
@@ -301,19 +311,11 @@
     <Filter Include="Strings\en-US">
       <UniqueIdentifier>{7126c4af-1a4c-463c-9147-cfa3113705fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils\Advanced\Sirius">
+      <UniqueIdentifier>{19618cb2-aacc-41ce-9e09-64eb8731d22c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="app.manifest" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="StarlightGUI_TemporaryKey.pfx" />
-    <None Include="Assets\kernel.sys">
-      <Filter>Assets</Filter>
-    </None>
-    <None Include="Assets\AstralX.sys">
-      <Filter>Assets</Filter>
-    </None>
     <None Include="nvml.dll">
       <Filter>Assets</Filter>
     </None>
@@ -326,6 +328,13 @@
     <None Include="capstone.dll">
       <Filter>Assets</Filter>
     </None>
+    <None Include="$(_WindowsMLLocalNativePath)\onnxruntime.dll" />
+    <None Include="$(_WindowsMLLocalNativePath)\DirectML.dll" />
+    <None Include="$(_WindowsMLLocalNativePath)\Microsoft.Windows.AI.MachineLearning.dll" />
+    <None Include="Assets\Sirius.sys">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
@@ -341,5 +350,16 @@
     <Text Include="Strings\en-US\Resources.json">
       <Filter>Strings\en-US</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SiriusCollection.h">
+      <Filter>Utils\Advanced\Sirius</Filter>
+    </ClInclude>
+    <ClInclude Include="Sirius.h">
+      <Filter>Utils\Advanced\Sirius</Filter>
+    </ClInclude>
+    <ClInclude Include="SiriusIO.h">
+      <Filter>Utils\Advanced\Sirius</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

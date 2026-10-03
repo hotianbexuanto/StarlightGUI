@@ -203,16 +203,26 @@
 
                                     <!--  窗口名  -->
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <essential:MarqueeText
-                                            Behavior="Looping"
+                                        <TextBlock
                                             FontSize="14"
                                             Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Name}" />
-                                        <essential:MarqueeText
-                                            Behavior="Looping"
+                                            Text="{Binding Name}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="NoWrap">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip essential:ToolTipHelper.AcrylicWorkaround="True" Content="{Binding Name}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                        <TextBlock
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding Description}" />
+                                            Text="{Binding Description}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="NoWrap">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip essential:ToolTipHelper.AcrylicWorkaround="True" Content="{Binding Description}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
                                     </StackPanel>
 
                                     <!--  ZBID  -->
@@ -231,7 +241,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding WindowStyle}" />
+                                        Text="{Binding WindowStyle, Converter={StaticResource DisplayValueConverter}, ConverterParameter=Hex32}" />
 
                                     <!--  HWND  -->
                                     <TextBlock
@@ -240,7 +250,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding Hwnd}" />
+                                        Text="{Binding Hwnd, Converter={StaticResource DisplayValueConverter}, ConverterParameter=HexHandle}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

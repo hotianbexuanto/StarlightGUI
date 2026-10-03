@@ -11,7 +11,10 @@
 /StarlightGUI/packages
 /StarlightGUI/x64/Debug
 /StarlightGUI/x64/Release
+/StarlightGUI/StarlightGUI/x64/
 /AppPackages
 /x64
-
 /.claude
+/.codex
+
+/StarlightGUI/obj

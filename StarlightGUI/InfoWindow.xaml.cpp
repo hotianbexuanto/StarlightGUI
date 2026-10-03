@@ -11,9 +11,19 @@
 #include <winrt/Windows.UI.h>
 #include <winrt/Windows.UI.Xaml.Interop.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
+#include <winrt/Microsoft.UI.Xaml.Navigation.h>
+#include <winrt/Windows.Storage.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/WinUI3Package.h>
+#include <microsoft.ui.xaml.window.h>
 #include <commctrl.h>
+#include <algorithm>
+#include <utility>
 #include <MainWindow.xaml.h>
 #include <Utils/ProcessInfo.h>
+#include "Utils/CppUtils.h"
+#include "Utils/Config.h"
+#include "Utils/Utils.h"
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -28,58 +38,51 @@ using namespace Microsoft::UI::Composition::SystemBackdrops;
 
 namespace winrt::StarlightGUI::implementation
 {
-    static HWND globalHWND;
-    InfoWindow* g_infoWindowInstance = nullptr;
-    winrt::StarlightGUI::ProcessInfo processForInfoWindow = nullptr;
+    InfoWindow::InfoWindow() : InfoWindow(nullptr) {}
 
-    InfoWindow::InfoWindow() {
+    InfoWindow::InfoWindow(winrt::StarlightGUI::ProcessInfo const& process) : m_process(process) {
         InitializeComponent();
-        g_infoWindowInstance = this;
-        slg::ApplyConfiguredTheme();
         SetupLocalization();
 
         auto windowNative{ this->try_as<::IWindowNative>() };
-        HWND hWnd{ 0 };
-        windowNative->get_WindowHandle(&hWnd);
-        globalHWND = hWnd;
+        HWND windowHandle{ 0 };
+        windowNative->get_WindowHandle(&windowHandle);
+        m_windowHandle = windowHandle;
 
-        SetWindowPos(hWnd, g_mainWindowInstance->GetWindowHandle(), 0, 0, 1200, 800, SWP_NOMOVE);
+        SetWindowPos(windowHandle, g_mainWindowInstance->GetWindowHandle(), 0, 0, 1200, 800, SWP_NOMOVE);
 
         ExtendsContentIntoTitleBar(true);
         SetTitleBar(AppTitleBar());
         AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
         AppWindow().SetIcon(GetInstalledLocationPath() + L"\\Assets\\Starlight.ico");
-        SetWindowSubclass(hWnd, &InfoWindowProc, 1, reinterpret_cast<DWORD_PTR>(this));
+        SetWindowSubclass(windowHandle, &InfoWindowProc, 1, (DWORD_PTR)this);
 
         int32_t width = ReadConfig("window_width", 1200);
         int32_t height = ReadConfig("window_height", 800);
         AppWindow().Resize(SizeInt32{ width, height });
 
+        g_mainWindowInstance->m_openWindows.push_back(*this);
+
         // 外观
-        LoadBackdrop();
+        slg::ApplyConfiguredTheme();
         LoadBackground();
         LoadNavigation();
 
-        for (auto& window : g_mainWindowInstance->m_openWindows) {
-            if (window) {
-                window.Close();
-            }
-        }
-        g_mainWindowInstance->m_openWindows.push_back(*this);
-
-        MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ThreadPage>());
+        MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ThreadPage>(), m_process);
         RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
-        AppTitleBar().Title(processForInfoWindow.Name());
-        AppTitleBar().Subtitle(L"(" + to_hstring(processForInfoWindow.Id()) + L")");
-        Title(processForInfoWindow.Name());
+        AppTitleBar().Title(m_process ? m_process.Name() : L"");
+        AppTitleBar().Subtitle(m_process ? L"(" + to_hstring(m_process.Id()) + L")" : L"");
+        Title(m_process ? m_process.Name() : L"");
 
         auto iconSource = Microsoft::UI::Xaml::Controls::ImageIconSource();
-        iconSource.ImageSource(processForInfoWindow.Icon());
+        if (m_process) iconSource.ImageSource(m_process.Icon());
         AppTitleBar().IconSource(iconSource);
 
         Closed([this](auto&& sender, const winrt::Microsoft::UI::Xaml::WindowEventArgs& args) {
-            g_mainWindowInstance->m_openWindows.clear();
-            g_infoWindowInstance = nullptr;
+            auto& windows = g_mainWindowInstance->m_openWindows;
+            std::erase_if(windows, [this](auto const& window) {
+                return window && winrt::get_self<InfoWindow>(window) == this;
+                });
             });
     }
 
@@ -92,22 +95,22 @@ namespace winrt::StarlightGUI::implementation
 
         if (invokedItem == L"Thread")
         {
-            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_ThreadPage>(), nullptr, options);
+            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_ThreadPage>(), m_process, options);
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         }
         else if (invokedItem == L"Handle")
         {
-            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_HandlePage>(), nullptr, options);
+            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_HandlePage>(), m_process, options);
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
         }
         else if (invokedItem == L"Module")
         {
-            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_ModulePage>(), nullptr, options);
+            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_ModulePage>(), m_process, options);
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
         }
         else if (invokedItem == L"KCT")
         {
-            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_KCTPage>(), nullptr, options);
+            MainFrame().NavigateToType(xaml_typename<StarlightGUI::Process_KCTPage>(), m_process, options);
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(3));
         }
     }
@@ -126,25 +129,28 @@ namespace winrt::StarlightGUI::implementation
     {
         int option = -1;
 
-        if (background_type == 1) {
+        if (backgroundType == 1) {
             MicaBackdrop micaBackdrop = MicaBackdrop();
 
             this->SystemBackdrop(micaBackdrop);
 
-            option = mica_type;
+            option = micaType;
             if (option == 0) {
                 micaBackdrop.Kind(MicaKind::Base);
             }
             else {
                 micaBackdrop.Kind(MicaKind::BaseAlt);
             }
+
+            if (backgroundImage.empty()) InfoWindowGrid().Background(nullptr);
         }
-        else if (background_type == 2) {
+        else if (backgroundType == 2) {
             CustomAcrylicBackdrop acrylicBackdrop = CustomAcrylicBackdrop();
 
             this->SystemBackdrop(acrylicBackdrop);
+            acrylicBackdrop.RequestedTheme(slg::GetConfiguredElementTheme());
 
-            option = acrylic_type;
+            option = acrylicType;
             if (option == 1) {
                 acrylicBackdrop.Kind(DesktopAcrylicKind::Base);
             }
@@ -154,33 +160,38 @@ namespace winrt::StarlightGUI::implementation
             else {
                 acrylicBackdrop.Kind(DesktopAcrylicKind::Default);
             }
+
+            if (backgroundImage.empty()) InfoWindowGrid().Background(nullptr);
         }
         else
         {
             this->SystemBackdrop(nullptr);
+            if (backgroundImage.empty()) {
+                InfoWindowGrid().Background(SolidColorBrush(slg::GetConfiguredElementTheme() == ElementTheme::Dark
+                    ? Color{ 255,32,32,32 }
+                    : Color{ 255,243,243,243 }));
+            }
         }
 
-        LOG_INFO(L"InfoWindow", L"Loading backdrop async with options: [%d, %d]", background_type, option);
+        LOG_INFO(L"InfoWindow", L"Loading backdrop async with options: [%d, %d]", backgroundType, option);
         co_return;
     }
 
     slg::coroutine InfoWindow::LoadBackground()
     {
-        if (background_image.empty()) {
-            SolidColorBrush brush;
-            brush.Color(Colors::Transparent());
-
-            InfoWindowGrid().Background(brush);
+        if (backgroundImage.empty()) {
+            InfoWindowGrid().Background(nullptr);
+            LoadBackdrop();
             co_return;
         }
 
-        HANDLE hFile = CreateFileA(background_image.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        HANDLE fileHandle = CreateFileA(backgroundImage.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-        if (hFile != INVALID_HANDLE_VALUE) {
-            CloseHandle(hFile);
+        if (fileHandle != INVALID_HANDLE_VALUE) {
+            CloseHandle(fileHandle);
 
             try {
-                StorageFile file = co_await StorageFile::GetFileFromPathAsync(to_hstring(background_image));
+                StorageFile file = co_await StorageFile::GetFileFromPathAsync(to_hstring(backgroundImage));
 
                 if (file && file.IsAvailable() && (file.FileType() == L".png" || file.FileType() == L".jpg" || file.FileType() == L".bmp" || file.FileType() == L".jpeg")) {
                     ImageBrush brush;
@@ -189,28 +200,24 @@ namespace winrt::StarlightGUI::implementation
                     bitmapImage.SetSource(stream);
                     brush.ImageSource(bitmapImage);
 
-                    brush.Stretch(image_stretch == 0 ? Stretch::None : image_stretch == 2 ? Stretch::Uniform : image_stretch == 1 ? Stretch::Fill : Stretch::UniformToFill);
-                    brush.Opacity(image_opacity / 100.0);
+                    brush.Stretch(imageStretch == 0 ? Stretch::None : imageStretch == 2 ? Stretch::Uniform : imageStretch == 1 ? Stretch::Fill : Stretch::UniformToFill);
+                    brush.Opacity(imageOpacity / 100.0);
 
                     InfoWindowGrid().Background(brush);
 
-                    LOG_INFO(L"InfoWindow", L"Loading background async with options: [%s, %d, %d]", to_hstring(background_image).c_str(), image_opacity, image_stretch);
+                    LOG_INFO(L"InfoWindow", L"Loading background async with options: [%s, %d, %d]", to_hstring(backgroundImage).c_str(), imageOpacity, imageStretch);
                 }
             }
             catch (hresult_error) {
-                SolidColorBrush brush;
-                brush.Color(Colors::Transparent());
-
-                InfoWindowGrid().Background(brush);
-                LOG_ERROR(L"InfoWindow", L"Unable to load window backgroud! Applying transparent brush instead.");
+                InfoWindowGrid().Background(nullptr);
+                LoadBackdrop();
+                LOG_ERROR(L"InfoWindow", L"Unable to load window backgroud! Applying configured backdrop instead.");
             }
         }
         else {
-            SolidColorBrush brush;
-            brush.Color(Colors::Transparent());
-
-            InfoWindowGrid().Background(brush);
-            LOG_ERROR(L"InfoWindow", L"Background file does not exist. Applying transparent brush instead.");
+            InfoWindowGrid().Background(nullptr);
+            LoadBackdrop();
+            LOG_ERROR(L"InfoWindow", L"Background file does not exist. Applying configured backdrop instead.");
         }
         co_return;
     }
@@ -219,10 +226,10 @@ namespace winrt::StarlightGUI::implementation
     {
         AppTitleBar().IsPaneToggleButtonVisible(true);
 
-        if (navigation_style == 1) {
+        if (navigationStyle == 1) {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);
         }
-        else if (navigation_style == 2) {
+        else if (navigationStyle == 2) {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Top);
             RootNavigation().IsPaneOpen(false);
         }
@@ -231,35 +238,37 @@ namespace winrt::StarlightGUI::implementation
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
         }
 
-        LOG_INFO(L"InfoWindow", L"Loading navigation async with options: [%d]", navigation_style);
+        LOG_INFO(L"InfoWindow", L"Loading navigation async with options: [%d]", navigationStyle);
         co_return;
     }
 
     HWND InfoWindow::GetWindowHandle()
     {
-        return globalHWND;
+        return m_windowHandle;
     }
 
-    LRESULT CALLBACK InfoWindow::InfoWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+    LRESULT CALLBACK InfoWindow::InfoWindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR subclassId, DWORD_PTR referenceData)
     {
 
-        switch (uMsg)
+        switch (message)
         {
         case WM_GETMINMAXINFO:
         {
-            MINMAXINFO* pMinMaxInfo = reinterpret_cast<MINMAXINFO*>(lParam);
-            pMinMaxInfo->ptMinTrackSize.x = 800;
-            pMinMaxInfo->ptMinTrackSize.y = 600;
+            MINMAXINFO* minMaxInfo = (MINMAXINFO*)lParam;
+            UINT dpi = GetDpiForWindow(windowHandle);
+            if (dpi == 0) dpi = USER_DEFAULT_SCREEN_DPI;
+            minMaxInfo->ptMinTrackSize.x = MulDiv(800, dpi, USER_DEFAULT_SCREEN_DPI);
+            minMaxInfo->ptMinTrackSize.y = MulDiv(600, dpi, USER_DEFAULT_SCREEN_DPI);
             return 0;
         }
 
         case WM_NCDESTROY:
         {
-            RemoveWindowSubclass(hWnd, &InfoWindowProc, uIdSubclass);
+            RemoveWindowSubclass(windowHandle, &InfoWindowProc, subclassId);
             break;
         }
         }
-        return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+        return DefSubclassProc(windowHandle, message, wParam, lParam);
     }
 
     void InfoWindow::SetupLocalization()

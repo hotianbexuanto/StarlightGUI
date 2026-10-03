@@ -1,7 +1,12 @@
 ﻿#pragma once
 
 #include "TaskPage.g.h"
+#include "Utils/Coroutine.h"
+#include "Utils/ProcessInfo.h"
+#include "Utils/TaskUtils.h"
 #include <map>
+#include <string>
+#include <vector>
 #include <winrt/Windows.Foundation.Collections.h>
 
 namespace winrt::StarlightGUI::implementation
@@ -18,6 +23,7 @@ namespace winrt::StarlightGUI::implementation
         slg::coroutine ModifyToken(ULONG pid);
 
         void ProcessListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
+        void ProcessListView_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e);
         void ProcessListView_ContainerContentChanging(
             winrt::Microsoft::UI::Xaml::Controls::ListViewBase const& sender,
             winrt::Microsoft::UI::Xaml::Controls::ContainerContentChangingEventArgs const& args);
@@ -33,6 +39,7 @@ namespace winrt::StarlightGUI::implementation
 
         winrt::Windows::Foundation::IAsyncAction LoadProcessList(bool fullReload = true);
         winrt::Windows::Foundation::IAsyncAction LoadMetaForCurrentList(std::vector<winrt::StarlightGUI::ProcessInfo> processes, uint64_t loadToken, bool fullReload);
+        winrt::Windows::Foundation::IAsyncAction RefreshProcessCpuUsage();
         winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);
         winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(winrt::StarlightGUI::ProcessInfo process);
         void UpdateRealizedItemIcon(winrt::StarlightGUI::ProcessInfo const& process, winrt::Microsoft::UI::Xaml::Media::ImageSource const& icon);
@@ -46,9 +53,13 @@ namespace winrt::StarlightGUI::implementation
         bool m_isLoadingProcesses = false;
         bool m_isPostLoading = false;
         bool m_isSorting = false;
+        bool m_isRefreshingCpu = false;
         uint64_t m_currentLoadToken = 0;
         uint64_t m_reloadRequestVersion = 0;
+        uint64_t m_cpuRequestVersion = 0;
+        TaskUtils::ProcessCpuSnapshot m_cpuSnapshot;
         winrt::Microsoft::UI::Xaml::DispatcherTimer autoRefreshTimer;
+        winrt::Microsoft::UI::Xaml::DispatcherTimer cpuRefreshTimer;
 
         inline static bool m_isLoading = false;
         inline static bool m_isNameAscending = true;

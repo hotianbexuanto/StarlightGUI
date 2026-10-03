@@ -1,15 +1,27 @@
 ﻿#include "pch.h"
 #include "FilePage.xaml.h"
+#include <winrt/Microsoft.UI.Dispatching.h>
+#include <winrt/Windows.Storage.h>
+#include <winrt/WinUI3Package.h>
+#include <wil/cppwinrt_helpers.h>
 #if __has_include("FilePage.g.cpp")
 #include "FilePage.g.cpp"
 #endif
 
+#include <algorithm>
 #include <chrono>
+#include <filesystem>
 #include <shellapi.h>
 #include <CopyFileDialog.xaml.h>
 #include <array>
+#include <sstream>
 #include <unordered_set>
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
+#include "Utils/Config.h"
+#include "Utils/CppUtils.h"
+#include "Utils/KernelBase.h"
+#include "Utils/TaskUtils.h"
+#include "Utils/Utils.h"
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -18,13 +30,26 @@ using namespace Microsoft::UI::Xaml;
 
 namespace winrt::StarlightGUI::implementation
 {
+    namespace fs = std::filesystem;
+
     // 文件页虚拟根目录，代表此电脑
     static const std::wstring kFileHomePage = L"::drives::";
 
     FilePage* g_filePageInstance = nullptr;
 
 	hstring currentDirectory = L"C:\\";
-    static hstring safeAcceptedName = L"";
+    static hstring GetDriverErrorMessage()
+    {
+        auto errorMsg = KernelInstance::GetLastErrorMessage();
+        if (errorMsg.empty()) {
+            auto errorCode = KernelInstance::GetLastErrorCode();
+            wchar_t hexCode[32];
+            swprintf_s(hexCode, L"0x%X", errorCode);
+            return t(L"Msg.DriverError.Code", hexCode);
+        }
+        return t(L"Msg.DriverError.Detail", errorMsg.c_str());
+    }
+
     static std::unordered_map<std::wstring, winrt::Microsoft::UI::Xaml::Media::ImageSource> iconCache;
     static std::unordered_set<std::wstring> iconLoadingKeys;
     static std::unordered_map<std::wstring, std::vector<winrt::StarlightGUI::FileInfo>> iconPendingFiles;
@@ -143,7 +168,7 @@ namespace winrt::StarlightGUI::implementation
         if (stateIt == m_tabStates.end()) return;
 
         auto& state = stateIt->second;
-        if (state.history.empty() || state.historyIndex < 0 || state.historyIndex >= static_cast<int>(state.history.size())) return;
+        if (state.history.empty() || state.historyIndex < 0 || state.historyIndex >= (int)state.history.size()) return;
 
         currentDirectory = hstring(state.history[state.historyIndex]);
         SyncCurrentTabUI();
@@ -166,15 +191,15 @@ namespace winrt::StarlightGUI::implementation
         auto& state = stateIt->second;
 
         if (pushHistory) {
-            if (state.historyIndex >= 0 && state.historyIndex < static_cast<int>(state.history.size()) - 1) {
+            if (state.historyIndex >= 0 && state.historyIndex < (int)state.history.size() - 1) {
                 state.history.erase(state.history.begin() + state.historyIndex + 1, state.history.end());
             }
             if (state.history.empty() || state.history.back() != normalizedPath) {
                 state.history.push_back(normalizedPath);
-                state.historyIndex = static_cast<int>(state.history.size()) - 1;
+                state.historyIndex = (int)state.history.size() - 1;
             }
             else {
-                state.historyIndex = static_cast<int>(state.history.size()) - 1;
+                state.historyIndex = (int)state.history.size() - 1;
             }
         }
 
@@ -212,7 +237,7 @@ namespace winrt::StarlightGUI::implementation
         std::wstring tabId = unbox_value<hstring>(tab.Tag()).c_str();
         auto stateIt = m_tabStates.find(tabId);
         if (stateIt == m_tabStates.end()) return;
-        if (stateIt->second.history.empty() || stateIt->second.historyIndex < 0 || stateIt->second.historyIndex >= static_cast<int>(stateIt->second.history.size())) return;
+        if (stateIt->second.history.empty() || stateIt->second.historyIndex < 0 || stateIt->second.historyIndex >= (int)stateIt->second.history.size()) return;
 
         auto headerPanel = StackPanel();
         headerPanel.Orientation(Orientation::Horizontal);
@@ -245,7 +270,7 @@ namespace winrt::StarlightGUI::implementation
 
         auto& state = stateIt->second;
         bool canGoBack = state.historyIndex > 0;
-        bool canGoForward = !state.history.empty() && state.historyIndex < static_cast<int>(state.history.size()) - 1;
+        bool canGoForward = !state.history.empty() && state.historyIndex < (int)state.history.size() - 1;
         bool canGoUp = currentDirectory != kFileHomePage && currentDirectory.size() > 3;
 
         BackButton().IsEnabled(canGoBack);
@@ -429,6 +454,7 @@ namespace winrt::StarlightGUI::implementation
         auto list = listView.SelectedItems();
 
         std::vector<winrt::StarlightGUI::FileInfo> selectedFiles;
+        bool hasImportantFile = false;
 
         for (const auto& file : list) {
             auto item = file.as<winrt::StarlightGUI::FileInfo>();
@@ -436,16 +462,11 @@ namespace winrt::StarlightGUI::implementation
             if (item.Flag() == 666) return;
             // 跳过"上个文件夹"选项
             if (item.Flag() == 999) continue;
-            if ((item.Name() == L"Windows" || item.Name() == L"Boot" || item.Name() == L"System32" || item.Name() == L"SysWOW64" || item.Name() == L"Microsoft") &&
-                (safeAcceptedName != L"Windows" && safeAcceptedName != L"Boot" && safeAcceptedName != L"System32" && safeAcceptedName != L"SysWOW64" && safeAcceptedName != L"Microsoft")) {
-                safeAcceptedName = item.Name();
-                slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"File.Msg.ImportantFileWarning").c_str(), InfoBarSeverity::Warning, g_mainWindowInstance);
-                return;
+            if (item.Name() == L"Windows" || item.Name() == L"Boot" || item.Name() == L"System32" || item.Name() == L"SysWOW64" || item.Name() == L"Microsoft") {
+                hasImportantFile = true;
             }
             selectedFiles.push_back(item);
         }
-
-        safeAcceptedName = L"";
 
         auto flyoutStyles = slg::GetStyles();
 
@@ -468,47 +489,79 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutSeparator separator1;
 
         // 选项2.1
-        auto item2_1 = slg::CreateMenuItem(flyoutStyles, L"\ue74d", t(L"File.Menu.Delete").c_str(), [this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
-            for (const auto& item : selectedFiles) {
+        auto item2_1 = slg::CreateMenuItem(flyoutStyles, L"\ue74d", t(L"File.Menu.Delete").c_str(), [this, selectedFiles, hasImportantFile](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto files = selectedFiles;
+            bool important = hasImportantFile;
+            if (dangerousConfirm && important && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
+            }
+            for (const auto& item : files) {
                 if (KernelInstance::DeleteFileAuto(item.Path().c_str())) {
                     slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                    WaitAndReloadAsync(1000);
+                    lifetime->WaitAndReloadAsync(1000);
                 }
                 else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
             }
+            co_return;
             });
 
         // 选项2.2
-        auto item2_2 = slg::CreateMenuItem(flyoutStyles, L"\ue733", t(L"File.Menu.DeleteKernel").c_str(), [this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
-            for (const auto& item : selectedFiles) {
-                if (KernelInstance::_DeleteFileAuto(item.Path().c_str())) {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                    WaitAndReloadAsync(1000);
-                }
-                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+        auto item2_2 = slg::CreateMenuItem(flyoutStyles, L"\ue733", t(L"File.Menu.DeleteKernel").c_str(), [this, selectedFiles, hasImportantFile](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto files = selectedFiles;
+            bool important = hasImportantFile;
+            if (dangerousConfirm && important && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
+            for (const auto& item : files) {
+                if (KernelInstance::SiDeleteFile(item.Path().c_str())) {
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                    lifetime->WaitAndReloadAsync(1000);
+                }
+                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
+            }
+            co_return;
             });
 
         // 选项2.3
-        auto item2_3 = slg::CreateMenuItem(flyoutStyles, L"\uf5ab", t(L"File.Menu.DeleteMurder").c_str(), [this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
-            for (const auto& item : selectedFiles) {
-                if (KernelInstance::MurderFileAuto(item.Path().c_str())) {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                    WaitAndReloadAsync(1000);
-                }
-                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+        auto item2_3 = slg::CreateMenuItem(flyoutStyles, L"\uf5ab", t(L"File.Menu.DeleteNTFS").c_str(), [this, selectedFiles, hasImportantFile](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto files = selectedFiles;
+            bool important = hasImportantFile;
+            if (dangerousConfirm && important && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
+            for (const auto& item : files) {
+                if (KernelInstance::SiDeleteFileEx(item.Path().c_str())) {
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                    lifetime->WaitAndReloadAsync(1000);
+                }
+                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
+            }
+            co_return;
             });
 
         // 选项2.4
-        auto item2_4 = slg::CreateMenuItem(flyoutStyles, L"\ue72e", t(L"File.Menu.Lock").c_str(), [this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
-            for (const auto& item : selectedFiles) {
-                if (KernelInstance::LockFile(item.Path().c_str())) {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                    WaitAndReloadAsync(1000);
-                }
-                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+        auto item2_4 = slg::CreateMenuItem(flyoutStyles, L"\ue72e", t(L"File.Menu.Lock").c_str(), [this, selectedFiles, hasImportantFile](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto files = selectedFiles;
+            bool important = hasImportantFile;
+            if (dangerousConfirm && important && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
+            for (const auto& item : files) {
+                if (KernelInstance::SiLockFile(item.Path().c_str())) {
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                    lifetime->WaitAndReloadAsync(1000);
+                }
+                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
+            }
+            co_return;
             });
 
         // 选项2.5
@@ -537,7 +590,20 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_1.Items().Append(item3_1_sub2);
         auto item3_1_sub3 = slg::CreateMenuItem(flyoutStyles, L"\uec92", t(L"File.Header.ModifyTime").c_str(), [this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(selectedFiles[0].ModifyTime().c_str())) {
+            ULARGE_INTEGER rawTime{};
+            rawTime.QuadPart = selectedFiles[0].ModifyTime();
+            FILETIME fileTime{ rawTime.LowPart, rawTime.HighPart };
+            SYSTEMTIME systemTime{};
+            wchar_t timeText[32]{};
+            if (rawTime.QuadPart != 0 && FileTimeToSystemTime(&fileTime, &systemTime)) {
+                swprintf_s(timeText, L"%04u/%02u/%02u %02u:%02u:%02u",
+                    systemTime.wYear, systemTime.wMonth, systemTime.wDay,
+                    systemTime.wHour, systemTime.wMinute, systemTime.wSecond);
+            }
+            else {
+                wcscpy_s(timeText, t(L"Common.Unknown").c_str());
+            }
+            if (TaskUtils::CopyToClipboard(timeText)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
             }
             else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_mainWindowInstance);
@@ -566,12 +632,12 @@ namespace winrt::StarlightGUI::implementation
 
         // 当选中多个内容并且其中一个是文件夹时禁用锁定部分只能操作文件的按钮
         // 当选中多个内容并且其中一个是文件夹时禁用打开按钮
-        for (const auto& item : selectedFiles) {
-            if (item.Directory()) {
-                item2_4.IsEnabled(false);
-                item2_5.IsEnabled(false);
-                if (selectedFiles.size() > 1) item1_1.IsEnabled(false);
-                break;
+        if (selectedFiles.size() > 1) {
+            for (const auto& item : selectedFiles) {
+                if (item.Directory()) {
+                    item1_1.IsEnabled(false);
+                    break;
+                }
             }
         }
 
@@ -788,7 +854,7 @@ namespace winrt::StarlightGUI::implementation
         auto tabId = GetCurrentTabId();
         if (!tabId.empty()) {
             auto stateIt = m_tabStates.find(tabId);
-            if (stateIt != m_tabStates.end() && stateIt->second.historyIndex >= 0 && stateIt->second.historyIndex < static_cast<int>(stateIt->second.history.size())) {
+            if (stateIt != m_tabStates.end() && stateIt->second.historyIndex >= 0 && stateIt->second.historyIndex < (int)stateIt->second.history.size()) {
                 stateIt->second.history[stateIt->second.historyIndex] = path;
                 stateIt->second.title = BuildTabTitle(path);
                 tabSearchText = stateIt->second.searchText;
@@ -805,6 +871,9 @@ namespace winrt::StarlightGUI::implementation
 
         m_allFiles.clear();
 
+        bool queryFileResult = true;
+        hstring queryFileError;
+
         // 首页展示驱动器，行为与系统文件管理器更一致
         if (path == kFileHomePage) {
             wchar_t driveBuffer[256]{};
@@ -816,19 +885,26 @@ namespace winrt::StarlightGUI::implementation
                 driveInfo.Path(hstring(drivePath));
                 driveInfo.Flag(666);
                 driveInfo.Directory(true);
-                driveInfo.Size(L"");
-                driveInfo.ModifyTime(L"");
+                driveInfo.Size(0);
+                driveInfo.ModifyTime(0);
                 m_allFiles.push_back(driveInfo);
             }
         }
         else {
-            KernelInstance::QueryFile(path, m_allFiles);
+            queryFileResult = KernelInstance::QueryFile(path, m_allFiles);
+            if (!queryFileResult) queryFileError = GetDriverErrorMessage();
         }
         LOG_INFO(__WFUNCTION__, L"Enumerated files, %d entry(s).", m_allFiles.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
         if (loadToken != m_currentLoadToken) {
             m_isLoadingFiles = false;
+            co_return;
+        }
+        if (!queryFileResult) {
+            LoadingRing().IsActive(false);
+            m_isLoadingFiles = false;
+            slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), queryFileError, InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
         }
 
@@ -899,21 +975,13 @@ namespace winrt::StarlightGUI::implementation
     void FilePage::PopulateFileMetaBatch(std::wstring const& directoryPath)
     {
         auto fillUnknownMeta = [](winrt::StarlightGUI::FileInfo const& file) {
-            if (!file.Directory()) {
-                if (file.SizeULong() == 0) file.Size(L"0 B");
-                else file.Size(FormatMemorySize(file.SizeULong()));
-            }
-            else {
-                file.SizeULong(0);
-                file.Size(L"");
-            }
-            if (file.ModifyTime().empty()) file.ModifyTime(t(L"Common.Unknown"));
-            };
+            if (file.Directory()) file.Size(0);
+        };
 
         std::wstring searchPath = directoryPath + L"\\*";
         WIN32_FIND_DATAW data{};
-        HANDLE hFind = FindFirstFileExW(searchPath.c_str(), FindExInfoBasic, &data, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
-        if (hFind == INVALID_HANDLE_VALUE) {
+        HANDLE findHandle = FindFirstFileExW(searchPath.c_str(), FindExInfoBasic, &data, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
+        if (findHandle == INVALID_HANDLE_VALUE) {
             for (auto const& file : m_allFiles) {
                 file.Path(FixBackSplash(file.Path()));
                 fillUnknownMeta(file);
@@ -931,9 +999,9 @@ namespace winrt::StarlightGUI::implementation
         do {
             if (wcscmp(data.cFileName, L".") == 0 || wcscmp(data.cFileName, L"..") == 0) continue;
             metaMap[normalize(data.cFileName)] = data;
-        } while (FindNextFileW(hFind, &data));
+        } while (FindNextFileW(findHandle, &data));
 
-        FindClose(hFind);
+        FindClose(findHandle);
 
         for (auto const& file : m_allFiles) {
             file.Path(FixBackSplash(file.Path()));
@@ -948,31 +1016,13 @@ namespace winrt::StarlightGUI::implementation
             const bool isDir = (d.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
             if (!isDir) {
                 ULONG64 size = ((ULONG64)d.nFileSizeHigh << 32) | d.nFileSizeLow;
-                file.SizeULong(size);
-                file.Size(FormatMemorySize(size));
+                file.Size(size);
             }
             else {
-                file.SizeULong(0);
-                file.Size(L"");
+                file.Size(0);
             }
 
-            file.ModifyTimeULong(((ULONG64)d.ftLastWriteTime.dwHighDateTime << 32) | d.ftLastWriteTime.dwLowDateTime);
-            SYSTEMTIME st{};
-            if (FileTimeToSystemTime(&d.ftLastWriteTime, &st))
-            {
-                std::wstringstream ss;
-                ss << std::setw(4) << std::setfill(L'0') << st.wYear << L"/"
-                    << std::setw(2) << std::setfill(L'0') << st.wMonth << L"/"
-                    << std::setw(2) << std::setfill(L'0') << st.wDay << L" "
-                    << std::setw(2) << std::setfill(L'0') << st.wHour << L":"
-                    << std::setw(2) << std::setfill(L'0') << st.wMinute << L":"
-                    << std::setw(2) << std::setfill(L'0') << st.wSecond;
-                file.ModifyTime(ss.str());
-            }
-            else
-            {
-                file.ModifyTime(t(L"Common.Unknown"));
-            }
+            file.ModifyTime(((ULONG64)d.ftLastWriteTime.dwHighDateTime << 32) | d.ftLastWriteTime.dwLowDateTime);
         }
     }
 
@@ -1285,9 +1335,9 @@ namespace winrt::StarlightGUI::implementation
             case SortColumn::Name:
                 return LessIgnoreCase(a.Name().c_str(), b.Name().c_str());
             case SortColumn::ModifyTime:
-                return a.ModifyTimeULong() < b.ModifyTimeULong();
+                return a.ModifyTime() < b.ModifyTime();
             case SortColumn::Size:
-                return a.SizeULong() < b.SizeULong();
+                return a.Size() < b.Size();
             default:
                 return false;
             }
@@ -1349,7 +1399,7 @@ namespace winrt::StarlightGUI::implementation
         if (stateIt == m_tabStates.end()) return;
         auto& state = stateIt->second;
 
-        if (state.historyIndex >= static_cast<int>(state.history.size()) - 1) return;
+        if (state.historyIndex >= (int)state.history.size() - 1) return;
         state.historyIndex++;
         currentDirectory = hstring(state.history[state.historyIndex]);
         SyncCurrentTabUI();
@@ -1396,36 +1446,24 @@ namespace winrt::StarlightGUI::implementation
                 auto item = file.as<winrt::StarlightGUI::FileInfo>();
                 // 跳过上个文件夹选项
                 if (item.Flag() == 999) continue;
-				if (item.Directory()) continue;
                 selectedFiles.push_back(item);
             }
 
             int successCount = 0, failedCount = 0;
             for (const auto& item : selectedFiles) {
-                bool result = false;
-                try {
-                    if (fs::is_directory(item.Path().c_str())) {
-                        fs::copy(item.Path().c_str(), copyPath + item.Name().c_str(), fs::copy_options::recursive | fs::copy_options::overwrite_existing);
-                        result = true;
-                    }
-                    else if (fs::is_regular_file(item.Path().c_str())) {
-                        result = fs::copy_file(item.Path().c_str(), copyPath + item.Name().c_str(), fs::copy_options::overwrite_existing);
-                    }
+				co_await winrt::resume_background();
+                BOOL status = KernelInstance::SiCopyFile(item.Path().c_str(), copyPath + L"\\" + item.Name().c_str());
+				co_await wil::resume_foreground(DispatcherQueue());
+                if (status) {
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                    successCount++;
                 }
-                catch (...) {
-                    result = false;
+                else {
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
+                    failedCount++;
                 }
-                
-                if (result) successCount++;
-				else failedCount++;
             }
-            if (successCount > 0) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                co_await LoadFileList();
-            }
-            if (failedCount > 0) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
-            }
+            if (failedCount > 0) slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"File.Msg.CopyPartialFail", failedCount), InfoBarSeverity::Error, g_mainWindowInstance);
         }
     }
 
@@ -1436,9 +1474,5 @@ namespace winrt::StarlightGUI::implementation
         SizeHeaderButton().Content(tbox(L"Common.Size"));
     }
 }
-
-
-
-
 
 

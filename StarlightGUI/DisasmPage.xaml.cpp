@@ -1,20 +1,44 @@
 ﻿#include "pch.h"
 #include "DisasmPage.xaml.h"
+#include <winrt/Microsoft.UI.Dispatching.h>
+#include <wil/cppwinrt_helpers.h>
 #if __has_include("DisasmPage.g.cpp")
 #include "DisasmPage.g.cpp"
 #endif
 
 #include <iomanip>
 #include <cwctype>
+#include <sstream>
+#include <string>
+#include <vector>
 #include <MainWindow.xaml.h>
 #include <capstone/capstone.h>
+#include "Utils/Config.h"
+#include "Utils/CppUtils.h"
+#include "Utils/KernelBase.h"
+#include "Utils/Utils.h"
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
 
 namespace winrt::StarlightGUI::implementation
 {
-    bool confirmed = false;
+    static hstring GetDriverErrorMessage()
+    {
+        auto errorMsg = KernelInstance::GetLastErrorMessage();
+        if (!errorMsg.empty()) {
+            return t(L"Msg.DriverError.Detail", errorMsg.c_str());
+        }
+
+        auto errorCode = KernelInstance::GetLastErrorCode();
+        if (errorCode == 0) {
+            return t(L"Msg.Failed", GetLastError());
+        }
+
+        wchar_t hexCode[32];
+        swprintf_s(hexCode, L"0x%X", errorCode);
+        return t(L"Msg.DriverError.Code", hexCode);
+    }
 
     DisasmPage::DisasmPage()
     {
@@ -38,6 +62,7 @@ namespace winrt::StarlightGUI::implementation
             std::vector<BYTE> buffer(size);
 
             BOOL result = KernelInstance::ReadMemory(buffer, (PVOID)address, (ULONG)size);
+            auto errorMessage = GetDriverErrorMessage();
 
             co_await wil::resume_foreground(DispatcherQueue());
 
@@ -51,7 +76,7 @@ namespace winrt::StarlightGUI::implementation
                         byteStream << std::setw(2) << std::setfill(L'0') << std::hex << std::uppercase << (int)section << L" ";
                         if (std::iswprint(section)) charStream << (wchar_t)section;
                         else charStream << L".";
-                        if (counter >= disasm_count) {
+                        if (counter >= disasmCount) {
                             byteStream << L"\n";
                             charStream << L"\n";
                             counter = 0;
@@ -88,7 +113,7 @@ namespace winrt::StarlightGUI::implementation
                                     << std::setfill(L'0')
                                     << std::hex
                                     << std::uppercase
-                                    << static_cast<int>(insn[i].bytes[j])
+                                    << (int)insn[i].bytes[j]
                                     << L" ";
                             }
                             byteStream << L"\n";
@@ -128,29 +153,23 @@ namespace winrt::StarlightGUI::implementation
             {
                 HexText().Text(t(L"Common.None"));
                 CharText().Text(t(L"Common.None"));
-                slg::CreateInfoBarAndDisplay(t(L"Common.Error"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                slg::CreateInfoBarAndDisplay(t(L"Common.Error"), errorMessage.c_str(), InfoBarSeverity::Error, g_mainWindowInstance);
             }
         }
         else {
-            if (!confirmed) {
-                slg::CreateInfoBarAndDisplay(
-                    t(L"Common.Warning").c_str(),
-                    t(L"Disasm.Msg.WriteWarning").c_str(),
-                    InfoBarSeverity::Warning,
-                    g_mainWindowInstance
-                );
-				confirmed = true;
+            if (dangerousConfirm && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), XamlRoot()))) {
                 co_return;
-			}
+            }
             ULONG64 address = 0, size = 0, data = 0;
-            if (!HexStringToULong(AddressBox().Text().c_str(), address) || !StringToNumber(SizeBox().Text().c_str(), size) || !StringToNumber(ValueBox().Text().c_str(), data)) {
+            if (!HexStringToULong(AddressBox().Text().c_str(), address) || !StringToNumber(SizeBox().Text().c_str(), size) || !StringToNumber(ValueBox().Text().c_str(), data) || size > sizeof(data)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Error"), t(L"Disasm.Msg.InvalidInput"), InfoBarSeverity::Error, g_mainWindowInstance);
                 co_return;
             }
 
             co_await winrt::resume_background();
 
-            BOOL result = KernelInstance::WriteMemory((PVOID)address, (PVOID)data, (ULONG)size);
+            BOOL result = KernelInstance::WriteMemory((PVOID)address, &data, (ULONG)size);
+            auto errorMessage = GetDriverErrorMessage();
 
             co_await wil::resume_foreground(DispatcherQueue());
 
@@ -160,7 +179,7 @@ namespace winrt::StarlightGUI::implementation
             }
             else
             {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Error"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                slg::CreateInfoBarAndDisplay(t(L"Common.Error"), errorMessage.c_str(), InfoBarSeverity::Error, g_mainWindowInstance);
             }
         }
     }
@@ -178,6 +197,3 @@ namespace winrt::StarlightGUI::implementation
 		CharText().Text(t(L"Common.None"));
     }
 }
-
-
-

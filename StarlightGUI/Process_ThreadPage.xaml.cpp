@@ -1,11 +1,13 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "Process_ThreadPage.xaml.h"
 #if __has_include("Process_ThreadPage.g.cpp")
 #include "Process_ThreadPage.g.cpp"
 #endif
 
 
+#include <algorithm>
 #include <winrt/Microsoft.UI.Xaml.h>
+#include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.System.h>
@@ -13,12 +15,16 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Foundation.h>
+#include <wil/cppwinrt_helpers.h>
 #include <TlHelp32.h>
 #include <Psapi.h>
 #include <array>
 #include <sstream>
 #include <iomanip>
+#include <vector>
+#include <Utils/Config.h>
 #include <Utils/Utils.h>
+#include <Utils/CppUtils.h>
 #include <Utils/TaskUtils.h>
 #include <Utils/KernelBase.h>
 #include <InfoWindow.xaml.h>
@@ -36,7 +42,17 @@ using namespace Windows::System;
 
 namespace winrt::StarlightGUI::implementation
 {
-    static int safeAcceptedPID = -1;
+    static hstring GetDriverErrorMessage()
+    {
+        auto errorMsg = KernelInstance::GetLastErrorMessage();
+        if (errorMsg.empty()) {
+            auto errorCode = KernelInstance::GetLastErrorCode();
+            wchar_t hexCode[32];
+            swprintf_s(hexCode, L"0x%X", errorCode);
+            return t(L"Msg.DriverError.Code", hexCode);
+        }
+        return t(L"Msg.DriverError.Detail", errorMsg.c_str());
+    }
 
     Process_ThreadPage::Process_ThreadPage() {
         InitializeComponent();
@@ -55,6 +71,11 @@ namespace winrt::StarlightGUI::implementation
             });
 
         LOG_INFO(L"Process_ThreadPage", L"Process_ThreadPage initialized.");
+    }
+
+    void Process_ThreadPage::OnNavigatedTo(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e)
+    {
+        m_process = e.Parameter().try_as<winrt::StarlightGUI::ProcessInfo>();
     }
 
     void Process_ThreadPage::ThreadListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -77,40 +98,48 @@ namespace winrt::StarlightGUI::implementation
             });
 
         MenuFlyoutSeparator separatorR;
-
+        
         // 选项1.1
         auto item1_1 = slg::CreateMenuItem(flyoutStyles, L"\ue711", t(L"ProcThread.Menu.Terminate").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::_TerminateThread(item.Id())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            BOOL success = FALSE;
+            if (item.Id() != 0) {
+                HANDLE threadHandle = OpenThread(THREAD_TERMINATE, FALSE, item.Id());
+                if (threadHandle) {
+                    success = TerminateThread(threadHandle, 0);
+                    CloseHandle(threadHandle);
+                }
+            }
+            if (success) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
                 LoadThreadList();
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
 
         // 选项1.2
         auto item1_2 = slg::CreateMenuItem(flyoutStyles, L"\ue8f0", t(L"ProcThread.Menu.TerminateKernel").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::_ZwTerminateThread(item.Id())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            if (KernelInstance::SiTerminateThread(item.Id())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
                 LoadThreadList();
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
 
         // 选项1.3
         auto item1_3 = slg::CreateMenuItem(flyoutStyles, L"\ue945", t(L"ProcThread.Menu.TerminateMurder").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
-                if (KernelInstance::MurderThread(item.Id())) {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
-                    LoadThreadList();
-                }
-                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto target = item;
+            if (dangerousConfirm && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
-            else {
-                safeAcceptedPID = item.Id();
-                slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"ProcThread.Msg.MurderWarning").c_str(), InfoBarSeverity::Warning, g_infoWindowInstance);
+            if (KernelInstance::SiTerminateThreadEx(target.Id())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
+                lifetime->LoadThreadList();
             }
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
 
@@ -120,20 +149,20 @@ namespace winrt::StarlightGUI::implementation
         // 选项2.1
         auto item2_1 = slg::CreateMenuSubItem(flyoutStyles, L"\ue912", t(L"ProcThread.Menu.SetState").c_str());
         auto item2_1_sub1 = slg::CreateMenuItem(flyoutStyles, L"\ue769", t(L"ProcThread.Menu.Suspend").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::_SuspendThread(item.Id())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            if (KernelInstance::SiSuspendThread(item.Id())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
                 LoadThreadList();
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
         auto item2_1_sub2 = slg::CreateMenuItem(flyoutStyles, L"\ue768", t(L"ProcThread.Menu.Resume").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::_ResumeThread(item.Id())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            if (KernelInstance::SiResumeThread(item.Id())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
                 LoadThreadList();
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
@@ -145,25 +174,25 @@ namespace winrt::StarlightGUI::implementation
         auto item3_1 = slg::CreateMenuSubItem(flyoutStyles, L"\ue8c8", t(L"Common.CopyInfo").c_str());
         auto item3_1_sub1 = slg::CreateMenuItem(flyoutStyles, L"\ue943", L"TID", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(std::to_wstring(item.Id()))) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item3_1.Items().Append(item3_1_sub1);
         auto item3_1_sub2 = slg::CreateMenuItem(flyoutStyles, L"\ueb19", L"ETHREAD", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.EThread().c_str())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            if (TaskUtils::CopyToClipboard(ULongToHexString(item.EThread()).c_str())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item3_1.Items().Append(item3_1_sub2);
         auto item3_1_sub3 = slg::CreateMenuItem(flyoutStyles, L"\ueb1d", t(L"Common.Address").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            if (TaskUtils::CopyToClipboard(ULongToHexString(item.Address()).c_str())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item3_1.Items().Append(item3_1_sub3);
@@ -193,9 +222,9 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::Windows::Foundation::IAsyncAction Process_ThreadPage::LoadThreadList()
     {
-        if (!processForInfoWindow) co_return;
+        if (!m_process) co_return;
 
-        LOG_INFO(__WFUNCTION__, L"Loading thread list... (pid=%d)", processForInfoWindow.Id());
+        LOG_INFO(__WFUNCTION__, L"Loading thread list... (pid=%d)", m_process.Id());
         m_threadList.Clear();
         LoadingRing().IsActive(true);
 
@@ -209,14 +238,12 @@ namespace winrt::StarlightGUI::implementation
         threads.reserve(100);
 
         // 获取线程列表
-        KernelInstance::EnumProcessThreads(processForInfoWindow.EProcessULong(), threads);
+        KernelInstance::SiEnumProcessThreads(m_process.Id(), threads);
         LOG_INFO(__WFUNCTION__, L"Enumerated threads, %d entry(s).", threads.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
 
         for (const auto& thread : threads) {
-            if (thread.ModuleInfo().empty()) thread.ModuleInfo(t(L"Common.Unknown"));
-
             m_threadList.Append(thread);
         }
 
@@ -226,7 +253,7 @@ namespace winrt::StarlightGUI::implementation
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
         // 更新线程数量文本
-        ThreadCountText().Text(t(L"ProcThread.Detail", static_cast<size_t>(m_threadList.Size()), static_cast<long long>(duration.count())));
+        ThreadCountText().Text(t(L"ProcThread.Detail", (size_t)m_threadList.Size(), (long long)duration.count()));
         LoadingRing().IsActive(false);
 
         LOG_INFO(__WFUNCTION__, L"Loaded thread list, %d entry(s) in total.", m_threadList.Size());
@@ -244,10 +271,11 @@ namespace winrt::StarlightGUI::implementation
             bool* ascending;
         };
 
-        static const std::array<SortBinding, 4> bindings{ {
+        static const std::array<SortBinding, 5> bindings{ {
             { L"Id", "Id", &Process_ThreadPage::m_isIdAscending },
             { L"EThread", "EThread", &Process_ThreadPage::m_isEThreadAscending },
             { L"Address", "Address", &Process_ThreadPage::m_isAddressAscending },
+            { L"Win32Address", "Win32Address", &Process_ThreadPage::m_isWin32AddressAscending },
             { L"Priority", "Priority", &Process_ThreadPage::m_isPriorityAscending },
         } };
 
@@ -278,6 +306,7 @@ namespace winrt::StarlightGUI::implementation
             Id,
             EThread,
             Address,
+			Win32Address,
             Priority
         };
 
@@ -286,6 +315,7 @@ namespace winrt::StarlightGUI::implementation
             if (key == "EThread") return SortColumn::EThread;
             if (key == "Address") return SortColumn::Address;
             if (key == "Priority") return SortColumn::Priority;
+			if (key == "Win32Address") return SortColumn::Win32Address;
             return SortColumn::Unknown;
             };
 
@@ -296,11 +326,15 @@ namespace winrt::StarlightGUI::implementation
             IdHeaderButton().Content(box_value(L"TID"));
             EThreadHeaderButton().Content(box_value(L"ETHREAD"));
             AddressHeaderButton().Content(tbox(L"Common.Address"));
+            Win32AddressHeaderButton().Content(box_value(L"Win32" + t(L"Common.Address")));
+            StatusHeaderButton().Content(tbox(L"Common.Status"));
             PriorityHeaderButton().Content(tbox(L"ProcThread.Header.Priority"));
+            PreviousModeHeaderButton().Content(box_value(L"PreviousMode"));
 
             if (activeColumn == SortColumn::Id) IdHeaderButton().Content(box_value(isAscending ? L"TID ↓" : L"TID ↑"));
             if (activeColumn == SortColumn::EThread) EThreadHeaderButton().Content(box_value(isAscending ? L"ETHREAD ↓" : L"ETHREAD ↑"));
             if (activeColumn == SortColumn::Address) AddressHeaderButton().Content(box_value(isAscending ? t(L"Common.Address") + L" ↓" : t(L"Common.Address") + L" ↑"));
+            if (activeColumn == SortColumn::Win32Address) Win32AddressHeaderButton().Content(box_value(L"Win32" + t(L"Common.Address") + (isAscending ? L" ↓" : L" ↑")));
             if (activeColumn == SortColumn::Priority) PriorityHeaderButton().Content(box_value(isAscending ? t(L"ProcThread.Header.Priority") + L" ↓" : t(L"ProcThread.Header.Priority") + L" ↑"));
         }
 
@@ -310,30 +344,16 @@ namespace winrt::StarlightGUI::implementation
             sortedThreads.push_back(process);
         }
 
-        auto parseHex = [](winrt::hstring const& text) -> ULONG64 {
-            ULONG64 value = 0;
-            if (HexStringToULong(text.c_str(), value)) return value;
-            return 0;
-            };
-
         auto sortActiveColumn = [&](const winrt::StarlightGUI::ThreadInfo& a, const winrt::StarlightGUI::ThreadInfo& b) -> bool {
             switch (activeColumn) {
             case SortColumn::Id:
                 return a.Id() < b.Id();
             case SortColumn::EThread:
-            {
-                auto aValue = parseHex(a.EThread());
-                auto bValue = parseHex(b.EThread());
-                if (aValue != bValue) return aValue < bValue;
                 return a.EThread() < b.EThread();
-            }
             case SortColumn::Address:
-            {
-                auto aValue = parseHex(a.Address());
-                auto bValue = parseHex(b.Address());
-                if (aValue != bValue) return aValue < bValue;
                 return a.Address() < b.Address();
-            }
+			case SortColumn::Win32Address:
+				return a.Win32Address() < b.Win32Address();
             case SortColumn::Priority:
                 return a.Priority() < b.Priority();
             default:
@@ -361,15 +381,12 @@ namespace winrt::StarlightGUI::implementation
         ThreadTitleText().Text(t(L"ProcThread.Title"));
         ThreadCountText().Text(t(L"Msg.Loading"));
         AddressHeaderButton().Content(tbox(L"Common.Address"));
+        Win32AddressHeaderButton().Content(box_value(L"Win32" + t(L"Common.Address")));
         StatusHeaderButton().Content(tbox(L"Common.Status"));
         PriorityHeaderButton().Content(tbox(L"ProcThread.Header.Priority"));
-        ModuleHeaderButton().Content(tbox(L"Common.Module"));
+        PreviousModeHeaderButton().Content(box_value(L"PreviousMode"));
     }
 }
-
-
-
-
 
 
 

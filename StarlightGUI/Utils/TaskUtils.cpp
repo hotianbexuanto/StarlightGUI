@@ -3,49 +3,21 @@
 #include "TlHelp32.h"
 #include "shellapi.h"
 #include "Psapi.h"
+#include <algorithm>
+#include <vector>
 
-typedef BOOL(WINAPI* P_EndTask)(HWND hwnd, BOOL fShutdown, BOOL fForce);
-typedef NTSTATUS(NTAPI* P_NtQuerySystemInformation)(_SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
-typedef LONG(WINAPI* P_RtlGetVersion)(PRTL_OSVERSIONINFOW lpVersionInformation);
+typedef BOOL(*EndTask_t)(HWND windowHandle, BOOL shutdown, BOOL force);
 
-P_EndTask _EndTask{ nullptr };
-P_NtQuerySystemInformation _NtQuerySystemInformation{ nullptr };
-P_RtlGetVersion _RtlGetVersion{ nullptr };
+static EndTask_t endTask = NULL;
 
 namespace winrt::StarlightGUI::implementation {
-	void TaskUtils::EnsurePrivileges() {
-		TaskUtils::EnableDebugPrivilege();
-	}
 
-	bool TaskUtils::_TerminateProcess(DWORD pid) {
+	bool TaskUtils::EnableProcessPerformanceMode(StarlightGUI::ProcessInfo process) {
+		int pid = process.Id();
 		if (pid != 0) {
-            HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
-			if (hProc) {
-				return TerminateProcess(hProc, 0);
-			}
-		}
-		return false;
-	}
+			HANDLE processHandle = OpenProcess(PROCESS_SET_INFORMATION, FALSE, pid);
 
-	bool TaskUtils::_TerminateThread(DWORD tid) {
-		if (tid != 0) {
-			HANDLE hThread = OpenThread(THREAD_TERMINATE, FALSE, tid);
-			if (hThread) {
-				return TerminateThread(hThread, 0);
-			}
-		}
-		return false;
-	}
-
-	/*
-	* 开启进程效能模式
-	*/
-	bool TaskUtils::EnableProcessPerformanceMode(StarlightGUI::ProcessInfo pi) {
-		int pid = pi.Id();
-		if (pid != 0) {
-			HANDLE hProc = OpenProcess(PROCESS_SET_INFORMATION, FALSE, pid);
-
-			if (hProc) {
+			if (processHandle) {
 				PROCESS_POWER_THROTTLING_STATE throttling;
 				ZeroMemory(&throttling, sizeof(throttling));
 
@@ -53,8 +25,8 @@ namespace winrt::StarlightGUI::implementation {
 				throttling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
 				throttling.StateMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
 
-				BOOL result = SetProcessInformation(hProc, ProcessPowerThrottling, &throttling, sizeof(throttling));
-				CloseHandle(hProc);
+				BOOL result = SetProcessInformation(processHandle, ProcessPowerThrottling, &throttling, sizeof(throttling));
+				CloseHandle(processHandle);
 
 				return result;
 			}
@@ -62,102 +34,64 @@ namespace winrt::StarlightGUI::implementation {
 		return false;
 	}
 
-	/*
-	* 获取进程私有工作集
-	*/
-	SIZE_T TaskUtils::GetProcessWorkingSet(HANDLE hProc) {
-		std::vector<BYTE> buffer(sizeof(PSAPI_WORKING_SET_INFORMATION) + sizeof(PSAPI_WORKING_SET_BLOCK) * 1024);
-		PSAPI_WORKING_SET_INFORMATION* workSetInfo = nullptr;
-		PSAPI_WORKING_SET_BLOCK* pWorkSetBlock = nullptr;
-
-		for (int attempt = 0; attempt < 6; ++attempt) {
-			if (K32QueryWorkingSet(hProc, buffer.data(), static_cast<DWORD>(buffer.size()))) {
-				workSetInfo = reinterpret_cast<PSAPI_WORKING_SET_INFORMATION*>(buffer.data());
-				pWorkSetBlock = workSetInfo->WorkingSetInfo;
-				break;
-			}
-			if (GetLastError() != ERROR_BAD_LENGTH) {
-				return 0;
-			}
-			buffer.resize(buffer.size() * 2);
-		}
-
-		if (!workSetInfo || !pWorkSetBlock) {
-			return 0;
-		}
-		PERFORMANCE_INFORMATION performanceInfo{};
-		if (!K32GetPerformanceInfo(&performanceInfo, sizeof(performanceInfo))) return 0;
-		SIZE_T pageSize = performanceInfo.PageSize;
-		SIZE_T privateWorkingSet = 0;
-		for (ULONG_PTR i = 0; i < workSetInfo->NumberOfEntries; ++i)
-		{
-			if (!pWorkSetBlock[i].Shared) // Remove shared pages
-				privateWorkingSet += pageSize;
-		}
-		return privateWorkingSet;
-	}
-
-	/*
-	* 获取进程CPU占用
-	*/
-	winrt::Windows::Foundation::IAsyncAction TaskUtils::FetchProcessCpuUsage(std::map<DWORD, hstring>& processCpuTable) {
-		co_await winrt::resume_background();
-
-		if (!_NtQuerySystemInformation) {
-			HMODULE hNtdll = LoadLibraryW(L"ntdll.dll");
-			_NtQuerySystemInformation = (P_NtQuerySystemInformation)GetProcAddress(hNtdll, "NtQuerySystemInformation");
-		}
-
-		if (!_NtQuerySystemInformation) co_return; // Check again to ensure safety
-
-		ULONG len = 0;
+	bool TaskUtils::FetchProcessCpuUsage(ProcessCpuSnapshot const& previousSnapshot,
+		ProcessCpuSnapshot& currentSnapshot, std::map<DWORD, double>& processCpuTable) {
+		ULONG length = 0;
 		std::vector<BYTE> buffer(0x10000);
-		NTSTATUS status = _NtQuerySystemInformation(SystemProcessInformation, buffer.data(),
-			static_cast<ULONG>(buffer.size()), &len);
+		LONG status = NtQuerySystemInformation(5, buffer.data(), (ULONG)buffer.size(), &length);
+		while (status < 0 && length > buffer.size()) {
+			buffer.resize((size_t)length + 0x10000);
+			status = NtQuerySystemInformation(5, buffer.data(), (ULONG)buffer.size(), &length);
+		}
+		if (status < 0) return false;
 
-		if (NT_ERROR(status) && len > 0) {
-			buffer.resize(len);
-			status = _NtQuerySystemInformation(SystemProcessInformation, buffer.data(),
-				static_cast<ULONG>(buffer.size()), &len);
+		FILETIME idleTime{}, kernelTime{}, userTime{};
+		if (!GetSystemTimes(&idleTime, &kernelTime, &userTime)) return false;
+
+		ULARGE_INTEGER kernel{}, user{};
+		kernel.LowPart = kernelTime.dwLowDateTime;
+		kernel.HighPart = kernelTime.dwHighDateTime;
+		user.LowPart = userTime.dwLowDateTime;
+		user.HighPart = userTime.dwHighDateTime;
+
+		currentSnapshot.processes.clear();
+		currentSnapshot.totalTime = kernel.QuadPart + user.QuadPart;
+		processCpuTable.clear();
+
+		PSYSTEM_PROCESS_INFORMATION process = (PSYSTEM_PROCESS_INFORMATION)buffer.data();
+		while (process) {
+			DWORD pid = (DWORD)(ULONG_PTR)process->UniqueProcessId;
+			ProcessCpuSample sample{
+				process->UserTime.QuadPart + process->KernelTime.QuadPart,
+				process->CreateTime.QuadPart
+			};
+			currentSnapshot.processes[pid] = sample;
+
+			double usage = 0.0;
+			auto previous = previousSnapshot.processes.find(pid);
+			if (previous != previousSnapshot.processes.end() &&
+				previous->second.createTime == sample.createTime &&
+				sample.processTime >= previous->second.processTime &&
+				currentSnapshot.totalTime > previousSnapshot.totalTime) {
+				ULONGLONG processDelta = (ULONGLONG)(sample.processTime - previous->second.processTime);
+				ULONGLONG totalDelta = currentSnapshot.totalTime - previousSnapshot.totalTime;
+				usage = (double)processDelta * 100.0 / (double)totalDelta;
+			}
+			processCpuTable[pid] = std::min(100.0, std::max(0.0, usage));
+
+			if (process->NextEntryOffset == 0) break;
+			process = (PSYSTEM_PROCESS_INFORMATION)((BYTE*)process + process->NextEntryOffset);
 		}
 
-		if (!NT_SUCCESS(status)) co_return;
-
-		// Loop through the processes and fill the map with PID and CPU usage
-		PMY_SYSTEM_PROCESS_INFORMATION spi = (PMY_SYSTEM_PROCESS_INFORMATION)buffer.data();
-		while (spi) {
-			co_await TaskUtils::ReadSPIAsync(spi, processCpuTable);
-
-			if (spi->NextEntryOffset == 0)
-				break;
-			spi = (PMY_SYSTEM_PROCESS_INFORMATION)((BYTE*)spi + spi->NextEntryOffset);
-		}
-
-		co_return;
+		return true;
 	}
 
-	winrt::Windows::Foundation::IAsyncAction TaskUtils::ReadSPIAsync(PMY_SYSTEM_PROCESS_INFORMATION& spi, std::map<DWORD, hstring>& processCpuTable) {
-		// Loop through the processes and fill the map with PID and CPU usage
-		LONGLONG cpuUsage = spi->UserTime.QuadPart + spi->KernelTime.QuadPart;
-		if (cpuUsage > 0) {
-			processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = to_hstring(std::round(cpuUsage / 1000000000.0) / 10.0) + L"s";
-		}
-		else processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = L"0s";
-
-		co_return;
-	}
-
-	/*
-	* 复制至剪贴板
-	*/
 	bool TaskUtils::CopyToClipboard(std::wstring str) {
-		if (str.empty()) {
+		if (str.empty())
 			return false;
-		}
 
-		if (!OpenClipboard(nullptr)) {
+		if (!OpenClipboard(nullptr))
 			return false;
-		}
 
 		if (!EmptyClipboard()) {
 			CloseClipboard();
@@ -165,23 +99,23 @@ namespace winrt::StarlightGUI::implementation {
 		}
 
 		size_t sizeInBytes = (str.size() + 1) * sizeof(wchar_t);
-		HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, sizeInBytes);
-		if (!hGlobal) {
+		HGLOBAL globalMemory = GlobalAlloc(GMEM_MOVEABLE, sizeInBytes);
+		if (!globalMemory) {
 			CloseClipboard();
 			return false;
 		}
 
-		void* pGlobal = GlobalLock(hGlobal);
-		if (!pGlobal) {
-			GlobalFree(hGlobal);
+		void* globalBuffer = GlobalLock(globalMemory);
+		if (!globalBuffer) {
+			GlobalFree(globalMemory);
 			CloseClipboard();
 			return false;
 		}
-		memcpy(pGlobal, str.c_str(), sizeInBytes);
-		GlobalUnlock(hGlobal);
+		memcpy(globalBuffer, str.c_str(), sizeInBytes);
+		GlobalUnlock(globalMemory);
 
-		if (!SetClipboardData(CF_UNICODETEXT, hGlobal)) {
-			GlobalFree(hGlobal);
+		if (!SetClipboardData(CF_UNICODETEXT, globalMemory)) {
+			GlobalFree(globalMemory);
 			CloseClipboard();
 			return false;
 		}
@@ -189,96 +123,45 @@ namespace winrt::StarlightGUI::implementation {
 		CloseClipboard();
 		return true;
 	}
-	/*
-	* 打开文件所在位置并选中文件
-	*/
 	bool TaskUtils::OpenFolderAndSelectFile(std::wstring filePath) {
 		DWORD attrs = GetFileAttributesW(filePath.c_str());
-		if (attrs == INVALID_FILE_ATTRIBUTES) {
+		if (attrs == INVALID_FILE_ATTRIBUTES)
 			return false;
-		}
 
-		std::wstring cmd = L"explorer.exe";
-		std::wstring args = L"/select,\"" + filePath + L"\"";
+		std::wstring command = L"explorer.exe";
+		std::wstring arguments = L"/select,\"" + filePath + L"\"";
 
-		SHELLEXECUTEINFOW sei = { sizeof(sei) };
-		sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
-		sei.lpVerb = L"open";
-		sei.lpFile = cmd.c_str();
-		sei.lpParameters = args.c_str();
-		sei.nShow = SW_SHOWNORMAL;
+		SHELLEXECUTEINFOW shellExecuteInfo{ sizeof(shellExecuteInfo) };
+		shellExecuteInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+		shellExecuteInfo.lpVerb = L"open";
+		shellExecuteInfo.lpFile = command.c_str();
+		shellExecuteInfo.lpParameters = arguments.c_str();
+		shellExecuteInfo.nShow = SW_SHOWNORMAL;
 
-		BOOL result = ShellExecuteExW(&sei);
+		BOOL result = ShellExecuteExW(&shellExecuteInfo);
 
-		if (sei.hProcess) {
-			CloseHandle(sei.hProcess);
-		}
+		if (shellExecuteInfo.hProcess)
+			CloseHandle(shellExecuteInfo.hProcess);
 
 		return result;
 	}
 
-	/*
-	* 打开文件属性
-	*/
 	bool TaskUtils::OpenFileProperties(std::wstring filePath) {
-		SHELLEXECUTEINFOW sei = { 0 };
-		sei.cbSize = sizeof(sei);
-		sei.fMask = SEE_MASK_INVOKEIDLIST;
-		sei.hwnd = NULL;
-		sei.lpVerb = L"properties";
-		sei.lpFile = filePath.c_str();
-		sei.nShow = SW_SHOW;
+		SHELLEXECUTEINFOW shellExecuteInfo{};
+		shellExecuteInfo.cbSize = sizeof(shellExecuteInfo);
+		shellExecuteInfo.fMask = SEE_MASK_INVOKEIDLIST;
+		shellExecuteInfo.hwnd = NULL;
+		shellExecuteInfo.lpVerb = L"properties";
+		shellExecuteInfo.lpFile = filePath.c_str();
+		shellExecuteInfo.nShow = SW_SHOW;
 
-		return ShellExecuteExW(&sei) != FALSE;
+		return ShellExecuteExW(&shellExecuteInfo) != FALSE;
 	}
 
-	/*
-	* 获取Windows版本
-	*/
-	DWORD TaskUtils::GetWindowsBuildNumber() {
-		if (!_RtlGetVersion) {
-			HMODULE hNtdll = LoadLibraryW(L"ntdll.dll");
-			_RtlGetVersion = (P_RtlGetVersion)GetProcAddress(hNtdll, "RtlGetVersion");
-		}
-		if (!_RtlGetVersion) return 0;
-		RTL_OSVERSIONINFOW osInfo = { 0 };
-		osInfo.dwOSVersionInfoSize = sizeof(osInfo);
-		if (_RtlGetVersion(&osInfo) == 0) {
-			return osInfo.dwBuildNumber;
-		}
-		return 0;
-	}
+	bool TaskUtils::EndTaskByWindow(HWND windowHandle) {
+		if (!endTask) endTask = (EndTask_t)GetProcAddress(GetModuleHandleW(L"user32.dll"), "EndTask");
+		if (!endTask) return FALSE;
 
-	BOOL CALLBACK TaskUtils::EndTaskByWindow(HWND hwnd) {
-		if (_EndTask == nullptr) {
-			_EndTask = (P_EndTask)GetProcAddress(GetModuleHandleW(L"user32.dll"), "EndTask");
-		}
-
-		_EndTask(hwnd, FALSE, TRUE);
-		return TRUE;
-	}
-
-	// =====================================================
-// Private --- Starting here
-// =====================================================
-
-	bool TaskUtils::EnableDebugPrivilege() {
-		HANDLE hToken;
-		TOKEN_PRIVILEGES tkp;
-
-		if (!OpenProcessToken(GetCurrentProcess(),
-			TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
-			return false;
-		}
-
-		LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tkp.Privileges[0].Luid);
-
-		tkp.PrivilegeCount = 1;
-		tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-		BOOL result = AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, NULL, 0);
-		CloseHandle(hToken);
-
-		return result != FALSE;
+		return endTask(windowHandle, FALSE, TRUE);
 	}
 }

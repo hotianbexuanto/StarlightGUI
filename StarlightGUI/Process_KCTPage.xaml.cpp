@@ -6,6 +6,7 @@
 
 
 #include <winrt/Microsoft.UI.Xaml.h>
+#include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.System.h>
@@ -13,11 +14,14 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Foundation.h>
+#include <wil/cppwinrt_helpers.h>
 #include <TlHelp32.h>
 #include <Psapi.h>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 #include <Utils/Utils.h>
+#include <Utils/CppUtils.h>
 #include <Utils/TaskUtils.h>
 #include <Utils/KernelBase.h>
 #include <InfoWindow.xaml.h>
@@ -54,6 +58,11 @@ namespace winrt::StarlightGUI::implementation
         LOG_INFO(L"Process_KCTPage", L"Process_KCTPage initialized.");
     }
 
+    void Process_KCTPage::OnNavigatedTo(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e)
+    {
+        m_process = e.Parameter().try_as<winrt::StarlightGUI::ProcessInfo>();
+    }
+
     void Process_KCTPage::KCTListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
     {
         auto listView = sender.as<ListView>();
@@ -79,17 +88,17 @@ namespace winrt::StarlightGUI::implementation
         auto item1_1 = slg::CreateMenuSubItem(flyoutStyles, L"\ue8c8", t(L"Common.CopyInfo").c_str());
         auto item1_1_sub1 = slg::CreateMenuItem(flyoutStyles, L"\ue943", t(L"Common.Name").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item1_1.Items().Append(item1_1_sub1);
         auto item1_1_sub2 = slg::CreateMenuItem(flyoutStyles, L"\ueb1d", t(L"Common.Address").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            if (TaskUtils::CopyToClipboard(ULongToHexString(item.Address()).c_str())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item1_1.Items().Append(item1_1_sub2);
@@ -113,14 +122,9 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::Windows::Foundation::IAsyncAction Process_KCTPage::LoadKCTList()
     {
-        if (!processForInfoWindow) co_return;
-        // 跳过内核进程，获取可能导致异常或蓝屏
-        if (processForInfoWindow.Name() == L"Idle" || processForInfoWindow.Name() == L"System" || processForInfoWindow.Name() == L"Registry" || processForInfoWindow.Name() == L"Memory Compression" || processForInfoWindow.Name() == L"Secure System" || processForInfoWindow.Name() == L"Unknown") {
-            slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"ProcKCT.Msg.NoInfo").c_str(), InfoBarSeverity::Warning, g_infoWindowInstance);
-            co_return;
-        }
+        if (!m_process) co_return;
 
-        LOG_INFO(__WFUNCTION__, L"Loading kernel callback table list... (pid=%d)", processForInfoWindow.Id());
+        LOG_INFO(__WFUNCTION__, L"Loading kernel callback table list... (pid=%d)", m_process.Id());
         m_kctList.Clear();
         LoadingRing().IsActive(true);
 
@@ -134,18 +138,13 @@ namespace winrt::StarlightGUI::implementation
         kcts.reserve(500);
 
         // 获取回调表
-        KernelInstance::EnumProcessKernelCallbackTable(processForInfoWindow.EProcessULong(), kcts);
+        KernelInstance::SiEnumProcessKernelCallbackTable(m_process.Id(), kcts);
         LOG_INFO(__WFUNCTION__, L"Enumerated kernel callback tables, %d entry(s).", kcts.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
 
-        if (kcts.size() >= 1000) {
-            slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"ProcKCT.Msg.TooManyRecords").c_str(), InfoBarSeverity::Warning, g_infoWindowInstance);
-        }
-
         for (const auto& kct : kcts) {
             if (kct.Name().empty()) kct.Name(t(L"Common.Unknown"));
-            if (kct.Address().empty()) kct.Address(t(L"Common.Unknown"));
 
             m_kctList.Append(kct);
         }
@@ -154,7 +153,7 @@ namespace winrt::StarlightGUI::implementation
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
         // 更新模块数量文本
-        KCTCountText().Text(t(L"ProcKCT.Detail", static_cast<size_t>(m_kctList.Size()), static_cast<long long>(duration.count())));
+        KCTCountText().Text(t(L"ProcKCT.Detail", (size_t)m_kctList.Size(), (long long)duration.count()));
         LoadingRing().IsActive(false);
 
         LOG_INFO(__WFUNCTION__, L"Loaded kernel callback table list, %d entry(s) in total.", m_kctList.Size());
@@ -168,7 +167,6 @@ namespace winrt::StarlightGUI::implementation
         AddressHeaderButton().Content(tbox(L"Common.Address"));
 	}
 }
-
 
 
 

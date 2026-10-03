@@ -2,13 +2,42 @@
 #include "UpdateDialog.xaml.h"
 #if __has_include("UpdateDialog.g.cpp")
 #include "UpdateDialog.g.cpp"
+#include "Utils/CppUtils.h"
+#include "Utils/Config.h"
+#include "Utils/Utils.h"
 #endif
+#include <string>
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
 
 namespace winrt::StarlightGUI::implementation
 {
+    void UpdateDialog::Announcement(const hstring& value)
+    {
+        std::wstring text{ value };
+        size_t pos = 0;
+
+        while ((pos = text.find(L"\\r\\n", pos)) != std::wstring::npos) {
+            text.replace(pos, 4, L"\n");
+            ++pos;
+        }
+
+        pos = 0;
+        while ((pos = text.find(L"\\n", pos)) != std::wstring::npos) {
+            text.replace(pos, 2, L"\n");
+            ++pos;
+        }
+
+        pos = 0;
+        while ((pos = text.find(L"\\r", pos)) != std::wstring::npos) {
+            text.replace(pos, 2, L"\n");
+            ++pos;
+        }
+
+        m_announcement = hstring{ text };
+    }
+
     UpdateDialog::UpdateDialog() {
         InitializeComponent();
         this->RequestedTheme(slg::GetConfiguredElementTheme());
@@ -17,8 +46,6 @@ namespace winrt::StarlightGUI::implementation
         LatestVersionLabelRun().Text(t(L"Update.Text.LatestVersion"));
         UpdateDescriptionText().Text(t(L"Update.Text.Desc"));
         UpdateTipText().Text(t(L"Update.Text.Tip"));
-        QuarkCodeText().Text(t(L"Update.Text.QuarkCode"));
-        NoDirectLinkText().Text(t(L"Update.Text.NoDirectLink"));
         UpdateTimeLabelRun().Text(t(L"Update.Text.UpdateTimeLabel"));
         DontShowAgainCheckBox().Content(tbox(L"Update.Text.DontShow"));
 
@@ -34,9 +61,7 @@ namespace winrt::StarlightGUI::implementation
             else {
                 Title(tbox(L"Update.Announcement"));
                 UpdateTimeText().Text(LatestVersion());
-                AnnouncementLine1().Text(GetAnLine(1));
-                AnnouncementLine2().Text(GetAnLine(2));
-                AnnouncementLine3().Text(GetAnLine(3));
+                AnnouncementText().Text(Announcement());
                 PrimaryButtonText(t(L"Update.Confirm"));
                 UpdateStackPanel().Visibility(Visibility::Collapsed);
                 AnnouncementStackPanel().Visibility(Visibility::Visible);
@@ -57,6 +82,3 @@ namespace winrt::StarlightGUI::implementation
         deferral.Complete();
     }
 }
-
-
-

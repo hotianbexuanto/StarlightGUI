@@ -4,7 +4,9 @@
 #include "TaskPage.g.cpp"
 #endif
 
+#include <algorithm>
 #include <winrt/Microsoft.UI.Composition.h>
+#include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.Storage.Streams.h>
@@ -13,9 +15,12 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Foundation.h>
+#include <winrt/WinUI3Package.h>
+#include <wil/cppwinrt_helpers.h>
 #include <Psapi.h>
 #include <array>
 #include <unordered_set>
+#include <unordered_map>
 #include <sstream>
 #include <iomanip>
 #include <shellapi.h>
@@ -24,6 +29,12 @@
 #include <RunProcessDialog.xaml.h>
 #include <InjectDLLDialog.xaml.h>
 #include <ModifyTokenDialog.xaml.h>
+#include "Utils/Config.h"
+#include "Utils/CppUtils.h"
+#include "Utils/Elevator.h"
+#include "Utils/KernelBase.h"
+#include "Utils/TaskUtils.h"
+#include "Utils/Utils.h"
 #undef EnumProcesses
 
 using namespace winrt;
@@ -44,9 +55,20 @@ namespace winrt::StarlightGUI::implementation
         return ToLowerCase(value);
     }
 
+    static hstring GetDriverErrorMessage()
+    {
+        auto errorMsg = KernelInstance::GetLastErrorMessage();
+        if (errorMsg.empty()) {
+            auto errorCode = KernelInstance::GetLastErrorCode();
+            wchar_t hexCode[32];
+            swprintf_s(hexCode, L"0x%X", errorCode);
+            return t(L"Msg.DriverError.Code", hexCode);
+        }
+        return t(L"Msg.DriverError.Detail", errorMsg.c_str());
+    }
+
     static std::unordered_map<std::wstring, winrt::Microsoft::UI::Xaml::Media::ImageSource> iconCache;
     static std::unordered_map<std::wstring, winrt::hstring> descriptionCache;
-    static int safeAcceptedPID = -1;
 
     TaskPage::TaskPage() {
         InitializeComponent();
@@ -60,29 +82,48 @@ namespace winrt::StarlightGUI::implementation
             });
         autoRefreshTimer.Interval(std::chrono::seconds(2));
         autoRefreshTimer.Tick([this](auto&&, auto&&) {
-            if (!task_auto_refresh) return;
+            if (!taskAutoRefresh) return;
             if (!IsLoaded()) return;
             if (m_isSorting) return;
             if (m_isLoadingProcesses || m_isPostLoading) return;
-            if (!g_mainWindowInstance->m_openWindows.empty()) return;
 
             LoadProcessList(false);
             });
+        cpuRefreshTimer.Interval(std::chrono::seconds(1));
+        cpuRefreshTimer.Tick([this](auto&&, auto&&) {
+            if (!IsLoaded()) return;
+            if (!taskAutoRefresh) {
+                if (m_isRefreshingCpu) ++m_cpuRequestVersion;
+                m_cpuSnapshot = {};
+                return;
+            }
+            if (m_isRefreshingCpu) return;
 
-        TaskUtils::EnsurePrivileges();
+            RefreshProcessCpuUsage();
+            });
 
         this->Loaded([this](auto&&, auto&&) {
+            m_cpuSnapshot = {};
             autoRefreshTimer.Start();
+            cpuRefreshTimer.Start();
             slg::SyncListViewColumnWidths(HeaderColumnsGrid(), BodyColumnsGrid(), ProcessListView(), 1);
             LoadProcessList();
+            if (taskAutoRefresh) RefreshProcessCpuUsage();
 			});
 
         this->Unloaded([this](auto&&, auto&&) {
             ++m_reloadRequestVersion;
+            ++m_cpuRequestVersion;
             autoRefreshTimer.Stop();
+            cpuRefreshTimer.Stop();
             });
 
         LOG_INFO(L"TaskPage", L"TaskPage initialized.");
+    }
+
+    void TaskPage::ProcessListView_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
+    {
+        TerminateProcessButton().IsEnabled(ProcessListView().SelectedItem() != nullptr);
     }
 
     void TaskPage::ProcessListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -105,7 +146,15 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.1
         auto item1_1 = slg::CreateMenuItem(flyoutStyles, L"\ue711", t(L"Task.Menu.Terminate"), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::_TerminateProcess(item.Id())) {
+            BOOL success = FALSE;
+            if (item.Id() != 0) {
+                HANDLE processHandle = OpenProcess(PROCESS_TERMINATE, FALSE, item.Id());
+                if (processHandle) {
+                    success = TerminateProcess(processHandle, 0);
+                    CloseHandle(processHandle);
+                }
+            }
+            if (success) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
@@ -115,27 +164,29 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.2
         auto item1_2 = slg::CreateMenuItem(flyoutStyles, L"\ue8f0", t(L"Task.Menu.TerminateKernel"), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::_ZwTerminateProcess(item.Id())) {
+            if (KernelInstance::SiTerminateProcess(item.Id())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
+            }
             co_return;
             });
 
         // 选项1.3
         auto item1_3 = slg::CreateMenuItem(flyoutStyles, L"\ue945", t(L"Task.Menu.TerminateMurder").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
-                if (KernelInstance::MurderProcess(item.Id())) {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                    WaitAndReloadAsync(1000);
-                }
-                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto target = item;
+            if (dangerousConfirm && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
-            else {
-                safeAcceptedPID = item.Id();
-                slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"Task.Msg.MurderWarning").c_str(), InfoBarSeverity::Warning, g_mainWindowInstance);
+            if (KernelInstance::SiTerminateProcessEx(target.Id())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                lifetime->WaitAndReloadAsync(1000);
             }
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -145,31 +196,31 @@ namespace winrt::StarlightGUI::implementation
         // 选项2.1
         auto item2_1 = slg::CreateMenuSubItem(flyoutStyles, L"\ue912", t(L"Task.Menu.SetStatus").c_str());
         auto item2_1_sub1 = slg::CreateMenuItem(flyoutStyles, L"\ue769", t(L"Task.Menu.Suspend").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::_SuspendProcess(item.Id())) {
+            if (KernelInstance::SiSuspendProcess(item.Id())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub1);
         auto item2_1_sub2 = slg::CreateMenuItem(flyoutStyles, L"\ue768", t(L"Task.Menu.Resume").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::_ResumeProcess(item.Id())) {
+            if (KernelInstance::SiResumeProcess(item.Id())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
 
         // 选项2.2
         auto item2_2 = slg::CreateMenuItem(flyoutStyles, L"\ued1a", t(L"Task.Menu.Hide").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::HideProcess(item.Id())) {
+            if (KernelInstance::SiHideProcess(item.Id())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -178,91 +229,91 @@ namespace winrt::StarlightGUI::implementation
         
         // PPL等级
         auto item2_3_sub1 = slg::CreateMenuItem(flyoutStyles, L"None", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_None)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerNone)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub1);
         auto item2_3_sub2 = slg::CreateMenuItem(flyoutStyles, L"Authenticode", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_Authenticode)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerAuthenticode)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub2);
         auto item2_3_sub3 = slg::CreateMenuItem(flyoutStyles, L"Codegen", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_Codegen)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerCodeGen)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub3);
         auto item2_3_sub4 = slg::CreateMenuItem(flyoutStyles, L"Antimalware", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_Antimalware)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerAntimalware)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub4);
         auto item2_3_sub5 = slg::CreateMenuItem(flyoutStyles, L"Lsa", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_Lsa)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerLsa)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub5);
         auto item2_3_sub6 = slg::CreateMenuItem(flyoutStyles, L"Windows", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_Windows)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerWindows)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub6);
         auto item2_3_sub7 = slg::CreateMenuItem(flyoutStyles, L"WinTcb", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_WinTcb)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerWinTcb)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub7);
         auto item2_3_sub8 = slg::CreateMenuItem(flyoutStyles, L"WinSystem", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::SetPPL(item.Id(), PPL_WinSystem)) {
+            if (KernelInstance::SetPPL(item.Id(), PsProtectedSignerWinSystem)) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
         item2_3.Items().Append(item2_3_sub8);
 
         // 选项2.4
         auto item2_4 = slg::CreateMenuItem(flyoutStyles, L"\ue8c9", t(L"Task.Menu.SetCritical").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (safeAcceptedPID == item.Id() || !dangerous_confirm) {
-                if (KernelInstance::SetCriticalProcess(item.Id())) {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                    WaitAndReloadAsync(1000);
-                }
-                else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto target = item;
+            if (dangerousConfirm && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
-            else {
-                safeAcceptedPID = item.Id();
-                slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"Task.Msg.SetCriticalWarning").c_str(), InfoBarSeverity::Warning, g_mainWindowInstance);
+            if (KernelInstance::SetCriticalProcess(target.Id())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                lifetime->WaitAndReloadAsync(1000);
             }
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -293,8 +344,7 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项3.1
         auto item3_1 = slg::CreateMenuItem(flyoutStyles, L"\ue946", t(L"Task.Menu.MoreInfo").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            processForInfoWindow = item;
-            auto infoWindow = winrt::make<InfoWindow>();
+            auto infoWindow = winrt::make<InfoWindow>(item);
             infoWindow.Activate();
             co_return;
             });
@@ -326,7 +376,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item3_2.Items().Append(item3_2_sub3);
         auto item3_2_sub4 = slg::CreateMenuItem(flyoutStyles, L"\ueb19", L"EPROCESS", [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.EProcess().c_str())) {
+            if (TaskUtils::CopyToClipboard(ULongToHexString(item.EProcess()))) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
             }
             else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_mainWindowInstance);
@@ -426,15 +476,7 @@ namespace winrt::StarlightGUI::implementation
         processes.reserve(200);
         visibleProcesses.reserve(200);
 
-        // 对于 Windows 11，我们使用 AstralX 进行枚举
-        // 对于 Windows 10 及以下版本，我们使用 SKT64 进行枚举
-        if (TaskUtils::GetWindowsBuildNumber() >= 22000 && !enum_strengthen) {
-            KernelInstance::EnumProcesses(processes);
-        }
-        else {
-            KernelInstance::EnumProcesses2(processes);
-        }
-
+        KernelInstance::SiEnumProcesses(processes, enumStrengthen);
         LOG_INFO(__WFUNCTION__, L"Enumerated processes, %d entry(s).", processes.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
@@ -458,6 +500,8 @@ namespace winrt::StarlightGUI::implementation
         for (auto& process : processes) {
             bool shouldRemove = lowerQuery.empty() ? false : !ContainsIgnoreCaseLowerQuery(process.Name().c_str(), lowerQuery);
             if (shouldRemove) continue;
+
+            process.CpuUsage(0.0);
 
             // 如果有缓存的话就直接用，不在获取的时候再跑一遍了
             std::wstring path = process.ExecutablePath().c_str();
@@ -502,7 +546,7 @@ namespace winrt::StarlightGUI::implementation
                 existingByPid[process.Id()] = process;
             }
 
-            for (int i = static_cast<int>(m_processList.Size()) - 1; i >= 0; --i) {
+            for (int i = (int)m_processList.Size() - 1; i >= 0; --i) {
                 auto process = m_processList.GetAt(i);
                 if (incomingByPid.find(process.Id()) == incomingByPid.end()) {
                     m_processList.RemoveAt(i);
@@ -524,8 +568,7 @@ namespace winrt::StarlightGUI::implementation
                 existing.Name(process.Name());
                 existing.ExecutablePath(process.ExecutablePath());
                 existing.EProcess(process.EProcess());
-                existing.EProcessULong(process.EProcessULong());
-                existing.MemoryUsageByte(process.MemoryUsageByte());
+                existing.MemoryUsage(process.MemoryUsage());
 
                 if (!process.Description().empty()) {
                     existing.Description(process.Description());
@@ -604,9 +647,9 @@ namespace winrt::StarlightGUI::implementation
         auto lifetime = get_strong();
 
         struct DescriptionUpdate {
-            int32_t Pid{ 0 };
-            std::wstring CacheKey;
-            winrt::hstring Description{ t(L"Task.Desc.Application") };
+            int32_t pid{ 0 };
+            std::wstring cacheKey;
+            winrt::hstring description{ t(L"Task.Desc.Application") };
         };
 
         std::vector<DescriptionUpdate> descriptions;
@@ -614,8 +657,6 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::ProcessInfo> missingDescriptionProcesses;
         missingDescriptionProcesses.reserve(processes.size());
         std::unordered_map<int32_t, winrt::hstring> descriptionTable;
-
-        std::map<DWORD, hstring> processCpuTable;
 
         for (auto const& process : processes) {
             if (!process) continue;
@@ -642,8 +683,6 @@ namespace winrt::StarlightGUI::implementation
         }
 
         co_await winrt::resume_background();
-
-        co_await TaskUtils::FetchProcessCpuUsage(processCpuTable);
 
         for (auto const& process : missingDescriptionProcesses) {
             if (!process) continue;
@@ -673,25 +712,15 @@ namespace winrt::StarlightGUI::implementation
         co_await wil::resume_foreground(DispatcherQueue());
         if (!IsLoaded() || loadToken != m_currentLoadToken) co_return;
         for (auto const& item : descriptions) {
-            descriptionTable[item.Pid] = item.Description;
-            if (!item.CacheKey.empty()) {
-                descriptionCache[item.CacheKey] = item.Description;
+            descriptionTable[item.pid] = item.description;
+            if (!item.cacheKey.empty()) {
+                descriptionCache[item.cacheKey] = item.description;
             }
         }
 
         for (auto const& process : processes) {
             if (!process) continue;
             if (loadToken != m_currentLoadToken) co_return;
-
-            auto cpuIt = processCpuTable.find((DWORD)process.Id());
-            if (cpuIt != processCpuTable.end()) process.CpuUsage(cpuIt->second);
-            else process.CpuUsage(L"-1 " + t(L"Common.Unknown"));
-
-            if (process.MemoryUsageByte() != 0) process.MemoryUsage(FormatMemorySize(process.MemoryUsageByte()));
-            else process.MemoryUsage(L"-1 " + t(L"Common.Unknown"));
-
-            if (process.EProcess().empty()) process.EProcess(t(L"Common.Unknown"));
-            UpdateRealizedItemMetrics(process);
 
             auto descIt = descriptionTable.find(process.Id());
             if (descIt != descriptionTable.end()) {
@@ -757,6 +786,44 @@ namespace winrt::StarlightGUI::implementation
         }
 
         m_isPostLoading = false;
+        co_return;
+    }
+
+    winrt::Windows::Foundation::IAsyncAction TaskPage::RefreshProcessCpuUsage()
+    {
+        if (m_isRefreshingCpu) co_return;
+
+        auto lifetime = get_strong();
+        auto requestVersion = ++m_cpuRequestVersion;
+        auto previousSnapshot = m_cpuSnapshot;
+        m_isRefreshingCpu = true;
+
+        std::map<DWORD, double> processCpuTable;
+        TaskUtils::ProcessCpuSnapshot currentSnapshot;
+
+        co_await winrt::resume_background();
+        bool success = TaskUtils::FetchProcessCpuUsage(previousSnapshot, currentSnapshot, processCpuTable);
+
+        co_await wil::resume_foreground(DispatcherQueue());
+        if (!IsLoaded() || requestVersion != m_cpuRequestVersion) {
+            m_isRefreshingCpu = false;
+            co_return;
+        }
+
+        if (success) {
+            m_cpuSnapshot = std::move(currentSnapshot);
+            for (auto const& process : m_processList) {
+                auto cpu = processCpuTable.find((DWORD)process.Id());
+                process.CpuUsage(cpu != processCpuTable.end() ? cpu->second : 0.0);
+                UpdateRealizedItemMetrics(process);
+            }
+
+            if (!m_isLoadingProcesses && !m_isSorting && currentSortingType == "CpuUsage") {
+                SortProcessList(currentSortingOption, currentSortingType, false);
+            }
+        }
+
+        m_isRefreshingCpu = false;
         co_return;
     }
 
@@ -837,13 +904,18 @@ namespace winrt::StarlightGUI::implementation
             if (auto text = child.try_as<TextBlock>()) {
                 int column = Grid::GetColumn(text);
                 if (column == 2) {
-                    text.Text(process.EProcess());
+                    text.Text(ULongToHexString(process.EProcess()));
                 }
                 else if (column == 3) {
-                    text.Text(process.CpuUsage());
+                    if (process.CpuUsage() < 0) text.Text(t(L"Common.Unknown"));
+                    else {
+                        wchar_t value[32]{};
+						swprintf_s(value, L"%.1f%%", process.CpuUsage());
+                        text.Text(value);
+                    }
                 }
                 else if (column == 4) {
-                    text.Text(process.MemoryUsage());
+                    text.Text(process.MemoryUsage() == 0 ? t(L"Common.Unknown") : hstring(FormatMemorySize(process.MemoryUsage())));
                 }
             }
         }
@@ -923,30 +995,10 @@ namespace winrt::StarlightGUI::implementation
             IdHeaderButton().Content(box_value(L"PID"));
         }
 
-        auto parseCpu = [](winrt::hstring const& value) mutable -> double {
-            if (value.empty()) return 0.0;
-            try {
-                size_t idx = 0;
-                double result = std::stod(std::wstring(value.c_str()), &idx);
-                return result;
-            }
-            catch (...) {
-                return 0.0;
-            }
-            };
-
         std::vector<winrt::StarlightGUI::ProcessInfo> processes;
         processes.reserve(m_processList.Size());
         for (auto const& process : m_processList) {
             processes.push_back(process);
-        }
-
-        std::unordered_map<int, double> cpuUsageCache;
-        if (activeColumn == SortColumn::CpuUsage) {
-            cpuUsageCache.reserve(processes.size() * 2);
-            for (auto const& process : processes) {
-                cpuUsageCache.insert_or_assign(process.Id(), parseCpu(process.CpuUsage()));
-            }
         }
 
         if (updateHeader) {
@@ -962,17 +1014,11 @@ namespace winrt::StarlightGUI::implementation
             case SortColumn::Name:
                 return LessIgnoreCase(a.Name().c_str(), b.Name().c_str());
             case SortColumn::CpuUsage:
-            {
-                auto aIt = cpuUsageCache.find(a.Id());
-                auto bIt = cpuUsageCache.find(b.Id());
-                double aValue = (aIt != cpuUsageCache.end()) ? aIt->second : parseCpu(a.CpuUsage());
-                double bValue = (bIt != cpuUsageCache.end()) ? bIt->second : parseCpu(b.CpuUsage());
-                return aValue < bValue;
-            }
+                return a.CpuUsage() < b.CpuUsage();
             case SortColumn::EProcess:
-                return a.EProcessULong() < b.EProcessULong();
+                return a.EProcess() < b.EProcess();
             case SortColumn::MemoryUsage:
-                return a.MemoryUsageByte() < b.MemoryUsageByte();
+                return a.MemoryUsage() < b.MemoryUsage();
             case SortColumn::Id:
                 return a.Id() < b.Id();
             default:
@@ -1146,18 +1192,16 @@ namespace winrt::StarlightGUI::implementation
                     }
                 }
                 else {
-                    SHELLEXECUTEINFOW sei = { sizeof(sei) };
-                    sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
-                    sei.lpFile = processPath.c_str();
-                    sei.nShow = SW_SHOWNORMAL;
-                    sei.lpVerb = L"runas";
+                    SHELLEXECUTEINFOW shellExecuteInfo{ sizeof(shellExecuteInfo) };
+                    shellExecuteInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+                    shellExecuteInfo.lpFile = processPath.c_str();
+                    shellExecuteInfo.nShow = SW_SHOWNORMAL;
+                    shellExecuteInfo.lpVerb = L"runas";
 
-                    BOOL stauts = ShellExecuteExW(&sei);
+                    BOOL status = ShellExecuteExW(&shellExecuteInfo);
 
-                    if (stauts && sei.hProcess != NULL) {
-                        DWORD processId = GetProcessId(sei.hProcess);
-                        CloseHandle(sei.hProcess);
-                        CloseHandle(sei.hIcon);
+                    if (status && shellExecuteInfo.hProcess != NULL) {
+                        CloseHandle(shellExecuteInfo.hProcess);
                         slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                     }
                     else {
@@ -1198,21 +1242,21 @@ namespace winrt::StarlightGUI::implementation
                     }
                 }
 
-                HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                HANDLE fileHandle = CreateFileW(path.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-                if (hFile == INVALID_HANDLE_VALUE) {
+                if (fileHandle == INVALID_HANDLE_VALUE) {
                     slg::CreateInfoBarAndDisplay(t(L"Common.Error"), t(L"Msg.FileNotFound").c_str(), InfoBarSeverity::Error, g_mainWindowInstance);
                     co_return;
                 }
 
-                CloseHandle(hFile);
+                CloseHandle(fileHandle);
                 
-                if (KernelInstance::InjectDLLToProcess(pid, const_cast<PWCHAR>(path.c_str()))) {
+                if (KernelInstance::InjectDLLToProcess(pid, (PWCHAR)path.c_str(), RTL_NUMBER_OF(path.c_str()))) {
                     slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
                 else {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
                 }
             }
         }
@@ -1231,22 +1275,19 @@ namespace winrt::StarlightGUI::implementation
             auto result = co_await dialog.ShowAsync();
 
             if (result == ContentDialogResult::Primary) {
-                int tokenType = dialog.Token();
+                ULONG targetPid = dialog.TargetPID();
 
-                // 如果是 TrustedInstaller 的话要先启动服务，检测一下
-                if (tokenType == 1) {
-                    if (FindProcessId(L"TrustedInstaller.exe") == 0) {
-                        slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
-                        co_return;
-                    }
+                if (targetPid == 0) {
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), L"Invalid PID", InfoBarSeverity::Error, g_mainWindowInstance);
+                    co_return;
                 }
 
-                if (KernelInstance::ModifyProcessToken(pid, tokenType)) {
+                if (KernelInstance::ModifyProcessToken(pid, targetPid)) {
                     slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                     WaitAndReloadAsync(1000);
                 }
                 else {
-                    slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+                    slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
                 }
             }
         }
@@ -1266,16 +1307,24 @@ namespace winrt::StarlightGUI::implementation
                 co_return;
             }
 
+            BOOL success = FALSE;
+            if (item.Id() != 0) {
+                HANDLE processHandle = OpenProcess(PROCESS_TERMINATE, FALSE, item.Id());
+                if (processHandle) {
+                    success = TerminateProcess(processHandle, 0);
+                    CloseHandle(processHandle);
+                }
+            }
+            if (success) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                WaitAndReloadAsync(1000);
+            }
             // 普通无法结束时，尝试使用内核结束
-            if (TaskUtils::_TerminateProcess(item.Id())) {
+            else if (KernelInstance::SiTerminateProcess(item.Id())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
                 WaitAndReloadAsync(1000);
             }
-            else if (KernelInstance::_ZwTerminateProcess(item.Id())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                WaitAndReloadAsync(1000);
-            }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }
@@ -1288,7 +1337,7 @@ namespace winrt::StarlightGUI::implementation
         co_await wil::resume_foreground(DispatcherQueue());
 
         if (!IsLoaded() || requestVersion != m_reloadRequestVersion) co_return;
-        if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
+        LoadProcessList(true);
 
         co_return;
     }

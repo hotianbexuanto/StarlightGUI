@@ -7,14 +7,14 @@ namespace winrt::StarlightGUI::implementation
     struct ModifyTokenDialog : ModifyTokenDialogT<ModifyTokenDialog>
     {
         ModifyTokenDialog();
-            
-        int Token() const { return m_token; }
+
+        ULONG TargetPID() const { return m_targetPid; }
 
         void OnPrimaryButtonClick(winrt::Microsoft::UI::Xaml::Controls::ContentDialog const& sender,
             winrt::Microsoft::UI::Xaml::Controls::ContentDialogButtonClickEventArgs const& args);
 
     private:
-        int m_token{ 0 };
+        ULONG m_targetPid{ 0 };
     };
 }
 

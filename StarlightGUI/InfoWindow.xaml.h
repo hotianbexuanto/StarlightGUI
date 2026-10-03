@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "InfoWindow.g.h"
+#include "Utils/Coroutine.h"
 #include <Utils/ProcessInfo.h>
 
 namespace slg { struct coroutine; }
@@ -10,6 +11,7 @@ namespace winrt::StarlightGUI::implementation
     struct InfoWindow : InfoWindowT<InfoWindow>
     {
         InfoWindow();
+        InfoWindow(winrt::StarlightGUI::ProcessInfo const& process);
         void SetupLocalization();
 
         HWND GetWindowHandle();
@@ -23,11 +25,11 @@ namespace winrt::StarlightGUI::implementation
         slg::coroutine LoadNavigation();
 
         // 窗口
-        static LRESULT CALLBACK InfoWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
-    };
+        static LRESULT CALLBACK InfoWindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR subclassId, DWORD_PTR referenceData);
 
-    extern winrt::StarlightGUI::ProcessInfo processForInfoWindow;
-    extern InfoWindow* g_infoWindowInstance;
+        winrt::StarlightGUI::ProcessInfo m_process{ nullptr };
+        HWND m_windowHandle{ nullptr };
+    };
 }
 
 namespace winrt::StarlightGUI::factory_implementation

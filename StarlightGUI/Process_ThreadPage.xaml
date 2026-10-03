@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="StarlightGUI.Process_ThreadPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -55,6 +55,7 @@
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="*" />
@@ -91,8 +92,19 @@
                         CornerRadius="0"
                         Tag="Address" />
                     <Button
-                        x:Name="StatusHeaderButton"
+                        x:Name="Win32AddressHeaderButton"
                         Grid.Column="3"
+                        Height="32"
+                        HorizontalAlignment="Stretch"
+                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                        BorderThickness="1,0,0,0"
+                        Click="ColumnHeader_Click"
+                        Content="Win32地址"
+                        CornerRadius="0"
+                        Tag="Win32Address" />
+                    <Button
+                        x:Name="StatusHeaderButton"
+                        Grid.Column="4"
                         Height="32"
                         HorizontalAlignment="Stretch"
                         BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
@@ -101,7 +113,7 @@
                         CornerRadius="0" />
                     <Button
                         x:Name="PriorityHeaderButton"
-                        Grid.Column="4"
+                        Grid.Column="5"
                         Height="32"
                         HorizontalAlignment="Stretch"
                         BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
@@ -111,13 +123,13 @@
                         CornerRadius="0"
                         Tag="Priority" />
                     <Button
-                        x:Name="ModuleHeaderButton"
-                        Grid.Column="5"
+                        x:Name="PreviousModeHeaderButton"
+                        Grid.Column="6"
                         Height="32"
                         HorizontalAlignment="Stretch"
                         BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                         BorderThickness="1,0,0,0"
-                        Content="模块"
+                        Content="PreviousMode"
                         CornerRadius="0" />
                 </Grid>
             </Border>
@@ -133,6 +145,7 @@
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="*" />
@@ -140,95 +153,100 @@
 
                     <ProgressRing
                         x:Name="LoadingRing"
-                        Grid.ColumnSpan="6"
+                        Grid.ColumnSpan="7"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         IsActive="False" />
 
                     <ListView
-                            Grid.ColumnSpan="6"
-                            x:Name="ThreadListView"
-                            Background="Transparent"
-                            ContainerContentChanging="ThreadListView_ContainerContentChanging"
-                            ItemContainerStyle="{StaticResource ListViewItemStyle}"
-                            RightTapped="ThreadListView_RightTapped">
+                        x:Name="ThreadListView"
+                        Grid.ColumnSpan="7"
+                        Background="Transparent"
+                        ContainerContentChanging="ThreadListView_ContainerContentChanging"
+                        ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                        RightTapped="ThreadListView_RightTapped">
 
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid x:Name="ThreadRowGrid" Height="45">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="150" />
-                                            <ColumnDefinition Width="150" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="ThreadRowGrid" Height="45">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
 
-                                        <!--  TID  -->
-                                        <TextBlock
-                                            Grid.Column="0"
-                                            Margin="16,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Id}" />
+                                    <!--  TID  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="16,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                                        Text="{Binding Id}" />
 
-                                        <!--  ETHREAD  -->
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Margin="16,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding EThread}" />
+                                    <!--  ETHREAD  -->
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="{Binding EThread, Converter={StaticResource DisplayValueConverter}, ConverterParameter=Hex64}" />
 
-                                        <!--  地址  -->
-                                        <TextBlock
-                                            Grid.Column="2"
-                                            Margin="16,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Address}" />
+                                    <!--  地址  -->
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="{Binding Address, Converter={StaticResource DisplayValueConverter}, ConverterParameter=Hex64}" />
 
-                                        <!--  状态  -->
-                                        <TextBlock
-                                            Grid.Column="3"
-                                            Margin="16,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Status}" />
+                                    <!--  地址  -->
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="{Binding Win32Address, Converter={StaticResource DisplayValueConverter}, ConverterParameter=Hex64}" />
 
-                                        <!--  优先级  -->
-                                        <TextBlock
-                                            Grid.Column="4"
-                                            Margin="16,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Priority}" />
+                                    <!--  状态  -->
+                                    <TextBlock
+                                        Grid.Column="4"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="{Binding Status, Converter={StaticResource DisplayValueConverter}, ConverterParameter=ThreadState}" />
 
-                                        <!--  模块  -->
-                                        <TextBlock
-                                            Grid.Column="5"
-                                            Margin="16,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Module}" />
+                                    <!--  优先级  -->
+                                    <TextBlock
+                                        Grid.Column="5"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="{Binding Priority}" />
 
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                                    <!--  PreviousMode  -->
+                                    <TextBlock
+                                        Grid.Column="6"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="{Binding PreviousMode, Converter={StaticResource DisplayValueConverter}, ConverterParameter=PreviousMode}" />
+
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                     <Border
                         Grid.Column="1"
                         HorizontalAlignment="Left"
@@ -259,6 +277,13 @@
                         IsHitTestVisible="False" />
                     <Border
                         Grid.Column="5"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Stretch"
+                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                        BorderThickness="1,0,0,0"
+                        IsHitTestVisible="False" />
+                    <Border
+                        Grid.Column="6"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Stretch"
                         BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"

@@ -2,6 +2,7 @@
 #include "ModifyTokenDialog.xaml.h"
 #if __has_include("ModifyTokenDialog.g.cpp")
 #include "ModifyTokenDialog.g.cpp"
+#include "Utils/Utils.h"
 #endif
 
 using namespace winrt;
@@ -18,7 +19,6 @@ namespace winrt::StarlightGUI::implementation
         this->PrimaryButtonText(t(L"ModifyToken.ButtonPrimary"));
         this->SecondaryButtonText(t(L"ModifyToken.ButtonSecondary"));
         ModifyTokenDescriptionText().Text(t(L"ModifyToken.Desc"));
-        TokenComboBox().Text(t(L"ModifyToken.Token"));
     }
 
     void ModifyTokenDialog::OnPrimaryButtonClick(ContentDialog const& sender,
@@ -26,11 +26,15 @@ namespace winrt::StarlightGUI::implementation
     {
         auto deferral = args.GetDeferral();
 
-        m_token = TokenComboBox().SelectedIndex();
+        hstring pidText = TargetPIDTextBox().Text();
+        try {
+            m_targetPid = std::stoul(pidText.c_str());
+        }
+        catch (...) {
+            m_targetPid = 0;
+        }
 
         deferral.Complete();
     }
 }
-
-
 

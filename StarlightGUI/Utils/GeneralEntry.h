@@ -23,9 +23,6 @@ namespace winrt::StarlightGUI::implementation
 		[[nodiscard]] hstring String5() const noexcept { return m_string5; }
 		void String5(hstring const& value) { m_string5 = value; }
 
-		[[nodiscard]] hstring String6() const noexcept { return m_string6; }
-		void String6(hstring const& value) { m_string6 = value; }
-
 		[[nodiscard]] bool Bool1() const noexcept { return m_bool1; }
 		void Bool1(bool value) { m_bool1 = value; }
 
@@ -102,7 +99,7 @@ namespace winrt::StarlightGUI::implementation
 		void ULongLong5(ULONG64 value) noexcept { m_ulonglong5 = value; }
 
 	private:
-		hstring m_string1{ L"" }, m_string2{ L"" }, m_string3{ L"" }, m_string4{ L"" }, m_string5{ L"" }, m_string6{ L"" };
+		hstring m_string1{ L"" }, m_string2{ L"" }, m_string3{ L"" }, m_string4{ L"" }, m_string5{ L"" };
 		bool m_bool1{ false }, m_bool2{ false }, m_bool3{ false }, m_bool4{ false }, m_bool5{ false };
 		LONG m_long1{ 0 }, m_long2{ 0 }, m_long3{ 0 }, m_long4{ 0 }, m_long5{ 0 };
 		ULONG m_ulong1{ 0 }, m_ulong2{ 0 }, m_ulong3{ 0 }, m_ulong4{ 0 }, m_ulong5{ 0 };

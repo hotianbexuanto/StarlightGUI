@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="StarlightGUI.KernelModulePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -70,6 +70,7 @@
                     <AppBarButton
                         x:Name="UnloadModuleButton"
                         Click="UnloadModuleButton_Click"
+                        IsEnabled="False"
                         Label="卸载模块">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xec91;" />
@@ -101,7 +102,6 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="80" />
                     </Grid.ColumnDefinitions>
                     <Button
@@ -146,17 +146,6 @@
                         Content="大小"
                         CornerRadius="0"
                         Tag="Size" />
-                    <Button
-                        x:Name="IndexHeaderButton"
-                        Grid.Column="4"
-                        Height="32"
-                        HorizontalAlignment="Stretch"
-                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                        BorderThickness="1,0,0,0"
-                        Click="ColumnHeader_Click"
-                        Content="加载顺序"
-                        CornerRadius="0"
-                        Tag="Index" />
                 </Grid>
             </Border>
 
@@ -172,23 +161,23 @@
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="80" />
-                        <ColumnDefinition Width="80" />
                     </Grid.ColumnDefinitions>
 
                     <ProgressRing
                         x:Name="LoadingRing"
-                        Grid.ColumnSpan="5"
+                        Grid.ColumnSpan="4"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         IsActive="False" />
 
                     <ListView
                         x:Name="KernelModuleListView"
-                        Grid.ColumnSpan="5"
+                        Grid.ColumnSpan="4"
                         Background="Transparent"
                         ContainerContentChanging="KernelModuleListView_ContainerContentChanging"
                         ItemContainerStyle="{StaticResource ListViewItemStyle}"
-                        RightTapped="KernelModuleListView_RightTapped">
+                        RightTapped="KernelModuleListView_RightTapped"
+                        SelectionChanged="KernelModuleListView_SelectionChanged">
 
                         <!--  进程数据  -->
                         <ListView.ItemTemplate>
@@ -199,7 +188,6 @@
                                         <ColumnDefinition Width="150" />
                                         <ColumnDefinition Width="150" />
                                         <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
                                     </Grid.ColumnDefinitions>
 
                                     <!--  模块  -->
@@ -207,16 +195,26 @@
                                         Grid.Column="0"
                                         Margin="16,0,0,0"
                                         VerticalAlignment="Center">
-                                        <essential:MarqueeText
-                                            Behavior="Looping"
+                                        <TextBlock
                                             FontSize="14"
                                             Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                            Text="{Binding Name}" />
-                                        <essential:MarqueeText
-                                            Behavior="Looping"
+                                            Text="{Binding Name}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="NoWrap">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip essential:ToolTipHelper.AcrylicWorkaround="True" Content="{Binding Name}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                        <TextBlock
                                             FontSize="12"
                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                            Text="{Binding Path}" />
+                                            Text="{Binding Path}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="NoWrap">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip essential:ToolTipHelper.AcrylicWorkaround="True" Content="{Binding Path}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
                                     </StackPanel>
 
                                     <!--  基址  -->
@@ -226,7 +224,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ImageBase}" />
+                                        Text="{Binding ImageBase, Converter={StaticResource DisplayValueConverter}, ConverterParameter=Hex64}" />
 
                                     <!--  驱动对象  -->
                                     <TextBlock
@@ -235,7 +233,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding DriverObject}" />
+                                        Text="{Binding DriverObject, Converter={StaticResource DisplayValueConverter}, ConverterParameter=Hex64OrNone}" />
 
                                     <!--  大小  -->
                                     <TextBlock
@@ -244,16 +242,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding Size}" />
-
-                                    <!--  加载顺序  -->
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding Index}" />
+                                        Text="{Binding Size, Converter={StaticResource DisplayValueConverter}, ConverterParameter=HexCompact}" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -274,13 +263,6 @@
                         IsHitTestVisible="False" />
                     <Border
                         Grid.Column="3"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Stretch"
-                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                        BorderThickness="1,0,0,0"
-                        IsHitTestVisible="False" />
-                    <Border
-                        Grid.Column="4"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Stretch"
                         BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"

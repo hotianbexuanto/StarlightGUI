@@ -240,14 +240,21 @@
                                         Source="{Binding Icon}" />
 
                                     <!--  文件名  -->
-                                    <essential:MarqueeText
+                                    <TextBlock
                                         Grid.Column="1"
                                         Margin="0,-2,0,0"
                                         VerticalAlignment="Center"
-                                        Behavior="Looping"
                                         FontSize="14"
                                         Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
-                                        Text="{Binding Name}" />
+                                        Text="{Binding Name}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <ToolTipService.ToolTip>
+                                            <ToolTip
+                                                essential:ToolTipHelper.AcrylicWorkaround="True"
+                                                Content="{Binding Name}" />
+                                        </ToolTipService.ToolTip>
+                                    </TextBlock>
 
                                     <!--  修改日期  -->
                                     <TextBlock
@@ -256,7 +263,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding ModifyTime}" />
+                                        Text="{Binding Converter={StaticResource DisplayValueConverter}, ConverterParameter=FileModifyTime}" />
 
                                     <!--  大小  -->
                                     <TextBlock
@@ -265,7 +272,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                        Text="{Binding Size}" />
+                                        Text="{Binding Converter={StaticResource DisplayValueConverter}, ConverterParameter=FileSize}" />
 
                                 </Grid>
                             </DataTemplate>

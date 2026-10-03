@@ -5,7 +5,9 @@
 #endif
 
 
+#include <algorithm>
 #include <winrt/Microsoft.UI.Composition.h>
+#include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.Storage.Streams.h>
@@ -14,14 +16,22 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Foundation.h>
+#include <winrt/WinUI3Package.h>
+#include <wil/cppwinrt_helpers.h>
 #include <sstream>
 #include <iomanip>
 #include <array>
 #include <mutex>
 #include <unordered_set>
+#include <vector>
 #include <InfoWindow.xaml.h>
 #include <MainWindow.xaml.h>
 #include <LoadDriverDialog.xaml.h>
+#include "Utils/Config.h"
+#include "Utils/CppUtils.h"
+#include "Utils/KernelBase.h"
+#include "Utils/TaskUtils.h"
+#include "Utils/Utils.h"
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -37,7 +47,18 @@ using namespace Windows::System;
 namespace winrt::StarlightGUI::implementation
 {
     static std::vector<winrt::StarlightGUI::KernelModuleInfo> fullRecordedKernelModules;
-    static int safeAcceptedImage = -1;
+
+    static hstring GetDriverErrorMessage()
+    {
+        auto errorMsg = KernelInstance::GetLastErrorMessage();
+        if (errorMsg.empty()) {
+            auto errorCode = KernelInstance::GetLastErrorCode();
+            wchar_t hexCode[32];
+            swprintf_s(hexCode, L"0x%X", errorCode);
+            return t(L"Msg.DriverError.Code", hexCode);
+        }
+        return t(L"Msg.DriverError.Detail", errorMsg.c_str());
+    }
 
     KernelModulePage::KernelModulePage() {
         InitializeComponent();
@@ -65,6 +86,11 @@ namespace winrt::StarlightGUI::implementation
         LOG_INFO(L"KernelModulePage", L"KernelModulePage initialized.");
     }
 
+    void KernelModulePage::KernelModuleListView_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
+    {
+        UnloadModuleButton().IsEnabled(KernelModuleListView().SelectedItem() != nullptr);
+    }
+
     void KernelModulePage::KernelModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
     {
         auto listView = KernelModuleListView();
@@ -77,7 +103,7 @@ namespace winrt::StarlightGUI::implementation
 
         auto flyoutStyles = slg::GetStyles();
 
-        if (item.Name() == L"AstralX.sys" || item.Name() == L"kernel.sys") {
+        if (item.Name() == L"Sirius.sys") {
             slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"Msg.EditSelfWarning").c_str(), InfoBarSeverity::Warning, g_mainWindowInstance);
             return;
         }
@@ -86,21 +112,33 @@ namespace winrt::StarlightGUI::implementation
 
         // 选项1.1
         auto item1_1 = slg::CreateMenuItem(flyoutStyles, L"\uec91", t(L"KernelModule.Menu.Unload").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                WaitAndReloadAsync(1000);
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto target = item;
+            if (dangerousConfirm && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            if (KernelInstance::SiUnloadDriver(target.DriverObject())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                lifetime->WaitAndReloadAsync(1000);
+            }
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
         // 选项1.2
         auto item1_2 = slg::CreateMenuItem(flyoutStyles, L"\ued1a", t(L"KernelModule.Menu.Hide").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (KernelInstance::HideDriver(item.DriverObjectULong())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
-                WaitAndReloadAsync(1000);
+            auto lifetime = get_strong();
+            auto xamlRoot = XamlRoot();
+            auto target = item;
+            if (dangerousConfirm && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), xamlRoot))) {
+                co_return;
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            if (KernelInstance::SiHideDriver(target.DriverObject())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
+                lifetime->WaitAndReloadAsync(1000);
+            }
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
             co_return;
             });
 
@@ -126,7 +164,7 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub2);
         auto item2_1_sub3 = slg::CreateMenuItem(flyoutStyles, L"\ueb19", t(L"Common.Base").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.ImageBase().c_str())) {
+            if (TaskUtils::CopyToClipboard(ULongToHexString(item.ImageBase()).c_str())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
             }
             else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_mainWindowInstance);
@@ -134,7 +172,10 @@ namespace winrt::StarlightGUI::implementation
             });
         item2_1.Items().Append(item2_1_sub3);
         auto item2_1_sub4 = slg::CreateMenuItem(flyoutStyles, L"\ueb1d", t(L"KernelModule.Header.DriverObj").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.DriverObject().c_str())) {
+            auto driverObject = item.DriverObject() == 0
+                ? std::wstring(t(L"Common.None").c_str())
+                : ULongToHexString(item.DriverObject());
+            if (TaskUtils::CopyToClipboard(driverObject.c_str())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
             }
             else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_mainWindowInstance);
@@ -185,7 +226,7 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::KernelModuleInfo> kernelModules;
         kernelModules.reserve(200);
 
-        KernelInstance::EnumDrivers(kernelModules);
+        KernelInstance::SiEnumDrivers(kernelModules);
         LOG_INFO(__WFUNCTION__, L"Enumerated kernel modules, %d entry(s).", kernelModules.size());
 
         fullRecordedKernelModules = kernelModules;
@@ -200,9 +241,6 @@ namespace winrt::StarlightGUI::implementation
 
             if (kernelModule.Name().empty()) kernelModule.Name(t(L"Common.Unknown"));
             if (kernelModule.Path().empty()) kernelModule.Path(t(L"Common.Unknown"));
-            if (kernelModule.ImageBase().empty()) kernelModule.ImageBase(t(L"Common.Unknown"));
-            if (kernelModule.DriverObject().empty()) kernelModule.DriverObject(t(L"Common.Unknown"));
-            if (kernelModule.DriverObjectULong() == 0x0) kernelModule.DriverObject(t(L"Common.None"));
 
             m_kernelModuleList.Append(kernelModule);
         }
@@ -270,8 +308,7 @@ namespace winrt::StarlightGUI::implementation
             Name,
             ImageBase,
             DriverObject,
-            Size,
-            Index
+            Size
         };
 
         auto resolveSortColumn = [&](const std::string& key) -> SortColumn {
@@ -279,7 +316,6 @@ namespace winrt::StarlightGUI::implementation
             if (key == "ImageBase") return SortColumn::ImageBase;
             if (key == "DriverObject") return SortColumn::DriverObject;
             if (key == "Size") return SortColumn::Size;
-            if (key == "Index") return SortColumn::Index;
             return SortColumn::Unknown;
             };
 
@@ -291,13 +327,11 @@ namespace winrt::StarlightGUI::implementation
             ImageBaseHeaderButton().Content(tbox(L"Common.Base"));
             DriverObjectHeaderButton().Content(tbox(L"KernelModule.Header.DriverObj"));
             SizeHeaderButton().Content(tbox(L"Common.Size"));
-            IndexHeaderButton().Content(tbox(L"Common.Index"));
 
             if (activeColumn == SortColumn::Name) NameHeaderButton().Content(box_value(t(L"Common.Module") + (isAscending ? L" ↓" : L" ↑")));
             if (activeColumn == SortColumn::ImageBase) ImageBaseHeaderButton().Content(box_value(t(L"Common.Base") + (isAscending ? L" ↓" : L" ↑")));
             if (activeColumn == SortColumn::DriverObject) DriverObjectHeaderButton().Content(box_value(t(L"KernelModule.Header.DriverObj") + (isAscending ? L" ↓" : L" ↑")));
             if (activeColumn == SortColumn::Size) SizeHeaderButton().Content(box_value(t(L"Common.Size") + (isAscending ? L" ↓" : L" ↑")));
-            if (activeColumn == SortColumn::Index) IndexHeaderButton().Content(box_value(t(L"Common.Index") + (isAscending ? L" ↓" : L" ↑")));
         }
 
         std::vector<winrt::StarlightGUI::KernelModuleInfo> sortedKernelModules;
@@ -311,13 +345,11 @@ namespace winrt::StarlightGUI::implementation
             case SortColumn::Name:
                 return LessIgnoreCase(a.Name().c_str(), b.Name().c_str());
             case SortColumn::ImageBase:
-                return a.ImageBaseULong() < b.ImageBaseULong();
+                return a.ImageBase() < b.ImageBase();
             case SortColumn::DriverObject:
-                return a.DriverObjectULong() < b.DriverObjectULong();
+                return a.DriverObject() < b.DriverObject();
             case SortColumn::Size:
-                return a.SizeULong() < b.SizeULong();
-            case SortColumn::Index:
-                return a.Index() < b.Index();
+                return a.Size() < b.Size();
             default:
                 return false;
             }
@@ -451,12 +483,16 @@ namespace winrt::StarlightGUI::implementation
                 co_return;
             }
 
-            if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
+            if (dangerousConfirm && !(co_await slg::ShowConfirmDialog(t(L"Common.Warning"), t(L"Utility.Msg.ConfirmAction"), t(L"Common.Continue"), t(L"Common.Cancel"), XamlRoot()))) {
+                co_return;
+            }
+
+            if (KernelInstance::SiUnloadDriver(item.DriverObject())) {
                 slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.Success"), InfoBarSeverity::Success, g_mainWindowInstance);
 
                 LoadKernelModuleList();
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.Failed", GetLastError()), InfoBarSeverity::Error, g_mainWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), GetDriverErrorMessage(), InfoBarSeverity::Error, g_mainWindowInstance);
         }
         co_return;
     }
@@ -485,6 +521,5 @@ namespace winrt::StarlightGUI::implementation
         ImageBaseHeaderButton().Content(tbox(L"Common.Base"));
         DriverObjectHeaderButton().Content(tbox(L"KernelModule.Header.DriverObj"));
         SizeHeaderButton().Content(tbox(L"Common.Size"));
-        IndexHeaderButton().Content(tbox(L"Common.Index"));
     }
 }

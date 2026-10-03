@@ -6,6 +6,7 @@
 
 
 #include <winrt/Microsoft.UI.Xaml.h>
+#include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.System.h>
@@ -13,11 +14,14 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Foundation.h>
+#include <wil/cppwinrt_helpers.h>
 #include <TlHelp32.h>
 #include <Psapi.h>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 #include <Utils/Utils.h>
+#include <Utils/CppUtils.h>
 #include <Utils/TaskUtils.h>
 #include <Utils/KernelBase.h>
 #include <InfoWindow.xaml.h>
@@ -55,6 +59,11 @@ namespace winrt::StarlightGUI::implementation
         LOG_INFO(L"Process_ModulePage", L"Process_ModulePage initialized.");
     }
 
+    void Process_ModulePage::OnNavigatedTo(winrt::Microsoft::UI::Xaml::Navigation::NavigationEventArgs const& e)
+    {
+        m_process = e.Parameter().try_as<winrt::StarlightGUI::ProcessInfo>();
+    }
+
     void Process_ModulePage::ModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
     {
         auto listView = sender.as<ListView>();
@@ -80,25 +89,25 @@ namespace winrt::StarlightGUI::implementation
         auto item1_1 = slg::CreateMenuSubItem(flyoutStyles, L"\ue8c8", t(L"Common.CopyInfo").c_str());
         auto item1_1_sub1 = slg::CreateMenuItem(flyoutStyles, L"\ue943", t(L"Common.Name").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item1_1.Items().Append(item1_1_sub1);
         auto item1_1_sub2 = slg::CreateMenuItem(flyoutStyles, L"\uec6c", t(L"Common.Path").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Path().c_str())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item1_1.Items().Append(item1_1_sub2);
         auto item1_1_sub3 = slg::CreateMenuItem(flyoutStyles, L"\ueb1d", t(L"Common.Address").c_str(), [this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
-            if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
-                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, g_infoWindowInstance);
+            if (TaskUtils::CopyToClipboard(ULongToHexString(item.Address()).c_str())) {
+                slg::CreateInfoBarAndDisplay(t(L"Common.Success"), t(L"Msg.CopyToClipboard.Success"), InfoBarSeverity::Success, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             }
-            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, g_infoWindowInstance);
+            else slg::CreateInfoBarAndDisplay(t(L"Common.Failed"), t(L"Msg.CopyToClipboard.Failed"), InfoBarSeverity::Error, slg::GetInfoWindowForXamlRoot(XamlRoot()));
             co_return;
             });
         item1_1.Items().Append(item1_1_sub3);
@@ -125,14 +134,9 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::Windows::Foundation::IAsyncAction Process_ModulePage::LoadModuleList()
     {
-        if (!processForInfoWindow) co_return;
-        // 跳过内核进程，获取可能导致异常或蓝屏
-        if (processForInfoWindow.Name() == L"Idle" || processForInfoWindow.Name() == L"System" || processForInfoWindow.Name() == L"Registry" || processForInfoWindow.Name() == L"Memory Compression" || processForInfoWindow.Name() == L"Secure System" || processForInfoWindow.Name() == L"Unknown") {
-            slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"ProcModule.Msg.NoInfo").c_str(), InfoBarSeverity::Warning, g_infoWindowInstance);
-            co_return;
-        }
+        if (!m_process) co_return;
 
-        LOG_INFO(__WFUNCTION__, L"Loading module list... (pid=%d)", processForInfoWindow.Id());
+        LOG_INFO(__WFUNCTION__, L"Loading module list... (pid=%d)", m_process.Id());
         m_moduleList.Clear();
         LoadingRing().IsActive(true);
 
@@ -146,14 +150,10 @@ namespace winrt::StarlightGUI::implementation
         modules.reserve(500);
 
         // 获取句柄列表
-        KernelInstance::EnumProcessModules(processForInfoWindow.EProcessULong(), modules);
+        KernelInstance::SiEnumProcessModules(m_process.Id(), modules);
         LOG_INFO(__WFUNCTION__, L"Enumerated modules, %d entry(s).", modules.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
-
-        if (modules.size() >= 1000) {
-            slg::CreateInfoBarAndDisplay(t(L"Common.Warning"), t(L"ProcModule.Msg.TooManyModules").c_str(), InfoBarSeverity::Warning, g_infoWindowInstance);
-        }
 
         for (const auto& module : modules) {
             if (module.Name().empty()) module.Name(t(L"Common.Unknown"));
@@ -166,7 +166,7 @@ namespace winrt::StarlightGUI::implementation
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
         // 更新模块数量文本
-        ModuleCountText().Text(t(L"ProcModule.Detail", static_cast<size_t>(m_moduleList.Size()), static_cast<long long>(duration.count())));
+        ModuleCountText().Text(t(L"ProcModule.Detail", (size_t)m_moduleList.Size(), (long long)duration.count()));
         LoadingRing().IsActive(false);
 
         LOG_INFO(__WFUNCTION__, L"Loaded module list, %d entry(s) in total.", m_moduleList.Size());
@@ -181,7 +181,6 @@ namespace winrt::StarlightGUI::implementation
         SizeHeaderButton().Content(tbox(L"Common.Size"));
 	}
 }
-
 
 
 

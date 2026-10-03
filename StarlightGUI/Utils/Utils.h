@@ -1,14 +1,21 @@
 ﻿#pragma once
 
-#include "pch.h"
-#include "MainWindow.xaml.h"
-#include "InfoWindow.xaml.h"
-#include <coroutine>
+#include "Coroutine.h"
+#include <Windows.h>
 #include <exception>
+#include <string>
 #include <unordered_map>
 #include <vector>
 #include <dwmapi.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.UI.h>
+#include <winrt/Microsoft.UI.Xaml.h>
+#include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Input.h>
+#include <winrt/Microsoft.UI.Xaml.Markup.h>
+#include <winrt/Microsoft.UI.Xaml.Media.h>
+#include <winrt/Microsoft.UI.Xaml.Media.Animation.h>
+#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 
 using namespace winrt;
 using namespace Windows::UI;
@@ -20,23 +27,13 @@ using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Media::Imaging;
 using namespace Microsoft::UI::Xaml::Media::Animation;
 
+namespace winrt::StarlightGUI::implementation {
+    struct MainWindow;
+    struct InfoWindow;
+    extern MainWindow* g_mainWindowInstance;
+}
+
 namespace slg {
-    struct coroutine {
-        coroutine();
-
-        struct promise_type {
-            coroutine get_return_object() const noexcept;
-
-            void return_void() const noexcept;
-
-            std::suspend_never initial_suspend() const noexcept;
-
-            std::suspend_never final_suspend() const noexcept;
-
-            void unhandled_exception() const noexcept;
-        };
-    };
-
     struct Styles
     {
         winrt::Microsoft::UI::Xaml::Style Item;
@@ -82,7 +79,11 @@ namespace slg {
 
     void CreateInfoBarAndDisplay(hstring title, hstring message, InfoBarSeverity severity, winrt::StarlightGUI::implementation::InfoWindow* instance, int time = 1500);
 
+    winrt::StarlightGUI::implementation::InfoWindow* GetInfoWindowForXamlRoot(XamlRoot const& xamlRoot);
+
     ContentDialog CreateContentDialog(hstring title, hstring content, hstring closeMessage, XamlRoot xamlRoot);
+
+    IAsyncOperation<bool> ShowConfirmDialog(hstring title, hstring content, hstring primaryMessage, hstring closeMessage, XamlRoot xamlRoot);
 
     DataTemplate GetContentDialogSuccessTemplate();
 
@@ -96,7 +97,7 @@ namespace slg {
     Microsoft::UI::Xaml::ElementTheme GetConfiguredElementTheme();
     void ApplyConfiguredTheme();
 
-    winrt::Microsoft::UI::Xaml::Media::ImageSource CreateImageSourceFromHIcon(HICON hIcon, int iconSize = 16, bool destroyIcon = false);
+    winrt::Microsoft::UI::Xaml::Media::ImageSource CreateImageSourceFromHIcon(HICON iconHandle, int iconSize = 16, bool destroyIcon = false);
 
     std::unordered_map<std::wstring, winrt::Microsoft::UI::Xaml::Media::ImageSource>& GetShellIconCacheStore();
 

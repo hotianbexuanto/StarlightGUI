@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "UtilityPage.g.h"
+#include "Utils/Coroutine.h"
 
 namespace winrt::StarlightGUI::implementation
 {
@@ -10,7 +11,7 @@ namespace winrt::StarlightGUI::implementation
         void SetupLocalization();
 
         slg::coroutine Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        slg::coroutine Button_Click2(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        slg::coroutine LoadDriverHypervisorButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     };
 }
 

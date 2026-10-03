@@ -11,7 +11,6 @@
 		String String3{ get; set; };
 		String String4{ get; set; };
 		String String5{ get; set; };
-		String String6{ get; set; };
 		Boolean Bool1{ get; set; };
 		Boolean Bool2{ get; set; };
 		Boolean Bool3{ get; set; };
