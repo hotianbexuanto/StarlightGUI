@@ -1,0 +1,25 @@
+namespace StarlightGUI
+{
+    enum GridSplitterDirection
+    {
+        Columns = 0,
+        Rows = 1
+    };
+
+    enum GridSplitterBehavior
+    {
+        BasedOnAlignment = 0,
+        PreviousAndNext = 1,
+        CurrentAndNext = 2
+    };
+
+    [default_interface]
+    runtimeclass GridSplitter : Microsoft.UI.Xaml.Controls.ContentControl
+    {
+        GridSplitter();
+
+        StarlightGUI.GridSplitterDirection ResizeDirection;
+        StarlightGUI.GridSplitterBehavior ResizeBehavior;
+        Double MinColumnWidth;
+    }
+}

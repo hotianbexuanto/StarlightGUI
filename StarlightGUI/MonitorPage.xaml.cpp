@@ -1465,7 +1465,7 @@ namespace winrt::StarlightGUI::implementation
 		for (uint32_t column = 0; column + 1 < columns.Size(); ++column) {
 			bool exists = false;
 			for (auto const& child : headerGrid.Children()) {
-				auto splitter = child.try_as<GridSplitter>();
+				auto splitter = child.try_as<winrt::StarlightGUI::GridSplitter>();
 				if (!splitter) continue;
 				if (Grid::GetColumn(splitter) != (int)column) continue;
 				exists = true;
@@ -1474,15 +1474,15 @@ namespace winrt::StarlightGUI::implementation
 
 			if (exists) continue;
 
-			GridSplitter splitter;
+			winrt::StarlightGUI::GridSplitter splitter = winrt::make<GridSplitter>();
 			splitter.Width(9);
 			splitter.Margin(ThicknessHelper::FromLengths(0, 0, -5, 0));
 			splitter.Opacity(0);
 			splitter.HorizontalAlignment(HorizontalAlignment::Right);
 			splitter.VerticalAlignment(VerticalAlignment::Stretch);
 			splitter.Background(SolidColorBrush(Windows::UI::Colors::Transparent()));
-			splitter.ResizeBehavior(GridResizeBehavior::BasedOnAlignment);
-			splitter.ResizeDirection(GridResizeDirection::Columns);
+			splitter.ResizeBehavior(winrt::StarlightGUI::GridSplitterBehavior::BasedOnAlignment);
+			splitter.ResizeDirection(winrt::StarlightGUI::GridSplitterDirection::Columns);
 			Grid::SetColumn(splitter, column);
 
 			headerGrid.Children().Append(splitter);

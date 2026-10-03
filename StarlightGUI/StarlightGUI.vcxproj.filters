@@ -334,7 +334,6 @@
     <None Include="Assets\Sirius.sys">
       <Filter>Assets</Filter>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
@@ -352,6 +351,12 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GridSplitter.h">
+      <Filter>Utils\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="LineGraphControl.xaml.h">
+      <Filter>Utils\Elements</Filter>
+    </ClInclude>
     <ClInclude Include="SiriusCollection.h">
       <Filter>Utils\Advanced\Sirius</Filter>
     </ClInclude>
@@ -361,5 +366,21 @@
     <ClInclude Include="SiriusIO.h">
       <Filter>Utils\Advanced\Sirius</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GridSplitter.cpp">
+      <Filter>Utils\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="LineGraphControl.xaml.cpp">
+      <Filter>Utils\Elements</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="GridSplitter.idl">
+      <Filter>Utils\Elements</Filter>
+    </Midl>
+    <Midl Include="LineGraphControl.idl">
+      <Filter>Utils\Elements</Filter>
+    </Midl>
   </ItemGroup>
 </Project>
