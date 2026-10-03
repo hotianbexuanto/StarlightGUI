@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "KernelBase.h"
 #include "Config.h"
 #include "CppUtils.h"
@@ -1036,15 +1036,15 @@ namespace winrt::StarlightGUI::implementation {
 			status = NtOpenFile(&objectHandle, GENERIC_READ, &objectAttributes, &ioStatus, FILE_SHARE_READ | FILE_SHARE_WRITE, 0x00000040);
 		}
 		else if (type == L"Session")
-			status = NtOpenSession(&objectHandle, GENERIC_READ, &objectAttributes);
+			status = nt::OpenSession(&objectHandle, GENERIC_READ, &objectAttributes);
 		else if (type == L"CpuPartition")
-			status = NtOpenCpuPartition(&objectHandle, GENERIC_READ, &objectAttributes);
+			status = nt::OpenCpuPartition(&objectHandle, GENERIC_READ, &objectAttributes);
 		else if (type == L"Job")
 			status = NtOpenJobObject(&objectHandle, GENERIC_READ, &objectAttributes);
 		else if (type == L"IoCompletion")
 			status = NtOpenIoCompletion(&objectHandle, GENERIC_READ, &objectAttributes);
 		else if (type == L"Partition")
-			status = NtOpenPartition(&objectHandle, GENERIC_READ, &objectAttributes);
+			status = nt::OpenPartition(&objectHandle, GENERIC_READ, &objectAttributes);
 		else
 			return FALSE;
 

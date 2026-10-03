@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Windows.h>
 
@@ -65,6 +65,47 @@ EXTERN_C LONG NTAPI NtQuerySymbolicLinkObject(
     }
 #define OBJ_PERMANENT                       0x00000010L
 #define OBJ_CASE_INSENSITIVE                0x00000040L
+
+namespace nt {
+	// 少数 ntdll 导出在旧版 Windows 上不存在（例如 NtOpenCpuPartition 只在 Win11 有）。
+	// ntdll.lib 是静态导入，一旦程序里直接调用这些函数，旧系统就会在**启动时**
+	// 因“无法定位程序输入点”而直接失败。这里改为运行时 GetProcAddress：
+	// 取不到就返回 STATUS_PROCEDURE_NOT_FOUND（0xC0000139），由调用方正常报错。
+	template <typename TFunction>
+	TFunction Resolve(wchar_t const* name) noexcept
+	{
+		static TFunction cached = nullptr;
+		if (!cached) {
+			HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
+			if (ntdll) {
+				cached = reinterpret_cast<TFunction>(GetProcAddress(ntdll, name));
+			}
+		}
+		return cached;
+	}
+
+	using NtOpenSessionFn = LONG(NTAPI*)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES);
+	using NtOpenCpuPartitionFn = LONG(NTAPI*)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES);
+	using NtOpenPartitionFn = LONG(NTAPI*)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES);
+
+	inline LONG OpenSession(PHANDLE handle, ACCESS_MASK access, POBJECT_ATTRIBUTES attributes) noexcept
+	{
+		auto function = Resolve<NtOpenSessionFn>(L"NtOpenSession");
+		return function ? function(handle, access, attributes) : static_cast<LONG>(0xC0000139L);
+	}
+
+	inline LONG OpenCpuPartition(PHANDLE handle, ACCESS_MASK access, POBJECT_ATTRIBUTES attributes) noexcept
+	{
+		auto function = Resolve<NtOpenCpuPartitionFn>(L"NtOpenCpuPartition");
+		return function ? function(handle, access, attributes) : static_cast<LONG>(0xC0000139L);
+	}
+
+	inline LONG OpenPartition(PHANDLE handle, ACCESS_MASK access, POBJECT_ATTRIBUTES attributes) noexcept
+	{
+		auto function = Resolve<NtOpenPartitionFn>(L"NtOpenPartition");
+		return function ? function(handle, access, attributes) : static_cast<LONG>(0xC0000139L);
+	}
+}
 
 typedef enum _EVENT_TYPE
 {
@@ -215,24 +256,17 @@ EXTERN_C LONG NTAPI NtOpenFile(
 	PIO_STATUS_BLOCK ioStatusBlock,
 	ULONG shareAccess,
 	ULONG openOptions);
-EXTERN_C LONG NTAPI NtOpenSession(
-	PHANDLE sessionHandle,
-	ACCESS_MASK desiredAccess,
-	POBJECT_ATTRIBUTES objectAttributes);
-EXTERN_C LONG NTAPI NtOpenCpuPartition(
-	PHANDLE cpuPartitionHandle,
-	ACCESS_MASK desiredAccess,
-	POBJECT_ATTRIBUTES objectAttributes);
+// 这三个函数在旧版 Windows 上没有导出，不能走 ntdll.lib 静态导入（会导致启动失败），
+// 统一用上面 nt:: 里的运行时解析版本。
+typedef LONG(NTAPI* NtOpenSessionProc)(PHANDLE sessionHandle, ACCESS_MASK desiredAccess, POBJECT_ATTRIBUTES objectAttributes);
+typedef LONG(NTAPI* NtOpenCpuPartitionProc)(PHANDLE cpuPartitionHandle, ACCESS_MASK desiredAccess, POBJECT_ATTRIBUTES objectAttributes);
+typedef LONG(NTAPI* NtOpenPartitionProc)(PHANDLE partitionHandle, ACCESS_MASK desiredAccess, POBJECT_ATTRIBUTES objectAttributes);
 EXTERN_C LONG NTAPI NtOpenJobObject(
 	PHANDLE jobHandle,
 	ACCESS_MASK desiredAccess,
 	POBJECT_ATTRIBUTES objectAttributes);
 EXTERN_C LONG NTAPI NtOpenIoCompletion(
 	PHANDLE ioCompletionHandle,
-	ACCESS_MASK desiredAccess,
-	POBJECT_ATTRIBUTES objectAttributes);
-EXTERN_C LONG NTAPI NtOpenPartition(
-	PHANDLE partitionHandle,
 	ACCESS_MASK desiredAccess,
 	POBJECT_ATTRIBUTES objectAttributes);
 
