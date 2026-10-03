@@ -697,7 +697,7 @@ namespace slg {
             }
 
             double radius = active ? kSplitterActiveCornerRadius : 0.0;
-            line.CornerRadius(Windows::UI::Xaml::CornerRadius{ radius, radius, radius, radius });
+            line.CornerRadius(Microsoft::UI::Xaml::CornerRadiusHelper::FromUniformRadius(radius));
         }
 
     }
@@ -801,7 +801,7 @@ namespace slg {
                 (*startLengths)[0] = PixelLengthOf(headerGrid, current, isHorizontal);
                 (*startLengths)[1] = PixelLengthOf(headerGrid, next, isHorizontal);
 
-                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position().as<Windows::Foundation::Point>();
+                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position();
                 *dragStart = isHorizontal ? point.X : point.Y;
                 *dragState = true;
 
@@ -816,7 +816,7 @@ namespace slg {
                 int count = isHorizontal ? (int)headerGrid.ColumnDefinitions().Size() : (int)headerGrid.RowDefinitions().Size();
                 if (*previousIndex < 0 || *nextIndex >= count) { *dragState = false; return; }
 
-                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position().as<Windows::Foundation::Point>();
+                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position();
                 double position = isHorizontal ? point.X : point.Y;
                 double delta = position - *dragStart;
                 if (std::abs(delta) < kSplitterDragTolerance) { e.Handled(true); return; }
