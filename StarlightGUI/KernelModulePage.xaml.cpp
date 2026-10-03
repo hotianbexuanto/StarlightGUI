@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "KernelModulePage.xaml.h"
 #if __has_include("KernelModulePage.g.cpp")
 #include "KernelModulePage.g.cpp"
@@ -65,6 +65,7 @@ namespace winrt::StarlightGUI::implementation
         SetupLocalization();
 
         KernelModuleListView().ItemsSource(m_kernelModuleList);
+        slg::EnsureHeaderSplitters(HeaderColumnsGrid());
         HeaderColumnsGrid().LayoutUpdated([weak = get_weak()](auto&&, auto&&) {
             if (auto self = weak.get()) {
                 slg::SyncListViewColumnWidths(

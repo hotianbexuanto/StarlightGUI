@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "Process_HandlePage.xaml.h"
 #if __has_include("Process_HandlePage.g.cpp")
 #include "Process_HandlePage.g.cpp"
@@ -43,6 +43,7 @@ namespace winrt::StarlightGUI::implementation
         SetupLocalization();
 
         HandleListView().ItemsSource(m_handleList);
+        slg::EnsureHeaderSplitters(HeaderColumnsGrid());
         HeaderColumnsGrid().LayoutUpdated([weak = get_weak()](auto&&, auto&&) {
             if (auto self = weak.get()) {
                 slg::SyncListViewColumnWidths(self->HeaderColumnsGrid(), self->BodyColumnsGrid(), self->HandleListView(), 0);

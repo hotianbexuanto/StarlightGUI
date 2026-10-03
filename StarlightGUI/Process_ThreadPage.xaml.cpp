@@ -59,6 +59,7 @@ namespace winrt::StarlightGUI::implementation
         SetupLocalization();
 
         ThreadListView().ItemsSource(m_threadList);
+        slg::EnsureHeaderSplitters(HeaderColumnsGrid());
         HeaderColumnsGrid().LayoutUpdated([weak = get_weak()](auto&&, auto&&) {
             if (auto self = weak.get()) {
                 slg::SyncListViewColumnWidths(self->HeaderColumnsGrid(), self->BodyColumnsGrid(), self->ThreadListView(), 0);

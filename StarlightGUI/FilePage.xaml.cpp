@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "FilePage.xaml.h"
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Windows.Storage.h>
@@ -88,6 +88,7 @@ namespace winrt::StarlightGUI::implementation
         g_filePageInstance = this;
 
         FileListView().ItemsSource(m_fileList);
+        slg::EnsureHeaderSplitters(HeaderColumnsGrid());
         HeaderColumnsGrid().LayoutUpdated([weak = get_weak()](auto&&, auto&&) {
             if (auto self = weak.get()) {
                 slg::SyncListViewColumnWidths(

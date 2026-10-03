@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "Process_KCTPage.xaml.h"
 #if __has_include("Process_KCTPage.g.cpp")
 #include "Process_KCTPage.g.cpp"
@@ -44,6 +44,7 @@ namespace winrt::StarlightGUI::implementation
         SetupLocalization();
 
         KCTListView().ItemsSource(m_kctList);
+        slg::EnsureHeaderSplitters(HeaderColumnsGrid());
         HeaderColumnsGrid().LayoutUpdated([weak = get_weak()](auto&&, auto&&) {
             if (auto self = weak.get()) {
                 slg::SyncListViewColumnWidths(self->HeaderColumnsGrid(), self->BodyColumnsGrid(), self->KCTListView(), 0);

@@ -1,9 +1,10 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Utils.h"
 #include "Config.h"
 #include "MainWindow.xaml.h"
 #include "InfoWindow.xaml.h"
 #include <winrt/Microsoft.UI.Composition.SystemBackdrops.h>
+#include <winrt/Microsoft.UI.Input.h>
 #include <unordered_map>
 #include <shellapi.h>
 #include <cstring>
@@ -553,6 +554,335 @@ namespace slg {
                     pending.push_back(child);
                 }
             }
+        }
+    }
+
+    namespace
+    {
+        // ── 表头分隔条的视觉常量（与应用的浅色/深色配色保持一致）──
+        constexpr double kSplitterRestThickness = 1.0;
+        constexpr double kSplitterActiveThickness = 3.0;
+        constexpr double kSplitterActiveCornerRadius = 1.5;
+        constexpr double kSplitterDragTolerance = 0.5;
+        constexpr int kSplitterZIndex = 100;
+
+        bool IsFixedGridLength(GridLength const& length)
+        {
+            return length.GridUnitType != GridUnitType::Auto && length.GridUnitType != GridUnitType::Star;
+        }
+
+        bool IsFlexibleGridLength(GridLength const& length)
+        {
+            return length.GridUnitType == GridUnitType::Star;
+        }
+
+        bool UseDarkSplitterPalette()
+        {
+            // 与应用的主题设置保持一致；跟随系统时用当前应用主题。
+            try {
+                if (GetConfiguredElementTheme() == ElementTheme::Dark) return true;
+            }
+            catch (...) {
+            }
+
+            try {
+                if (auto app = Application::Current()) {
+                    return app.RequestedTheme() == ApplicationTheme::Dark;
+                }
+            }
+            catch (...) {
+            }
+
+            return false;
+        }
+
+        Windows::UI::Color SplitterRestColor()
+        {
+            return UseDarkSplitterPalette()
+                ? Windows::UI::Color{ 0x3A, 0xE8, 0xE8, 0xE8 }
+                : Windows::UI::Color{ 0x2E, 0x20, 0x20, 0x20 };
+        }
+
+        Windows::UI::Color SplitterActiveColor()
+        {
+            return UseDarkSplitterPalette()
+                ? Windows::UI::Color{ 0xFF, 0x76, 0xB9, 0xFF }
+                : Windows::UI::Color{ 0xFF, 0x00, 0x78, 0xD4 };
+        }
+
+        double PixelLengthOf(Grid const& grid, int index, bool isHorizontal)
+        {
+            if (!grid || index < 0) return 0.0;
+
+            if (isHorizontal) {
+                auto definitions = grid.ColumnDefinitions();
+                if (index >= (int)definitions.Size()) return 0.0;
+
+                auto definition = definitions.GetAt(index);
+                auto width = definition.Width();
+                if (IsFixedGridLength(width)) return width.Value;
+
+                if (IsFlexibleGridLength(width)) {
+                    double starTotal = 0.0;
+                    double fixedTotal = 0.0;
+                    for (auto const& item : definitions) {
+                        auto itemWidth = item.Width();
+                        if (IsFlexibleGridLength(itemWidth)) starTotal += itemWidth.Value;
+                        else if (IsFixedGridLength(itemWidth)) fixedTotal += itemWidth.Value;
+                    }
+
+                    double available = grid.ActualWidth() - fixedTotal;
+                    if (available < 0.0) available = 0.0;
+                    if (starTotal <= 0.0) return definition.ActualWidth();
+                    return available * (width.Value / starTotal);
+                }
+
+                return definition.ActualWidth();
+            }
+
+            auto rowDefinitions = grid.RowDefinitions();
+            if (index >= (int)rowDefinitions.Size()) return 0.0;
+
+            auto rowDefinition = rowDefinitions.GetAt(index);
+            auto height = rowDefinition.Height();
+            if (IsFixedGridLength(height)) return height.Value;
+
+            if (IsFlexibleGridLength(height)) {
+                double starTotal = 0.0;
+                double fixedTotal = 0.0;
+                for (auto const& item : rowDefinitions) {
+                    auto itemHeight = item.Height();
+                    if (IsFlexibleGridLength(itemHeight)) starTotal += itemHeight.Value;
+                    else if (IsFixedGridLength(itemHeight)) fixedTotal += itemHeight.Value;
+                }
+
+                double available = grid.ActualHeight() - fixedTotal;
+                if (available < 0.0) available = 0.0;
+                if (starTotal <= 0.0) return rowDefinition.ActualHeight();
+                return available * (height.Value / starTotal);
+            }
+
+            return rowDefinition.ActualHeight();
+        }
+
+        GridLength MakeGridLength(Grid const& grid, int index, bool isHorizontal, double pixels)
+        {
+            GridUnitType unitType = GridUnitType::Pixel;
+
+            if (isHorizontal) {
+                unitType = grid.ColumnDefinitions().GetAt(index).Width().GridUnitType;
+            }
+            else {
+                unitType = grid.RowDefinitions().GetAt(index).Height().GridUnitType;
+            }
+
+            if (unitType == GridUnitType::Star) {
+                return GridLengthHelper::FromValueAndType(pixels, GridUnitType::Star);
+            }
+            return GridLengthHelper::FromPixels(pixels);
+        }
+
+        void ApplySplitterVisual(Shapes::Rectangle const& line, SolidColorBrush const& brush, bool active, bool isHorizontal)
+        {
+            if (!line || !brush) return;
+
+            brush.Color(active ? SplitterActiveColor() : SplitterRestColor());
+
+            double thickness = active ? kSplitterActiveThickness : kSplitterRestThickness;
+            if (isHorizontal) {
+                line.Width(thickness);
+            }
+            else {
+                line.Height(thickness);
+            }
+
+            double radius = active ? kSplitterActiveCornerRadius : 0.0;
+            line.RadiusX(radius);
+            line.RadiusY(radius);
+        }
+
+    }
+
+    void EnsureHeaderSplitters(
+        winrt::Microsoft::UI::Xaml::Controls::Grid const& headerGrid,
+        bool isHorizontal,
+        double minColumnWidth)
+    {
+        if (!headerGrid) return;
+
+        auto columns = headerGrid.ColumnDefinitions();
+        if (columns.Size() < 2) return;
+
+        // 双击复位用的初始列宽（整表头一份）。
+        std::vector<GridLength> initialLengths;
+        initialLengths.reserve(columns.Size());
+        for (auto const& column : columns) {
+            initialLengths.push_back(column.Width());
+        }
+        auto sharedInitial = std::make_shared<std::vector<GridLength>>(std::move(initialLengths));
+
+        for (uint32_t index = 0; index + 1 < columns.Size(); ++index) {
+            // 命中区：宽（或高）9px 的透明 Grid，骑在列/行边界上。
+            Grid splitter;
+            splitter.Background(SolidColorBrush(Windows::UI::Colors::Transparent()));
+            Canvas::SetZIndex(splitter, kSplitterZIndex);
+
+            if (isHorizontal) {
+                splitter.Width(9);
+                splitter.Margin(ThicknessHelper::FromLengths(0, 0, -5, 0));
+                splitter.HorizontalAlignment(HorizontalAlignment::Right);
+                splitter.VerticalAlignment(VerticalAlignment::Stretch);
+            }
+            else {
+                splitter.Height(9);
+                splitter.Margin(ThicknessHelper::FromLengths(0, 0, 0, -5));
+                splitter.HorizontalAlignment(HorizontalAlignment::Stretch);
+                splitter.VerticalAlignment(VerticalAlignment::Bottom);
+            }
+
+            // 可见部分：静止 1px 的分隔线，悬停/拖拽时加宽并变为强调色。
+            Shapes::Rectangle line;
+            SolidColorBrush lineBrush;
+            lineBrush.Color(SplitterRestColor());
+            line.Fill(lineBrush);
+            line.IsHitTestVisible(false);
+
+            if (isHorizontal) {
+                line.Width(kSplitterRestThickness);
+                line.HorizontalAlignment(HorizontalAlignment::Center);
+                line.VerticalAlignment(VerticalAlignment::Stretch);
+            }
+            else {
+                line.Height(kSplitterRestThickness);
+                line.HorizontalAlignment(HorizontalAlignment::Stretch);
+                line.VerticalAlignment(VerticalAlignment::Center);
+            }
+
+            splitter.Children().Append(line);
+
+            auto dragState = std::make_shared<bool>(false);
+            auto hoverState = std::make_shared<bool>(false);
+            auto previousIndex = std::make_shared<int>(-1);
+            auto nextIndex = std::make_shared<int>(-1);
+            auto startLengths = std::make_shared<std::array<double, 2>>(std::array<double, 2>{ 0.0, 0.0 });
+            auto dragStart = std::make_shared<double>(0.0);
+
+            auto applyVisual = [line, lineBrush, isHorizontal, hoverState, dragState]() {
+                ApplySplitterVisual(line, lineBrush, *hoverState || *dragState, isHorizontal);
+            };
+            applyVisual();
+
+            splitter.PointerEntered([hoverState, applyVisual, splitter, isHorizontal](IInspectable const&, PointerRoutedEventArgs const&) {
+                *hoverState = true;
+                applyVisual();
+            });
+
+            splitter.PointerExited([hoverState, dragState, applyVisual, splitter, isHorizontal](IInspectable const&, PointerRoutedEventArgs const&) {
+                *hoverState = false;
+                if (*dragState) return;
+                applyVisual();
+            });
+
+            splitter.PointerPressed([headerGrid, index, isHorizontal, dragState, previousIndex, nextIndex, startLengths, dragStart, applyVisual, splitter](IInspectable const&, PointerRoutedEventArgs const& e) {
+                if (*dragState) return;
+
+                int count = isHorizontal ? (int)headerGrid.ColumnDefinitions().Size() : (int)headerGrid.RowDefinitions().Size();
+                if (index < 0 || (int)index >= count) return;
+
+                int current = (int)index;
+                int next = current + 1;
+                if (next >= count) {
+                    current = (int)index - 1;
+                    next = (int)index;
+                }
+                if (current < 0 || next >= count) return;
+
+                *previousIndex = current;
+                *nextIndex = next;
+                (*startLengths)[0] = PixelLengthOf(headerGrid, current, isHorizontal);
+                (*startLengths)[1] = PixelLengthOf(headerGrid, next, isHorizontal);
+
+                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position();
+                *dragStart = isHorizontal ? point.X : point.Y;
+                *dragState = true;
+
+                applyVisual();
+                splitter.CapturePointer(e.Pointer());
+                e.Handled(true);
+            });
+
+            splitter.PointerMoved([headerGrid, isHorizontal, dragState, previousIndex, nextIndex, startLengths, dragStart, minColumnWidth](IInspectable const&, PointerRoutedEventArgs const& e) {
+                if (!*dragState) return;
+
+                int count = isHorizontal ? (int)headerGrid.ColumnDefinitions().Size() : (int)headerGrid.RowDefinitions().Size();
+                if (*previousIndex < 0 || *nextIndex >= count) { *dragState = false; return; }
+
+                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position();
+                double position = isHorizontal ? point.X : point.Y;
+                double delta = position - *dragStart;
+                if (std::abs(delta) < kSplitterDragTolerance) { e.Handled(true); return; }
+
+                GridLength previousLength = isHorizontal
+                    ? headerGrid.ColumnDefinitions().GetAt(*previousIndex).Width()
+                    : headerGrid.RowDefinitions().GetAt(*previousIndex).Height();
+                GridLength nextLength = isHorizontal
+                    ? headerGrid.ColumnDefinitions().GetAt(*nextIndex).Width()
+                    : headerGrid.RowDefinitions().GetAt(*nextIndex).Height();
+
+                double previousPixels = (*startLengths)[0] + delta;
+                double nextPixels = (*startLengths)[1] - delta;
+
+                if (IsFixedGridLength(previousLength) || IsFixedGridLength(nextLength)) {
+                    if (previousPixels < minColumnWidth || nextPixels < minColumnWidth) return;
+                }
+                else if (previousPixels < 0.0 || nextPixels < 0.0) {
+                    return;
+                }
+
+                GridLength newPrevious = MakeGridLength(headerGrid, *previousIndex, isHorizontal, previousPixels);
+                GridLength newNext = MakeGridLength(headerGrid, *nextIndex, isHorizontal, nextPixels);
+
+                if (isHorizontal) {
+                    headerGrid.ColumnDefinitions().GetAt(*previousIndex).Width(newPrevious);
+                    headerGrid.ColumnDefinitions().GetAt(*nextIndex).Width(newNext);
+                }
+                else {
+                    headerGrid.RowDefinitions().GetAt(*previousIndex).Height(newPrevious);
+                    headerGrid.RowDefinitions().GetAt(*nextIndex).Height(newNext);
+                }
+
+                e.Handled(true);
+            });
+
+            splitter.PointerReleased([dragState, previousIndex, nextIndex, applyVisual, splitter, isHorizontal](IInspectable const&, PointerRoutedEventArgs const& e) {
+                if (!*dragState) return;
+
+                splitter.ReleasePointerCapture(e.Pointer());
+                *dragState = false;
+                *previousIndex = -1;
+                *nextIndex = -1;
+                applyVisual();
+                e.Handled(true);
+            });
+
+            splitter.PointerCaptureLost([dragState, previousIndex, nextIndex, applyVisual](IInspectable const&, PointerRoutedEventArgs const&) {
+                *dragState = false;
+                *previousIndex = -1;
+                *nextIndex = -1;
+                applyVisual();
+            });
+
+            splitter.DoubleTapped([headerGrid, sharedInitial, isHorizontal](IInspectable const&, DoubleTappedRoutedEventArgs const& e) {
+                auto definitions = headerGrid.ColumnDefinitions();
+                auto count = std::min<uint32_t>((uint32_t)sharedInitial->size(), definitions.Size());
+                for (uint32_t column = 0; column < count; ++column) {
+                    definitions.GetAt(column).Width(sharedInitial->at(column));
+                }
+                e.Handled(true);
+            });
+
+            Grid::SetColumn(splitter, index);
+            headerGrid.Children().Append(splitter);
         }
     }
 }

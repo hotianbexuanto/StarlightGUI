@@ -191,9 +191,6 @@
       <DependentUpon>InjectDLLDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="GridSplitter.h">
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="KernelModulePage.xaml.h">
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -387,9 +384,6 @@
       <DependentUpon>InjectDLLDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="GridSplitter.cpp">
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="KernelModulePage.xaml.cpp">
       <DependentUpon>KernelModulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -507,9 +501,6 @@
     </Midl>
     <Midl Include="InjectDLLDialog.idl">
       <DependentUpon>InjectDLLDialog.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Midl>
-    <Midl Include="GridSplitter.idl">
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="KernelModulePage.idl">

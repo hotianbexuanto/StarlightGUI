@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "TaskPage.xaml.h"
 #if __has_include("TaskPage.g.cpp")
 #include "TaskPage.g.cpp"
@@ -75,6 +75,7 @@ namespace winrt::StarlightGUI::implementation
         SetupLocalization();
 
         ProcessListView().ItemsSource(m_processList);
+        slg::EnsureHeaderSplitters(HeaderColumnsGrid());
         HeaderColumnsGrid().LayoutUpdated([weak = get_weak()](auto&&, auto&&) {
             if (auto self = weak.get()) {
                 slg::SyncListViewColumnWidths(self->HeaderColumnsGrid(), self->BodyColumnsGrid(), self->ProcessListView(), 1);

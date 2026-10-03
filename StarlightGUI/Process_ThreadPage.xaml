@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:essential="using:WinUI3Package"
     xmlns:local="using:StarlightGUI"
-    xmlns:control="using:StarlightGUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Background="{StaticResource WindowBackgroundBrush}"
     NavigationCacheMode="Enabled"
@@ -132,68 +131,7 @@
                         BorderThickness="1,0,0,0"
                         Content="PreviousMode"
                         CornerRadius="0" />
-                    <control:GridSplitter
-                        Grid.Column="0"
-                        Width="9"
-                        Margin="0,0,-5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Stretch"
-                        Background="Transparent"
-                        Opacity="0"
-                        ResizeBehavior="BasedOnAlignment"
-                        ResizeDirection="Columns" />
-                    <control:GridSplitter
-                        Grid.Column="1"
-                        Width="9"
-                        Margin="0,0,-5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Stretch"
-                        Background="Transparent"
-                        Opacity="0"
-                        ResizeBehavior="BasedOnAlignment"
-                        ResizeDirection="Columns" />
-                    <control:GridSplitter
-                        Grid.Column="2"
-                        Width="9"
-                        Margin="0,0,-5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Stretch"
-                        Background="Transparent"
-                        Opacity="0"
-                        ResizeBehavior="BasedOnAlignment"
-                        ResizeDirection="Columns" />
-                    <control:GridSplitter
-                        Grid.Column="3"
-                        Width="9"
-                        Margin="0,0,-5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Stretch"
-                        Background="Transparent"
-                        Opacity="0"
-                        ResizeBehavior="BasedOnAlignment"
-                        ResizeDirection="Columns" />
-                    <control:GridSplitter
-                        Grid.Column="4"
-                        Width="9"
-                        Margin="0,0,-5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Stretch"
-                        Background="Transparent"
-                        Opacity="0"
-                        ResizeBehavior="BasedOnAlignment"
-                        ResizeDirection="Columns" />
-                    <control:GridSplitter
-                        Grid.Column="5"
-                        Width="9"
-                        Margin="0,0,-5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Stretch"
-                        Background="Transparent"
-                        Opacity="0"
-                        ResizeBehavior="BasedOnAlignment"
-                        ResizeDirection="Columns" />
-
-                </Grid>
+                    </Grid>
             </Border>
 
             <Border
@@ -360,6 +298,4 @@
             HorizontalAlignment="Right" />
     </Grid>
 </Page>
-
-
 

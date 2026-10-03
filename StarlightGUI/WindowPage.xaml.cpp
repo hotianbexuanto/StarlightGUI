@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "WindowPage.xaml.h"
 #if __has_include("WindowPage.g.cpp")
 #include "WindowPage.g.cpp"
@@ -77,6 +77,7 @@ namespace winrt::StarlightGUI::implementation
         WindowListView().ItemsSource(m_windowList);
         WindowListView().ItemContainerTransitions().Clear();
         WindowListView().ItemContainerTransitions().Append(EntranceThemeTransition());
+        slg::EnsureHeaderSplitters(HeaderColumnsGrid());
         HeaderColumnsGrid().LayoutUpdated([weak = get_weak()](auto&&, auto&&) {
             if (auto self = weak.get()) {
                 slg::SyncListViewColumnWidths(self->HeaderColumnsGrid(), self->BodyColumnsGrid(), self->WindowListView(), 1);

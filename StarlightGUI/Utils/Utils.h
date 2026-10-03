@@ -2,7 +2,9 @@
 
 #include "Coroutine.h"
 #include <Windows.h>
+#include <array>
 #include <exception>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -126,6 +128,15 @@ namespace slg {
         winrt::Microsoft::UI::Xaml::Controls::ListView const& listView,
         uint32_t rowOffset = 0,
         double epsilon = 0.5);
+
+    // 在表头 Grid 的每条列边界上放一个原生分隔条：静止为 1px 细分隔线，
+    // 悬停/拖拽时加宽并变为强调色，双击把表头列宽复位为初次布局。
+    // 拖拽只改表头列的 GridLength，数据行由 SyncListViewColumnWidths 链路跟随
+    // （与 TransferThemeResources 同一套“原生控件 + 代码装配”的做法）。
+    void EnsureHeaderSplitters(
+        winrt::Microsoft::UI::Xaml::Controls::Grid const& headerGrid,
+        bool isHorizontal = true,
+        double minColumnWidth = 48.0);
 
     template <typename T>
     T FindParent(winrt::Microsoft::UI::Xaml::DependencyObject const& child)
