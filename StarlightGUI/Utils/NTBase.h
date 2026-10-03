@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Windows.h>
 
@@ -71,8 +71,9 @@ namespace nt {
 	// ntdll.lib 是静态导入，一旦程序里直接调用这些函数，旧系统就会在**启动时**
 	// 因“无法定位程序输入点”而直接失败。这里改为运行时 GetProcAddress：
 	// 取不到就返回 STATUS_PROCEDURE_NOT_FOUND（0xC0000139），由调用方正常报错。
+	// 注意：GetProcAddress 只接受 ANSI 名字（LPCSTR），所以这里收 char const*。
 	template <typename TFunction>
-	TFunction Resolve(wchar_t const* name) noexcept
+	TFunction Resolve(char const* name) noexcept
 	{
 		static TFunction cached = nullptr;
 		if (!cached) {
@@ -90,19 +91,19 @@ namespace nt {
 
 	inline LONG OpenSession(PHANDLE handle, ACCESS_MASK access, POBJECT_ATTRIBUTES attributes) noexcept
 	{
-		auto function = Resolve<NtOpenSessionFn>(L"NtOpenSession");
+		auto function = Resolve<NtOpenSessionFn>("NtOpenSession");
 		return function ? function(handle, access, attributes) : static_cast<LONG>(0xC0000139L);
 	}
 
 	inline LONG OpenCpuPartition(PHANDLE handle, ACCESS_MASK access, POBJECT_ATTRIBUTES attributes) noexcept
 	{
-		auto function = Resolve<NtOpenCpuPartitionFn>(L"NtOpenCpuPartition");
+		auto function = Resolve<NtOpenCpuPartitionFn>("NtOpenCpuPartition");
 		return function ? function(handle, access, attributes) : static_cast<LONG>(0xC0000139L);
 	}
 
 	inline LONG OpenPartition(PHANDLE handle, ACCESS_MASK access, POBJECT_ATTRIBUTES attributes) noexcept
 	{
-		auto function = Resolve<NtOpenPartitionFn>(L"NtOpenPartition");
+		auto function = Resolve<NtOpenPartitionFn>("NtOpenPartition");
 		return function ? function(handle, access, attributes) : static_cast<LONG>(0xC0000139L);
 	}
 }
