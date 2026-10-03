@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "Utils.h"
 #include "Config.h"
 #include "MainWindow.xaml.h"
@@ -682,7 +682,7 @@ namespace slg {
             return GridLengthHelper::FromPixels(pixels);
         }
 
-        void ApplySplitterVisual(Shapes::Rectangle const& line, SolidColorBrush const& brush, bool active, bool isHorizontal)
+        void ApplySplitterVisual(Border const& line, SolidColorBrush const& brush, bool active, bool isHorizontal)
         {
             if (!line || !brush) return;
 
@@ -697,8 +697,7 @@ namespace slg {
             }
 
             double radius = active ? kSplitterActiveCornerRadius : 0.0;
-            line.RadiusX(radius);
-            line.RadiusY(radius);
+            line.CornerRadius(Windows::UI::Xaml::CornerRadius{ radius, radius, radius, radius });
         }
 
     }
@@ -741,10 +740,10 @@ namespace slg {
             }
 
             // 可见部分：静止 1px 的分隔线，悬停/拖拽时加宽并变为强调色。
-            Shapes::Rectangle line;
+            Border line;
             SolidColorBrush lineBrush;
             lineBrush.Color(SplitterRestColor());
-            line.Fill(lineBrush);
+            line.Background(lineBrush);
             line.IsHitTestVisible(false);
 
             if (isHorizontal) {
@@ -802,7 +801,7 @@ namespace slg {
                 (*startLengths)[0] = PixelLengthOf(headerGrid, current, isHorizontal);
                 (*startLengths)[1] = PixelLengthOf(headerGrid, next, isHorizontal);
 
-                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position();
+                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position().as<Windows::Foundation::Point>();
                 *dragStart = isHorizontal ? point.X : point.Y;
                 *dragState = true;
 
@@ -817,7 +816,7 @@ namespace slg {
                 int count = isHorizontal ? (int)headerGrid.ColumnDefinitions().Size() : (int)headerGrid.RowDefinitions().Size();
                 if (*previousIndex < 0 || *nextIndex >= count) { *dragState = false; return; }
 
-                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position();
+                Windows::Foundation::Point point = e.GetCurrentPoint(headerGrid).Position().as<Windows::Foundation::Point>();
                 double position = isHorizontal ? point.X : point.Y;
                 double delta = position - *dragStart;
                 if (std::abs(delta) < kSplitterDragTolerance) { e.Handled(true); return; }
